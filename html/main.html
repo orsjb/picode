@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title>Dynamic Pi Master Server</title>
+	<meta name="Author" content="Sam Johnson">
+	<meta http-equiv="Content-type" content="text/html;charset=UTF-8">
+	<link rel="stylesheet" href="cssjs/global.css">
+    <script src="/socket.io/socket.io.js"></script>
+</head>
+
+<body>
+    <div id="PageContainer">
+        <header>
+            <h1>Dynamic Pi Master Server Control Panel</h1>
+        </header>
+        
+        <div id="PageContentContainer">
+            <!-- It's semantically correct!! :) -->
+            <table>
+                <thead>
+                    <tr>
+                        <td id="name">Name</td>
+                        <td id="id">ID</td>
+                        <td id="ip">IP Address</td>
+                        <td id="mac">MAC Address</td>
+                        <td id="status">Connection Status</td>
+                    </tr>
+                </thead>
+                <tbody>
+                    &nbsp;
+                </tbody>
+            </table>
+        </div>
+        
+        <footer>
+            &nbsp;
+        </footer>
+    </div>
+
+    <script type="text/javascript">
+        function select(query)
+        {
+            return document.querySelector(query);
+        }
+
+    	document.addEventListener('DOMContentLoaded',
+    		function()
+    		{
+    			var socket = io.connect('http://localhost:8080');
+
+                socket.on('remove',
+                    function(data)
+                    {
+                        select('#PageContentContainer > table tbody').removeChild(select('#Client' + data.toString()));
+                    });
+
+                socket.on('add',
+                    function(data)
+                    {
+                        var row = document.createElement('tr');
+                        row.setAttribute('id', 'Client' + data[1].id.toString());
+
+                        var name = document.createElement('td');
+                        var id = document.createElement('td');
+                        var ip = document.createElement('td');
+                        var mac = document.createElement('td');
+                        var status = document.createElement('td');
+
+                        //http://stackoverflow.com/questions/3068534/getting-javascript-object-key-list
+                        name.innerHTML = data[1].name;
+                        id.innerHTML = data[1].id;
+                        ip.innerHTML = data[1].addr;
+                        mac.innerHTML = data[0];
+                        status.innerHTML = 'good';
+                        status.setAttribute('class', 'good');
+
+                        row.appendChild(name);
+                        row.appendChild(id);
+                        row.appendChild(ip);
+                        row.appendChild(mac);
+                        row.appendChild(status);
+
+                        select('#PageContentContainer > table tbody').appendChild(row);
+                    });
+                    
+                    
+               socket.on('update', 
+               		function(clients) 
+               		{
+               		
+               		
+               			select('#PageContentContainer > table tbody').innerHTML = '';
+               			
+               			for (var mac in clients)
+               			{
+               				var row = document.createElement('tr');
+                        	row.setAttribute('id', 'Client' + clients[mac].id.toString());
+
+                        	var name = document.createElement('td');
+                        	var id = document.createElement('td');
+                        	var ip = document.createElement('td');
+                        	var macElement = document.createElement('td');
+                        	var status = document.createElement('td');
+
+                        	//http://stackoverflow.com/questions/3068534/getting-javascript-object-key-list
+                        	name.innerHTML = clients[mac].name;
+                        	id.innerHTML = clients[mac].id;
+                        	ip.innerHTML = clients[mac].addr;
+                        	macElement.innerHTML = mac;
+                        	status.innerHTML = clients[mac].status;
+                        	status.setAttribute('class', clients[mac].status);
+
+                        	row.appendChild(name);
+                        	row.appendChild(id);
+                        	row.appendChild(ip);
+                        	row.appendChild(macElement);
+                        	row.appendChild(status);
+
+                        	select('#PageContentContainer > table tbody').appendChild(row);
+               			}
+               		});
+               		
+               		
+                    
+
+                socket.on('good',
+                    function(data)
+                    {
+                        var cell = select('#PageContentContainer > table tbody #Client' + data.toString() + ' td:last-child')
+                        cell.innerHTML = 'good';
+                        cell.setAttribute('class', 'good');
+                    });
+
+
+                socket.on('bad',
+                    function(data)
+                    {
+                        var cell = select('#PageContentContainer > table tbody #Client' + data.toString() + ' td:last-child')
+                        cell.innerHTML = 'bad';
+                        cell.setAttribute('class', 'bad');
+                    });
+    		}, false);
+    </script>
+</body>
+
+</html>
