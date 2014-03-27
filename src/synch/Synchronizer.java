@@ -1,51 +1,92 @@
 package synch;
 
+import java.io.IOException;
+import java.net.DatagramPacket;
 import java.net.Inet4Address;
 import java.net.InetAddress;
-import java.net.InetSocketAddress;
+import java.net.MulticastSocket;
 import java.net.NetworkInterface;
-import java.net.SocketAddress;
 import java.net.SocketException;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
-import java.util.Hashtable;
-import java.util.Map;
 
-import de.sciss.net.OSCListener;
-import de.sciss.net.OSCMessage;
-import de.sciss.net.OSCServer;
-
-public class Synchronizer implements OSCListener {
+public class Synchronizer {
 
 	/*
 	 * A tool for each Raspberry PI to work out its current synch with respect to all other PIs.
 	 * We keep this independent of the audio system because the audio system start-time needs to be synched.
+	 * 
+	 * Each synchronizer sends regular pulses every second with the syntax:
+	 * s <MAC1> <timeMS>
+	 * 
+	 * An s means send. Upon receiving an s, each synchronizer also responds with
+	 * r <MAC1> <timeMS> <MAC2> <timeMS>
 	 */
 	
-	String uid; //how to uniquely identify this machine
-	String uidOfLeader;
+	String myMAC; //how to uniquely identify this machine
 	String myIP;
-	String broadcastAddr;
-	OSCServer sender; //the OSC element that sends blips
-	boolean broadcasting = false;
-	int port = 3323;
-	long delayTimeMS = 1000;
-	long timeOfLastTick = -1;
-	Map<String, Long> currentTickTimes = new Hashtable<String, Long>();
+	MulticastSocket broadcastSocket;
+	String multicastGroup = "225.2.2.5";
+	int multicastPort = 2225;
+
+	boolean on = true;
+	boolean verbose = true;
 	
 	public Synchronizer() {
 		try {
+			//basic init => find out my mac address and IP address
 			getMyMACAddressAndIPAddress();
-			//next start broadcasting once every second, just broadcast your own name
-			//also listen
-			sender = OSCServer.newUsing(OSCServer.UDP, port);
-			sender.addOSCListener(this);
-			sender.start();
-			startBroadcast();
+			//start listening
+			setupListener();
+			//setup sender
+			broadcastSocket = new MulticastSocket();
+			//start sending
+			startSending();
 		} catch(Exception e) {
 			e.printStackTrace();
 		}
+	}
+	
+	private void setupListener() throws IOException {
+		final MulticastSocket s = new MulticastSocket(multicastPort);
+		s.joinGroup(InetAddress.getByName(multicastGroup));
+		//start a listener thread
+		Thread t = new Thread() {
+			public void run() {
+				while(on) {
+					try {
+						byte[] buf = new byte[1024];
+						DatagramPacket pack = new DatagramPacket(buf, buf.length);
+						s.receive(pack);
+						String response = new String(buf);
+						if(verbose) System.out.println("Received data: " + response);
+						messageReceived(response);
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				}
+				s.close();
+			}
+		};
+		t.start();
+	}
+	
+	private void startSending() {
+		Thread t = new Thread() {
+			public void run() {
+				while(on) {
+					broadcast("s " + myMAC + " " + System.currentTimeMillis());
+				}
+			}
+		};
+		t.start();
+	}
+	
+	public void close() {
+		on = false;
+		broadcastSocket.close();
 	}
 	
 	private void getMyMACAddressAndIPAddress() throws SocketException {
@@ -64,14 +105,14 @@ public class Synchronizer implements OSCListener {
 	        }
 	      }
 	      if(lStringBuffer.length() > 0) {
-		      System.out.print("Interface: " + nif.getDisplayName());
-		      System.out.println(" (MAC=" + lStringBuffer + ")");
+	    	  if(verbose) System.out.print("Interface: " + nif.getDisplayName());
+	    	  if(verbose) System.out.println(" (MAC=" + lStringBuffer + ")");
 	    	  macs.add(lStringBuffer.toString());
 		      Enumeration<InetAddress> inetAddresses = nif.getInetAddresses();
 		      for (InetAddress inetAddress : Collections.list(inetAddresses)) {
 		    	  if(inetAddress instanceof Inet4Address) {
 		    		  ips.add(inetAddress.getHostAddress());
-		    		  System.out.println(" -- InetAddress: " + inetAddress.getHostAddress());
+		    		  if(verbose) System.out.println(" -- InetAddress: " + inetAddress.getHostAddress());
 		    	  }
 		    	  
 		      }
@@ -80,64 +121,54 @@ public class Synchronizer implements OSCListener {
 		//our assumption is that the relevant hardware address (wifi) is the first in list
 		//but we'd prefer to do better than this
 		//but it doesn't really matter because this is just to identify the unit
-		uid = macs.get(0);
-		uidOfLeader = uid;
+		myMAC = macs.get(0);
 		myIP = ips.get(0);
-		String[] ipParts = myIP.split("[.]");
-		broadcastAddr = ipParts[0] + "." + ipParts[1] + "." + ipParts[2] + "." + "255";
-		System.out.println("My IP address: " + myIP);
-		System.out.println("My broadcast address: " + broadcastAddr);
+		if(verbose) System.out.println("My IP address: " + myIP);
 	}
 	
-	public void startBroadcast() {
-		if(broadcasting) return;
-		broadcasting = true;
-		new Thread() {
-			public void run() {
-				while(broadcasting) {
-					try {
-						sender.send(new OSCMessage(uid), new InetSocketAddress(broadcastAddr, port));
-						timeOfLastTick = System.currentTimeMillis();
-						
-						//TODO plan next delay time
-						
-						Thread.sleep(delayTimeMS);
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
-				}
+	public void messageReceived(String msg) {
+		String[] parts = msg.split("[ ]");
+		if(parts[0].equals("s")) {
+			//an original send message
+			//respond if you were not the sender
+			if(!parts[1].equals(myMAC)) {
+				broadcast("r " + parts[1] + " " + parts[2] + " " + myMAC + " " + System.currentTimeMillis());
 			}
-		}.start();
+		} else if(parts[0].equals("r")) {
+			//a response message
+			//respond only if you WERE the sender
+			if(parts[1].equals(myMAC)) {
+				//find out how long the return trip was
+				long timeOriginallySent = Long.parseLong(parts[2]);
+				long timeReturnSent = Long.parseLong(parts[4]);
+				long currentTime = System.currentTimeMillis();
+				long returnTripTime = currentTime - timeOriginallySent;
+				long timeDiff = (currentTime - (returnTripTime / 2)) - timeReturnSent;	//+ve if this unit is ahead of other unit
+				if(verbose) System.out.println("Return trip from " + myMAC + " to " + parts[3] + " took " + returnTripTime);
+				if(verbose) System.out.println("This machine (" + myMAC + ") is " + (timeDiff > 0 ? "ahead" : "behind") + " of " + parts[3] + " by " + Math.abs(timeDiff));
+				
+			}
+		}
 	}
 	
-	public void stopBroadcast() {
-		broadcasting = false;
+	private void broadcast(String s) {
+		byte buf[] = s.getBytes();
+		// Create a DatagramPacket 
+		DatagramPacket pack = null;
+		try {
+			pack = new DatagramPacket(buf, buf.length, InetAddress.getByName(multicastGroup), multicastPort);
+		} catch (UnknownHostException e) {
+			e.printStackTrace();
+		} 
+		try {
+			broadcastSocket.send(pack);
+		} catch (IOException e) {
+			e.printStackTrace();
+		} 
 	}
-
-	@Override
-	public void messageReceived(OSCMessage msg, SocketAddress arg1, long arg2) {
-		String sourceUID = msg.getName();
-		if(sourceUID.equals(uid)) {
-			System.out.println("Received selfie.");
-			return;
-		}
-		System.out.println("Ext message received: " +  sourceUID);
-		//store the time of the incoming
-		currentTickTimes.put(sourceUID, System.currentTimeMillis());
-		//see if the sender can be classed as leader 
-		//(if their uid is lexographically earlier, that.compareTo(this)<0 )
-		if(sourceUID.compareTo(uidOfLeader) < 0) {
-			uidOfLeader = sourceUID;					//TODO what if leader stops sending?
-		}
-		
-		
-	}
-	
 	
 	public static void main(String[] args) {
 		new Synchronizer();
 	}
-	
-	
 	
 }

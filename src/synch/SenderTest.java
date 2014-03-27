@@ -10,7 +10,6 @@ public class SenderTest {
 	public static void main(String[] args) throws IOException {
 		MulticastSocket s = new MulticastSocket();
 		byte buf[] = "This is my message!".getBytes();
-		for (int i=0; i<buf.length; i++) buf[i] = (byte)i;
 		// Create a DatagramPacket 
 		DatagramPacket pack = new DatagramPacket(buf, buf.length, InetAddress.getByName("225.2.2.5"), 2225); 
 		s.send(pack); 
