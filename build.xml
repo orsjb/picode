@@ -13,6 +13,7 @@
 	Compile everything down to one jar.
 	 -->
 	<target name ="makejar" description="Create a jar for the picode project">
+	    <mkdir dir="${build}" />
 		<jar jarfile="${build}/picode.jar" includes="**/**.class" basedir="bin"/>
 	</target>
   
