@@ -155,8 +155,8 @@ public class Synchronizer {
 				long currentTime = System.currentTimeMillis();
 				long returnTripTime = currentTime - timeOriginallySent;
 				long timeDiff = (currentTime - (returnTripTime / 2)) - timeReturnSent;	//+ve if this unit is ahead of other unit
-				if(verbose) System.out.println("Return trip from " + myMAC + " to " + parts[3] + " took " + returnTripTime);
-				if(verbose) System.out.println("This machine (" + myMAC + ") is " + (timeDiff > 0 ? "ahead" : "behind") + " of " + parts[3] + " by " + Math.abs(timeDiff));
+				if(verbose) System.out.println("Return trip from " + myMAC + " to " + parts[3] + " took " + returnTripTime + "ms");
+				if(verbose) System.out.println("This machine (" + myMAC + ") is " + (timeDiff > 0 ? "ahead of" : "behind") + " " + parts[3] + " by " + Math.abs(timeDiff) + "ms");
 				
 			}
 		}
