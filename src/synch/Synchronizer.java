@@ -20,16 +20,16 @@ public class Synchronizer implements OSCListener {
 
 	/*
 	 * A tool for each Raspberry PI to work out its current synch with respect to all other PIs.
-	 * We keep this independent of the audio system because it is too hard.
+	 * We keep this independent of the audio system because the audio system start-time needs to be synched.
 	 */
 	
 	String uid; //how to uniquely identify this machine
 	String uidOfLeader;
 	String myIP;
+	String broadcastAddr;
 	OSCServer sender; //the OSC element that sends blips
 	boolean broadcasting = false;
 	int port = 3323;
-	String broadcastAddr = "";
 	long delayTimeMS = 1000;
 	long timeOfLastTick = -1;
 	Map<String, Long> currentTickTimes = new Hashtable<String, Long>();
