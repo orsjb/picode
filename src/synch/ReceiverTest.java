@@ -8,7 +8,7 @@ import java.net.MulticastSocket;
 public class ReceiverTest {
 
 	public static void main(String[] args) throws IOException {
-		MulticastSocket s = new MulticastSocket(5000);
+		MulticastSocket s = new MulticastSocket(2225);
 		System.out.println("Created socket");
 		s.joinGroup(InetAddress.getByName("225.2.2.5"));
 		System.out.println("Joined group");
