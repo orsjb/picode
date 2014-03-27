@@ -1,3 +1,4 @@
 #!/bin/bash
 
-java -cp ~/git/picode/build/picode.jar dynamic.DynamoPI
+DIR=`dirname $0`
+java -cp ${DIR}/../build/picode.jar dynamic.DynamoPI
