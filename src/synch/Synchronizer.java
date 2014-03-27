@@ -78,6 +78,11 @@ public class Synchronizer {
 			public void run() {
 				while(on) {
 					broadcast("s " + myMAC + " " + System.currentTimeMillis());
+					try {
+						Thread.sleep(1000);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
 				}
 			}
 		};
