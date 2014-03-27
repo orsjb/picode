@@ -1,6 +1,7 @@
 package synch;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.DatagramPacket;
 import java.net.Inet4Address;
 import java.net.InetAddress;
@@ -8,6 +9,7 @@ import java.net.MulticastSocket;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.net.UnknownHostException;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -57,11 +59,11 @@ public class Synchronizer {
 			public void run() {
 				while(on) {
 					try {
-						byte[] buf = new byte[1024];
+						byte[] buf = new byte[512];
 						DatagramPacket pack = new DatagramPacket(buf, buf.length);
 						s.receive(pack);
-						String response = new String(buf);
-						if(verbose) System.out.println("Received data: " + response);
+						String response = new String(buf, "US-ASCII");
+						if(verbose) System.out.println("Received data: " + response + " (length=" + pack.getLength() + ")");
 						messageReceived(response);
 					} catch (IOException e) {
 						e.printStackTrace();
@@ -157,7 +159,13 @@ public class Synchronizer {
 	}
 	
 	private void broadcast(String s) {
-		byte buf[] = s.getBytes();
+		byte buf[] = null;
+		try {
+			buf = s.getBytes("US-ASCII");
+		} catch (UnsupportedEncodingException e1) {
+			e1.printStackTrace();
+		}
+		if(verbose) System.out.println("Sending message: " + s + " (length in bytes = " + buf.length + ")");
 		// Create a DatagramPacket 
 		DatagramPacket pack = null;
 		try {
