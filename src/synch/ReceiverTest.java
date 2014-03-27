@@ -10,7 +10,7 @@ public class ReceiverTest {
 	public static void main(String[] args) throws IOException {
 		MulticastSocket s = new MulticastSocket(5000);
 		System.out.println("Created socket");
-		s.joinGroup(InetAddress.getByName("225.4.5.6"));
+		s.joinGroup(InetAddress.getByName("225.2.2.5"));
 		System.out.println("Joined group");
 		byte buf[] = new byte[1024];
 		DatagramPacket pack = new DatagramPacket(buf, buf.length);

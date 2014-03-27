@@ -13,7 +13,7 @@ public class SenderTest {
 		for (int i=0; i<buf.length; i++) buf[i] = (byte)i;
 		// Create a DatagramPacket 
 		DatagramPacket pack = new DatagramPacket(buf, buf.length,
-							 InetAddress.getByName("225.4.5.6"), 5000);
+							 InetAddress.getByName("225.2.2.5"), 5000);
 		// Do a send. Note that send takes a byte for the ttl and not an int.
 		s.send(pack,(byte)1);
 		// And when we have finished sending data close the socket
