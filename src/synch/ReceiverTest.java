@@ -12,11 +12,12 @@ public class ReceiverTest {
 		System.out.println("Created socket");
 		s.joinGroup(InetAddress.getByName("225.2.2.5"));
 		System.out.println("Joined group");
-		byte buf[] = new byte[1024];
+		byte[] buf = new byte[1024];
 		DatagramPacket pack = new DatagramPacket(buf, buf.length);
 		s.receive(pack);
-		System.out.println("got data");
-		
+		String response = new String(buf);
+		System.out.println("got data: " + response);
+		s.close();
 	}
 	
 }
