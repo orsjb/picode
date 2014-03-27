@@ -2,4 +2,4 @@
 
 DIR=`dirname $0`
 cd ${DIR}/..
-java -cp build/picode.jar dynamic.DynamoPI
+/usr/bin/java -cp build/picode.jar dynamic.DynamoPI
