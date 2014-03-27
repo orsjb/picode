@@ -135,9 +135,13 @@ public class Synchronizer {
 	
 	public void messageReceived(String msg) {
 		String[] parts = msg.split("[ ]");
+		for(int i = 0; i < parts.length; i++) {
+			parts[i] = parts[i].trim();
+		}
 		if(parts[0].equals("s")) {
 			//an original send message
 			//respond if you were not the sender
+//			System.out.println("LOOK AT PART[2]: " + parts[2] + " [[ LENGTH = " + parts[2].length() + "]]");
 			if(!parts[1].equals(myMAC)) {
 				broadcast("r " + parts[1] + " " + parts[2] + " " + myMAC + " " + System.currentTimeMillis());
 			}
