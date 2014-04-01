@@ -4,8 +4,10 @@
 NEWHOST=`cat /sys/class/net/wlan0/address | sed s/://g`
 OLDHOST=`cat /etc/hostname`
 
+# correct format of hostname (pisound-<MAC>)
 NEWHOST=pisound-${NEWHOST}
 
+# reboot with correct hostname if required
 if [ "$NEWHOST" != "$OLDHOST" ] 
 then
 	echo $NEWHOST > hostname
@@ -13,6 +15,10 @@ then
 	sudo reboot
 fi
 
+# move to the correct dir for running java
 DIR=`dirname $0`
 cd ${DIR}/..
-/usr/bin/java -cp build/picode.jar dynamic.DynamoPI > stdout
+
+# choose what to run
+# /usr/bin/java -cp build/picode.jar dynamic.DynamoPI > stdout
+/usr/bin/java -cp build/picode.jar synch.Synchronizer > stdout
