@@ -236,7 +236,7 @@ public class Synchronizer {
 		} catch (UnsupportedEncodingException e1) {
 			e1.printStackTrace();
 		}
-		if(verbose) System.out.println("Sending message: " + s + " (length in bytes = " + buf.length + ")");
+		if(veryverbose) System.out.println("Sending message: " + s + " (length in bytes = " + buf.length + ")");
 		// Create a DatagramPacket 
 		DatagramPacket pack = null;
 		try {
