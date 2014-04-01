@@ -37,7 +37,7 @@ public class Synchronizer {
 	long timeCorrection;			//add this to current time to get the REAL current time
 
 	boolean on = true;
-	boolean verbose = true;
+	boolean verbose = false;
 	boolean veryverbose = false;
 	
 	Map<Long, Map<String, long[]>> log;		//first referenced by message send time, then by respodent's name, with the time the respondent replied and the current time
