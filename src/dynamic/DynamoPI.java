@@ -13,10 +13,14 @@ import net.beadsproject.beads.core.Bead;
 import net.beadsproject.beads.core.IOAudioFormat;
 import net.beadsproject.beads.core.UGen;
 import net.beadsproject.beads.core.io.JavaSoundAudioIO;
+import net.beadsproject.beads.data.Buffer;
+import net.beadsproject.beads.events.KillTrigger;
 import net.beadsproject.beads.ugens.Clock;
 import net.beadsproject.beads.ugens.Envelope;
+import net.beadsproject.beads.ugens.Gain;
 import net.beadsproject.beads.ugens.PolyLimit;
 import net.beadsproject.beads.ugens.Static;
+import net.beadsproject.beads.ugens.WavePlayer;
 import de.sciss.net.OSCServer;
 
 public class DynamoPI {
@@ -52,16 +56,15 @@ public class DynamoPI {
 	}
 	
 	public DynamoPI() throws IOException {
-		//Block until handshake with server is complete
-		System.out.println("Waiting for response from server...");
-		connectionClient = new ConnectionClient();
-		//Now begin sending alive messages in a separate thread
-		connectionClient.beginSendAlive();
+		
+		System.out.println("Launching DynamoPI!");
+		
 		//share
 		share = new Hashtable<String, Object>();
 		//rng
 		rng = new Random();
-		//audio
+		
+		//audio stuff
 		int bufSize = 8192;
 //		int bufSize = 4096;
 //		int bufSize = 512;
@@ -73,6 +76,29 @@ public class DynamoPI {
 		ac.out.addInput(pl);
 		ac.out.addDependent(clock);
 		ac.start();
+		
+		//TEMP: test code
+		
+		clock.addMessageListener(new Bead() {
+			public void messageReceived(Bead message) {
+				if(clock.isBeat()) {
+					WavePlayer wp = new WavePlayer(ac, 500 + rng.nextInt(100), Buffer.SINE);
+					Envelope e = new Envelope(ac, 1);
+					Gain g = new Gain(ac, 1, e);
+					g.addInput(wp);
+					ac.out.addInput(g);
+					e.addSegment(0, 1000, new KillTrigger(g));
+				}
+			}
+		});
+		
+
+		
+		//Block until handshake with server is complete
+		System.out.println("Waiting for response from server...");
+		connectionClient = new ConnectionClient();
+		//Now begin sending alive messages in a separate thread
+		connectionClient.beginSendAlive();
 		//socket server (listens to incoming classes)
 		DynamoClassLoader loader = new DynamoClassLoader(ClassLoader.getSystemClassLoader());
 		ServerSocket server = new ServerSocket(1234);

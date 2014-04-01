@@ -16,6 +16,8 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Map;
 
+import dynamic.DynamoPI;
+
 public class Synchronizer {
 
 	/*
@@ -37,6 +39,8 @@ public class Synchronizer {
 	long timeCorrection = 0;			//add this to current time to get the REAL current time
 	long stableTimeCorrection = 0;
 	int stabilityCount = 0;
+	
+	int count = 0;
 
 	boolean on = true;
 	boolean verbose = false;
@@ -80,9 +84,13 @@ public class Synchronizer {
 						//display
 						Date d = new Date(timeNow);
 						System.out.println("The time is: " + d.getHours() + ":" + d.getMinutes() + ":" + d.getSeconds() + " (short correction = " + timeCorrection + "ms, long correction = " + stableTimeCorrection + "ms)");
+						if(count == 3) {
+							launch();
+						}
+						count++;
 					}
 					try {
-						Thread.sleep(3);
+						Thread.sleep(4);
 					} catch (InterruptedException e) {
 						e.printStackTrace();
 					}
@@ -90,6 +98,14 @@ public class Synchronizer {
 			}
 		};
 		t.start();
+	}
+	
+	private void launch() {
+		try {
+			new DynamoPI();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	private void setupListener() throws IOException {
