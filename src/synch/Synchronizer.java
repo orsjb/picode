@@ -45,6 +45,7 @@ public class Synchronizer {
 	long stableTimeCorrection = 0;
 	long startTimeAbs;
 	int stabilityCount = 0;
+	boolean launched = false;
 
 	boolean on = true;
 	boolean verbose = false;
@@ -99,8 +100,9 @@ public class Synchronizer {
 						System.out.println("The time is: " + d.getHours() + ":" + d.getMinutes() + ":" + d.getSeconds() + " (short correction = " + timeCorrection + "ms, long correction = " + stableTimeCorrection + "ms)");
 						//launch after 30s
 						long correctedStartTime = startTimeAbs + timeCorrection + stableTimeCorrection;
-						if(timeNow - correctedStartTime > 30000) {
+						if(timeNow - correctedStartTime > 30000 && !launched) {
 							launch();
+							launched = true;
 						}
 						
 						
