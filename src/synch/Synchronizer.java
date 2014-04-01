@@ -11,9 +11,10 @@ import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 
@@ -41,8 +42,10 @@ public class Synchronizer {
 	boolean verbose = true;
 	boolean veryverbose = false;
 	
+	Map<Long, Map<String, long[]>> log;		//first referenced by message send time, then by respodent's name, with the time the respondent replied and the current time
 	
 	public Synchronizer() {
+		log = new Hashtable<Long, Map<String, long[]>>();
 		try {
 			//basic init => find out my mac address and IP address
 			getMyMACAddressAndIPAddress();
@@ -57,8 +60,12 @@ public class Synchronizer {
 		}
 	}
 	
-	public long timeNow() {
-		return System.currentTimeMillis() + timeCorrection;
+	public long localTimeNow() {
+		return System.currentTimeMillis();
+	}
+	
+	public long correctedTimeNow() {
+		return localTimeNow() + timeCorrection;
 	}
 	
 	private void setupListener() throws IOException {
@@ -89,9 +96,17 @@ public class Synchronizer {
 		Thread t = new Thread() {
 			public void run() {
 				while(on) {
-					broadcast("s " + myMAC + " " + timeNow());
+					broadcast("s " + myMAC + " " + localTimeNow() + " " + myMAC + " " + localTimeNow());	
+					//the last two components are just to ensure that send and return messages are same length to avoid network delays
 					try {
-						Thread.sleep(1000);
+						Thread.sleep(500 + (int)(100 * Math.random()));	//randomise send time to break network send patterns
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+					//now that all of the responses have come back...
+					calculateTimeCorrection();
+					try {
+						Thread.sleep(500 + (int)(100 * Math.random()));	//randomise send time to break network send patterns
 					} catch (InterruptedException e) {
 						e.printStackTrace();
 					}
@@ -104,6 +119,38 @@ public class Synchronizer {
 	public void close() {
 		on = false;
 		broadcastSocket.close();
+	}
+	
+	private void calculateTimeCorrection() {
+		for(Long sendTime : log.keySet()) {
+			Map<String, long[]> responses = log.get(sendTime);
+			for(String mac : responses.keySet()) {
+				long[] times = responses.get(mac);
+				long responderResponseTime = times[0];
+				long receiveTime = times[1];
+
+				///////////////////////////////////
+				//TODO - calculate time correction
+				///////////////////////////////////
+				
+				/*
+				 * Strategies?
+				 * 
+				 * 1)
+				 * Maintain the average network message time over many iterations.
+				 * Choose a leader.
+				 * Use the average network message time to work out how far behind leader you are.
+				 * 
+				 * 2)
+				 * Maintain an average network message time for each node pair.
+				 * 
+				 */
+				
+				
+			}	
+		}		
+		//finally, clear the log (for now - we might make the log last longer later)
+		log.clear();
 	}
 	
 	private void getMyMACAddressAndIPAddress() throws SocketException {
@@ -152,7 +199,7 @@ public class Synchronizer {
 			//an original send message
 			//respond if you were not the sender
 			if(!parts[1].equals(myMAC)) {
-				broadcast("r " + parts[1] + " " + parts[2] + " " + myMAC + " " + timeNow());
+				broadcast("r " + parts[1] + " " + parts[2] + " " + myMAC + " " + localTimeNow());
 			}
 		} else if(parts[0].equals("r")) {
 			//a response message
@@ -162,20 +209,24 @@ public class Synchronizer {
 				long timeOriginallySent = Long.parseLong(parts[2]);
 				String otherMAC = parts[3];
 				long timeReturnSent = Long.parseLong(parts[4]);
-				long currentTime = timeNow();
+				long currentTime = localTimeNow();
 				long returnTripTime = currentTime - timeOriginallySent;
 				long timeAheadOfOther = (currentTime - (returnTripTime / 2)) - timeReturnSent;	//+ve if this unit is ahead of other unit
-				
-				//correct your time to be that of the other's time
-				timeCorrection = -timeAheadOfOther;
-
-				
-				
+				log(timeOriginallySent, otherMAC, timeReturnSent, currentTime);
 				if(verbose) System.out.println("Return trip from " + myMAC + " to " + parts[3] + " took " + returnTripTime + "ms");
 				if(verbose) System.out.println("This machine (" + myMAC + ") is " + (timeAheadOfOther > 0 ? "ahead of" : "behind") + " " + otherMAC + " by " + Math.abs(timeAheadOfOther) + "ms");
 				
 			}
 		}
+	}
+
+
+
+	private void log(long timeOriginallySent, String otherMAC, long timeReturnSent, long currentTime) {
+		if(!log.containsKey(timeOriginallySent)) {
+			log.put(timeOriginallySent, new Hashtable<String, long[]>());
+		}
+		log.get(timeOriginallySent).put(otherMAC, new long[] {timeReturnSent, currentTime});
 	}
 
 	private void broadcast(String s) {
