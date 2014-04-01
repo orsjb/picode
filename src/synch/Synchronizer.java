@@ -9,10 +9,13 @@ import java.net.MulticastSocket;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.net.UnknownHostException;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.Map;
+import java.util.Queue;
 
 public class Synchronizer {
 
@@ -32,9 +35,12 @@ public class Synchronizer {
 	MulticastSocket broadcastSocket;
 	String multicastGroup = "225.2.2.5";
 	int multicastPort = 2225;
+	long timeCorrection;			//add this to current time to get the REAL current time
 
 	boolean on = true;
 	boolean verbose = true;
+	boolean veryverbose = false;
+	
 	
 	public Synchronizer() {
 		try {
@@ -51,6 +57,10 @@ public class Synchronizer {
 		}
 	}
 	
+	public long timeNow() {
+		return System.currentTimeMillis() + timeCorrection;
+	}
+	
 	private void setupListener() throws IOException {
 		final MulticastSocket s = new MulticastSocket(multicastPort);
 		s.joinGroup(InetAddress.getByName(multicastGroup));
@@ -63,7 +73,7 @@ public class Synchronizer {
 						DatagramPacket pack = new DatagramPacket(buf, buf.length);
 						s.receive(pack);
 						String response = new String(buf, "US-ASCII");
-						if(verbose) System.out.println("Received data: " + response + " (length=" + pack.getLength() + ")");
+						if(veryverbose) System.out.println("Received data: " + response + " (total string length=" + pack.getLength() + ")");
 						messageReceived(response);
 					} catch (IOException e) {
 						e.printStackTrace();
@@ -79,7 +89,7 @@ public class Synchronizer {
 		Thread t = new Thread() {
 			public void run() {
 				while(on) {
-					broadcast("s " + myMAC + " " + System.currentTimeMillis());
+					broadcast("s " + myMAC + " " + timeNow());
 					try {
 						Thread.sleep(1000);
 					} catch (InterruptedException e) {
@@ -141,9 +151,8 @@ public class Synchronizer {
 		if(parts[0].equals("s")) {
 			//an original send message
 			//respond if you were not the sender
-//			System.out.println("LOOK AT PART[2]: " + parts[2] + " [[ LENGTH = " + parts[2].length() + "]]");
 			if(!parts[1].equals(myMAC)) {
-				broadcast("r " + parts[1] + " " + parts[2] + " " + myMAC + " " + System.currentTimeMillis());
+				broadcast("r " + parts[1] + " " + parts[2] + " " + myMAC + " " + timeNow());
 			}
 		} else if(parts[0].equals("r")) {
 			//a response message
@@ -151,17 +160,24 @@ public class Synchronizer {
 			if(parts[1].equals(myMAC)) {
 				//find out how long the return trip was
 				long timeOriginallySent = Long.parseLong(parts[2]);
+				String otherMAC = parts[3];
 				long timeReturnSent = Long.parseLong(parts[4]);
-				long currentTime = System.currentTimeMillis();
+				long currentTime = timeNow();
 				long returnTripTime = currentTime - timeOriginallySent;
-				long timeDiff = (currentTime - (returnTripTime / 2)) - timeReturnSent;	//+ve if this unit is ahead of other unit
+				long timeAheadOfOther = (currentTime - (returnTripTime / 2)) - timeReturnSent;	//+ve if this unit is ahead of other unit
+				
+				//correct your time to be that of the other's time
+				timeCorrection = -timeAheadOfOther;
+
+				
+				
 				if(verbose) System.out.println("Return trip from " + myMAC + " to " + parts[3] + " took " + returnTripTime + "ms");
-				if(verbose) System.out.println("This machine (" + myMAC + ") is " + (timeDiff > 0 ? "ahead of" : "behind") + " " + parts[3] + " by " + Math.abs(timeDiff) + "ms");
+				if(verbose) System.out.println("This machine (" + myMAC + ") is " + (timeAheadOfOther > 0 ? "ahead of" : "behind") + " " + otherMAC + " by " + Math.abs(timeAheadOfOther) + "ms");
 				
 			}
 		}
 	}
-	
+
 	private void broadcast(String s) {
 		byte buf[] = null;
 		try {
@@ -183,6 +199,7 @@ public class Synchronizer {
 			e.printStackTrace();
 		} 
 	}
+	
 	
 	public static void main(String[] args) {
 		new Synchronizer();
