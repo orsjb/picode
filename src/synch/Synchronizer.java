@@ -11,12 +11,10 @@ import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.Enumeration;
 import java.util.Hashtable;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
-import java.util.Queue;
 
 public class Synchronizer {
 
@@ -55,6 +53,8 @@ public class Synchronizer {
 			broadcastSocket = new MulticastSocket();
 			//start sending
 			startSending();
+			//display clock
+			displayClock();
 		} catch(Exception e) {
 			e.printStackTrace();
 		}
@@ -66,6 +66,28 @@ public class Synchronizer {
 	
 	public long correctedTimeNow() {
 		return localTimeNow() + timeCorrection;
+	}
+	
+	public void displayClock() {
+		Thread t = new Thread() {
+			public void run() {
+				while(on) {
+					long sleepTime = 0;
+					long timeNow = correctedTimeNow();
+					if(timeNow % 10000 < 4) {
+						//display
+						Date d = new Date(timeNow);
+						System.out.println("The time is: " + d.getHours() + ":" + d.getMinutes() + ":" + d.getSeconds());
+					}
+					try {
+						Thread.sleep(3);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+				}
+			}
+		};
+		t.start();
 	}
 	
 	private void setupListener() throws IOException {
@@ -124,30 +146,23 @@ public class Synchronizer {
 	private void calculateTimeCorrection() {
 		for(Long sendTime : log.keySet()) {
 			Map<String, long[]> responses = log.get(sendTime);
+			//find the leader
+			String theLeader = myMAC;
 			for(String mac : responses.keySet()) {
-				long[] times = responses.get(mac);
-				long responderResponseTime = times[0];
-				long receiveTime = times[1];
-
-				///////////////////////////////////
-				//TODO - calculate time correction
-				///////////////////////////////////
-				
-				/*
-				 * Strategies?
-				 * 
-				 * 1)
-				 * Maintain the average network message time over many iterations.
-				 * Choose a leader.
-				 * Use the average network message time to work out how far behind leader you are.
-				 * 
-				 * 2)
-				 * Maintain an average network message time for each node pair.
-				 * 
-				 */
-				
-				
+				if(theLeader.compareTo(mac) < 0) {
+					theLeader = mac;
+				}
 			}	
+			if(theLeader != myMAC) {
+				//if you are not the leader then make a time adjustment
+				long[] times = responses.get(theLeader);
+				long leaderResponseTime = times[0];
+				long receiveTime = times[1];
+				long roundTripTime = receiveTime - sendTime;
+				long messageTime = roundTripTime / 2;
+				long receiveTimeAccordingToLeader = leaderResponseTime + messageTime;
+				timeCorrection = receiveTime - receiveTimeAccordingToLeader;
+			}
 		}		
 		//finally, clear the log (for now - we might make the log last longer later)
 		log.clear();
