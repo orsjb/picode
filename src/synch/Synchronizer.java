@@ -79,7 +79,7 @@ public class Synchronizer {
 					if(timeNow % 10000 < 4) {
 						//display
 						Date d = new Date(timeNow);
-						System.out.println("The time is: " + d.getHours() + ":" + d.getMinutes() + ":" + d.getSeconds() + " (fluctuation = " + timeCorrection + ")");
+						System.out.println("The time is: " + d.getHours() + ":" + d.getMinutes() + ":" + d.getSeconds() + " (short correction = " + timeCorrection + "ms, long correction = " + stableTimeCorrection + "ms)");
 					}
 					try {
 						Thread.sleep(3);
@@ -182,7 +182,7 @@ public class Synchronizer {
 		//stability count
 		if(stabilityCount++ == 20) {
 			stabilityCount = 0;
-			stableTimeCorrection = timeCorrection;
+			stableTimeCorrection += timeCorrection;
 			timeCorrection = 0;
 		}
 	}
