@@ -52,23 +52,26 @@ public class DynamoPI {
 	 int nextID = 0;
 	
 	public static void main(String[] args) throws IOException {
-		new DynamoPI();
+
+		//audio stuff
+		int bufSize = 8192;
+//		int bufSize = 4096;
+//		int bufSize = 512;
+		
+		new DynamoPI(new AudioContext(new JavaSoundAudioIO(bufSize), bufSize, new IOAudioFormat(22000, 16, 0, 1)));
 	}
 	
-	public DynamoPI() throws IOException {
+	public DynamoPI(AudioContext _ac) throws IOException {
 		
 		System.out.println("Launching DynamoPI!");
+		ac = _ac;
 		
 		//share
 		share = new Hashtable<String, Object>();
 		//rng
 		rng = new Random();
 		
-		//audio stuff
-		int bufSize = 8192;
-//		int bufSize = 4096;
-//		int bufSize = 512;
-		ac = new AudioContext(new JavaSoundAudioIO(bufSize), bufSize, new IOAudioFormat(22000, 16, 0, 1));
+		
 		clockInterval = new Envelope(ac, 500);
 		clock = new Clock(ac, clockInterval);
 		pl = new PolyLimit(ac, 1, 3);
@@ -81,76 +84,76 @@ public class DynamoPI {
 		
 		clock.addMessageListener(new Bead() {
 			public void messageReceived(Bead message) {
-				if(clock.isBeat()) {
+				if(clock.getCount() % 64 == 0) {
 					WavePlayer wp = new WavePlayer(ac, 500 + rng.nextInt(100), Buffer.SINE);
-					Envelope e = new Envelope(ac, 1);
+					Envelope e = new Envelope(ac, 0.1f);
 					Gain g = new Gain(ac, 1, e);
 					g.addInput(wp);
 					ac.out.addInput(g);
-					e.addSegment(0, 1000, new KillTrigger(g));
+					e.addSegment(0, 200, new KillTrigger(g));
 				}
 			}
 		});
 		
 
 		
-		//Block until handshake with server is complete
-		System.out.println("Waiting for response from server...");
-		connectionClient = new ConnectionClient();
-		//Now begin sending alive messages in a separate thread
-		connectionClient.beginSendAlive();
-		//socket server (listens to incoming classes)
-		DynamoClassLoader loader = new DynamoClassLoader(ClassLoader.getSystemClassLoader());
-		ServerSocket server = new ServerSocket(1234);
-		//OSC server
-		oscServer = OSCServer.newUsing(OSCServer.UDP, 5555);
-		oscServer.start();
-		//start socket server listening loop
-		while(true) {
-			//must reopen socket each time
-			Socket s = server.accept();
-			Class<? extends PIPO> pipoClass = null;
-			try {
-				InputStream input = s.getInputStream();
-				ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-		        int data = input.read();
-		        while(data != -1){
-		            buffer.write(data);
-		            data = input.read();
-		        }
-		        byte[] classData = buffer.toByteArray();
-				Class<?> c = loader.createNewClass(classData);
-				Class<?>[] interfaces = c.getInterfaces();
-				boolean isPIPO = false;
-				for(Class<?> cc : interfaces) {
-					if(cc.equals(PIPO.class)) {
-						isPIPO = true;
-						break;
-					}
-				}
-				if(isPIPO) {
-					pipoClass = (Class<? extends PIPO>)c;
-					System.out.println("new PIPO >> " + pipoClass.getName());
-					//this means we're done with the sequence, time to recreate the classloader to avoid duplicate errors
-					loader = new DynamoClassLoader(ClassLoader.getSystemClassLoader());
-				} 
-			} catch(Exception e) {/* snub it? */
-				System.out.println("Exception Caught trying to read Object from Socket");
-				e.printStackTrace();
-			}
-			if(pipoClass != null) {
-				PIPO pipo = null;
-				try {
-					pipo = pipoClass.newInstance();
-					pipo.action(this);
-					respond(s.getInetAddress());
-				} catch (Exception e) {
-					e.printStackTrace();	//catching all exceptions means that we avert an exception heading up
-											//to audio processes.
-				}
-			}
-			s.close();
-		}
+//		//Block until handshake with server is complete
+//		System.out.println("Waiting for response from server...");
+//		connectionClient = new ConnectionClient();
+//		//Now begin sending alive messages in a separate thread
+//		connectionClient.beginSendAlive();
+//		//socket server (listens to incoming classes)
+//		DynamoClassLoader loader = new DynamoClassLoader(ClassLoader.getSystemClassLoader());
+//		ServerSocket server = new ServerSocket(1234);
+//		//OSC server
+//		oscServer = OSCServer.newUsing(OSCServer.UDP, 5555);
+//		oscServer.start();
+//		//start socket server listening loop
+//		while(true) {
+//			//must reopen socket each time
+//			Socket s = server.accept();
+//			Class<? extends PIPO> pipoClass = null;
+//			try {
+//				InputStream input = s.getInputStream();
+//				ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+//		        int data = input.read();
+//		        while(data != -1){
+//		            buffer.write(data);
+//		            data = input.read();
+//		        }
+//		        byte[] classData = buffer.toByteArray();
+//				Class<?> c = loader.createNewClass(classData);
+//				Class<?>[] interfaces = c.getInterfaces();
+//				boolean isPIPO = false;
+//				for(Class<?> cc : interfaces) {
+//					if(cc.equals(PIPO.class)) {
+//						isPIPO = true;
+//						break;
+//					}
+//				}
+//				if(isPIPO) {
+//					pipoClass = (Class<? extends PIPO>)c;
+//					System.out.println("new PIPO >> " + pipoClass.getName());
+//					//this means we're done with the sequence, time to recreate the classloader to avoid duplicate errors
+//					loader = new DynamoClassLoader(ClassLoader.getSystemClassLoader());
+//				} 
+//			} catch(Exception e) {/* snub it? */
+//				System.out.println("Exception Caught trying to read Object from Socket");
+//				e.printStackTrace();
+//			}
+//			if(pipoClass != null) {
+//				PIPO pipo = null;
+//				try {
+//					pipo = pipoClass.newInstance();
+//					pipo.action(this);
+//					respond(s.getInetAddress());
+//				} catch (Exception e) {
+//					e.printStackTrace();	//catching all exceptions means that we avert an exception heading up
+//											//to audio processes.
+//				}
+//			}
+//			s.close();
+//		}
 		
 	}
 	

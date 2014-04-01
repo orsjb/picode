@@ -16,6 +16,9 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Map;
 
+import net.beadsproject.beads.core.AudioContext;
+import net.beadsproject.beads.core.IOAudioFormat;
+import net.beadsproject.beads.core.io.JavaSoundAudioIO;
 import dynamic.DynamoPI;
 
 public class Synchronizer {
@@ -30,6 +33,8 @@ public class Synchronizer {
 	 * An s means send. Upon receiving an s, each synchronizer also responds with
 	 * r <MAC1> <timeMS> <MAC2> <timeMS>
 	 */
+	
+	AudioContext ac;
 	
 	String myMAC; //how to uniquely identify this machine
 	String myIP;
@@ -50,7 +55,14 @@ public class Synchronizer {
 	Map<Long, Map<String, long[]>> log;		//first referenced by message send time, then by respodent's name, with the time the respondent replied and the current time
 	
 	public Synchronizer() {
+		
+		//basics
 		log = new Hashtable<Long, Map<String, long[]>>();
+		
+		//audio
+		int bufSize = 8192;
+		ac = new AudioContext(new JavaSoundAudioIO(bufSize), bufSize, new IOAudioFormat(22000, 16, 0, 1));
+		
 		try {
 			//basic init => find out my mac address and IP address
 			getMyMACAddressAndIPAddress();
@@ -102,7 +114,7 @@ public class Synchronizer {
 	
 	private void launch() {
 		try {
-			new DynamoPI();
+			new DynamoPI(ac);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
