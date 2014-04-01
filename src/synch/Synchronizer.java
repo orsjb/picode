@@ -43,9 +43,8 @@ public class Synchronizer {
 	int multicastPort = 2225;
 	long timeCorrection = 0;			//add this to current time to get the REAL current time
 	long stableTimeCorrection = 0;
+	long startTimeAbs;
 	int stabilityCount = 0;
-	
-	int count = 0;
 
 	boolean on = true;
 	boolean verbose = false;
@@ -62,6 +61,8 @@ public class Synchronizer {
 		//audio
 		int bufSize = 8192;
 		ac = new AudioContext(new JavaSoundAudioIO(bufSize), bufSize, new IOAudioFormat(22000, 16, 0, 1));
+		
+		startTimeAbs = System.currentTimeMillis();
 		
 		try {
 			//basic init => find out my mac address and IP address
@@ -96,10 +97,13 @@ public class Synchronizer {
 						//display
 						Date d = new Date(timeNow);
 						System.out.println("The time is: " + d.getHours() + ":" + d.getMinutes() + ":" + d.getSeconds() + " (short correction = " + timeCorrection + "ms, long correction = " + stableTimeCorrection + "ms)");
-						if(count == 3) {
+						//launch after 30s
+						long correctedStartTime = startTimeAbs + timeCorrection + stableTimeCorrection;
+						if(timeNow - correctedStartTime > 30000) {
 							launch();
 						}
-						count++;
+						
+						
 					}
 					try {
 						Thread.sleep(4);
