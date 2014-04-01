@@ -97,7 +97,7 @@ public class Synchronizer {
 				while(on) {
 					long timeNow = correctedTimeNow();
 					long tick = timeNow / 10000;
-					if(tick != lastTick && timeNow % 10000 < 2) {
+					if(tick != lastTick && timeNow % 10000 < 4) {
 						//display
 						Date d = new Date(timeNow);
 						System.out.println("The time is: " + d.getHours() + ":" + d.getMinutes() + ":" + d.getSeconds() + " (short correction = " + timeCorrection + "ms, long correction = " + stableTimeCorrection + "ms)");
