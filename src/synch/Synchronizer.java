@@ -44,7 +44,9 @@ public class Synchronizer {
 	long timeCorrection = 0;			//add this to current time to get the REAL current time
 	long stableTimeCorrection = 0;
 	long startTimeAbs;
+	long lastTick;
 	int stabilityCount = 0;
+	boolean doLaunch = false;
 	boolean launched = false;
 
 	boolean on = true;
@@ -94,21 +96,28 @@ public class Synchronizer {
 			public void run() {
 				while(on) {
 					long timeNow = correctedTimeNow();
-					if(timeNow % 10000 < 4) {
+					long tick = timeNow / 10000;
+					if(tick != lastTick && timeNow % 10000 < 2) {
 						//display
 						Date d = new Date(timeNow);
 						System.out.println("The time is: " + d.getHours() + ":" + d.getMinutes() + ":" + d.getSeconds() + " (short correction = " + timeCorrection + "ms, long correction = " + stableTimeCorrection + "ms)");
 						//launch after 30s
 						long correctedStartTime = startTimeAbs + timeCorrection + stableTimeCorrection;
+						
+						//this is temp - replace this with a remote message to start audio
 						if(timeNow - correctedStartTime > 30000 && !launched) {
-							launch();
+							doLaunch = true;
 							launched = true;
 						}
 						
-						
+						if(doLaunch) {
+							launch();
+							doLaunch = false;
+						}
+						lastTick = tick;
 					}
 					try {
-						Thread.sleep(4);
+						Thread.sleep(1);
 					} catch (InterruptedException e) {
 						e.printStackTrace();
 					}
