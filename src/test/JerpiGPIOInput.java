@@ -108,7 +108,7 @@ public class JerpiGPIOInput {
                             }
                         } else {
                             // Else, specially mark value non-zero value
-                            System.out.print("***" + dateStr + ": " + inLine);
+                            System.out.print("*** Channel: " + channum + ":: " + dateStr + ": Data:: " + inLine);
                             zeroCounter = 0;
                         }
                     }
