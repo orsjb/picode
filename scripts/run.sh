@@ -27,4 +27,4 @@ cd ${DIR}/..
 # choose what to run
 
 # /usr/bin/java -cp build/picode.jar dynamic.DynamoPI > stdout &
-/usr/bin/java -cp build/picode.jar synch.Synchronizer > stdout &
+# /usr/bin/java -cp build/picode.jar synch.Synchronizer > stdout &
