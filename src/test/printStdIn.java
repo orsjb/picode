@@ -29,7 +29,8 @@ public class printStdIn{
 			String input;
 			while ((input=br.readLine())!=null){
 				System.out.println("Java: " + input);
-				float val = Float.parseFloat(input.split("[ ]")[0]);
+				String inVal1 = input.split("[ ]")[0];
+				float val = Float.parseFloat(inVal1);
 				g.setValue(val *  2000f);
 			}
 		}catch(IOException io){
