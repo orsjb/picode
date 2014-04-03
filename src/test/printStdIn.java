@@ -22,7 +22,7 @@ public class printStdIn{
 		WavePlayer wp = new WavePlayer(ac, g, Buffer.SINE);
 
 		ac.out.addInput(wp);
-		ac.out.getGainUGen().setValue(0.1f);
+		ac.out.setGain(0.1f);
 
 		try{
 			BufferedReader br = new BufferedReader(new InputStreamReader (System.in));
