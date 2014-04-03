@@ -11,7 +11,7 @@ import net.beadsproject.beads.ugens.Glide;
 import net.beadsproject.beads.ugens.WavePlayer;
 
 
-public class printStdIn{
+public class PrintStdIn{
 	public static void main (String args[]){
 
 
@@ -30,6 +30,7 @@ public class printStdIn{
 			while ((input=br.readLine())!=null){
 				System.out.println("Java: " + input);
 				String inVal1 = input.split("[ ]")[0];
+				System.out.println(inVal1);
 				float val = Float.parseFloat(inVal1);
 				g.setValue(val *  2000f);
 			}
