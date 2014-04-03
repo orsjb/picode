@@ -57,13 +57,13 @@ public class Synchronizer {
 	
 	Map<Long, Map<String, long[]>> log;		//first referenced by message send time, then by respodent's name, with the time the respondent replied and the current time
 	
-	public Synchronizer() {
+	public Synchronizer(AudioContext _ac) {
 		
 		//basics
 		log = new Hashtable<Long, Map<String, long[]>>();
 		
 		//audio
-		ac = AudioSetup.getAudioContext();
+		ac = _ac;
 		
 		startTimeAbs = System.currentTimeMillis();
 		
@@ -331,7 +331,7 @@ public class Synchronizer {
 	
 	
 	public static void main(String[] args) {
-		new Synchronizer();
+		new Synchronizer(AudioSetup.getAudioContext(args));
 	}
 	
 }

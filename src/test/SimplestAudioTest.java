@@ -6,7 +6,7 @@ import dynamic.AudioSetup;
 
 public class SimplestAudioTest {
 	public static void main(String[] args) {
-		AudioContext ac = AudioSetup.getAudioContext();
+		AudioContext ac = AudioSetup.getAudioContext(args);
 		Noise n = new Noise(ac);
 		ac.out.setGain(0.5f);
 		ac.out.addInput(n);

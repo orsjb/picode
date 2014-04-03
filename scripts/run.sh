@@ -25,7 +25,13 @@ DIR=`dirname $0`
 cd ${DIR}/..
 
 # choose what to run
+# args are generally bufSize (8192), sample rate (22050), input channels (0), output channels (1)
 
-# /usr/bin/sudo /usr/bin/java -cp build/picode.jar dynamic.DynamoPI > stdout &
-# /usr/bin/sudo /usr/bin/java -cp build/picode.jar synch.Synchronizer > stdout &
-libs/minimulib/minimu9-ahrs -b /dev/i2c-1 | /usr/bin/sudo /usr/bin/java -cp build/picode.jar test.PrintStdIn > stdout &
+BUF=8192
+SR=22050
+INS=0
+OUTS=1
+
+# /usr/bin/sudo /usr/bin/java -cp build/picode.jar dynamic.DynamoPI $BUF $SR $INS $OUTS > stdout &
+# /usr/bin/sudo /usr/bin/java -cp build/picode.jar synch.Synchronizer $BUF $SR $INS $OUTS > stdout &
+libs/minimulib/minimu9-ahrs -b /dev/i2c-1 | /usr/bin/sudo /usr/bin/java -cp build/picode.jar test.PrintStdIn $BUF $SR $INS $OUTS > stdout &

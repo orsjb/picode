@@ -14,7 +14,7 @@ import net.beadsproject.beads.ugens.WavePlayer;
 public class PrintStdIn{
 	public static void main (String args[]){
 
-		AudioContext ac = AudioSetup.getAudioContext();
+		AudioContext ac = AudioSetup.getAudioContext(args);
 		ac.start();
 
 		Glide g = new Glide(ac, 500);

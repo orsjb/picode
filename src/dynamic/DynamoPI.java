@@ -53,12 +53,7 @@ public class DynamoPI {
 	
 	public static void main(String[] args) throws IOException {
 
-		//audio stuff
-		int bufSize = 8192;
-//		int bufSize = 4096;
-//		int bufSize = 512;
-		
-		new DynamoPI(new AudioContext(new JavaSoundAudioIO(bufSize), bufSize, new IOAudioFormat(22000, 16, 0, 1)));
+		new DynamoPI(AudioSetup.getAudioContext(args));
 	}
 	
 	public DynamoPI(AudioContext _ac) throws IOException {

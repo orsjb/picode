@@ -6,8 +6,11 @@ import net.beadsproject.beads.core.io.JavaSoundAudioIO;
 
 public abstract class AudioSetup {
 
-	public static AudioContext getAudioContext() {
-		int bufSize = 8192;
-		return new AudioContext(new JavaSoundAudioIO(bufSize), bufSize, new IOAudioFormat(22000, 16, 0, 1));
+	public static AudioContext getAudioContext(String[] args) {			//args are bufSize (8192), sample rate (22050), input channels (0), output channels (1)
+		int bufSize = Integer.parseInt(args[0]);
+		int sampleRate = Integer.parseInt(args[1]);
+		int inchans = Integer.parseInt(args[2]);
+		int outchans = Integer.parseInt(args[3]);
+		return new AudioContext(new JavaSoundAudioIO(bufSize), bufSize, new IOAudioFormat(sampleRate, 16, inchans, outchans));
 	}
 }
