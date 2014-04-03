@@ -26,5 +26,6 @@ cd ${DIR}/..
 
 # choose what to run
 
-# /usr/bin/java -cp build/picode.jar dynamic.DynamoPI > stdout &
-# /usr/bin/java -cp build/picode.jar synch.Synchronizer > stdout &
+# /usr/bin/sudo /usr/bin/java -cp build/picode.jar dynamic.DynamoPI > stdout &
+# /usr/bin/sudo /usr/bin/java -cp build/picode.jar synch.Synchronizer > stdout &
+# /usr/bin/sudo libs/minimu/minimu9-ahrs -b /dev/i2c-1 | /usr/bin/sudo /usr/bin/java test.printStdIn
