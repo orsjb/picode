@@ -19,6 +19,7 @@ import java.util.Map;
 import net.beadsproject.beads.core.AudioContext;
 import net.beadsproject.beads.core.IOAudioFormat;
 import net.beadsproject.beads.core.io.JavaSoundAudioIO;
+import dynamic.AudioSetup;
 import dynamic.DynamoPI;
 
 public class Synchronizer {
@@ -51,7 +52,7 @@ public class Synchronizer {
 
 	boolean on = true;
 	boolean verbose = false;
-	boolean veryverbose = false;
+	boolean veryverbose = true;
 	boolean timedebug = false;
 	
 	Map<Long, Map<String, long[]>> log;		//first referenced by message send time, then by respodent's name, with the time the respondent replied and the current time
@@ -62,8 +63,7 @@ public class Synchronizer {
 		log = new Hashtable<Long, Map<String, long[]>>();
 		
 		//audio
-		int bufSize = 8192;
-		ac = new AudioContext(new JavaSoundAudioIO(bufSize), bufSize, new IOAudioFormat(22000, 16, 0, 1));
+		ac = AudioSetup.getAudioContext();
 		
 		startTimeAbs = System.currentTimeMillis();
 		
