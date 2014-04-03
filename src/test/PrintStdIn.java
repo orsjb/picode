@@ -14,7 +14,6 @@ import net.beadsproject.beads.ugens.WavePlayer;
 public class PrintStdIn{
 	public static void main (String args[]){
 
-
 		AudioContext ac = AudioSetup.getAudioContext();
 		ac.start();
 
@@ -29,7 +28,7 @@ public class PrintStdIn{
 			String input;
 			while ((input=br.readLine())!=null){
 				System.out.println("Java: " + input);
-				String inVal1 = input.split("[ ]")[0];
+				String inVal1 = input.split("\\s+")[1];
 				System.out.println(inVal1);
 				float val = Float.parseFloat(inVal1);
 				g.setValue(val *  2000f);
