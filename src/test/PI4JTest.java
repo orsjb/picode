@@ -20,7 +20,7 @@ public class PI4JTest {
 	public static void main(String[] args) throws IOException {
 		PI4JTest pit = new PI4JTest();
 //		pit.tryWriting();
-//		pit.startReading();
+		pit.startReading();
 	}
 
 	public PI4JTest() throws IOException {
@@ -64,23 +64,24 @@ public class PI4JTest {
 
 	private void readingSensors() throws IOException {
 		
-		int numElements = 15;
+		int numElements = 30;
 		
 		bytes = new byte[numElements];
 		DataInputStream gyroIn;
 		
 		while (true) {
+			
 			int r = device.read(0x3B, bytes, 0, bytes.length);
 
-			if (r != numElements) { // 14 registries to be read, 6 for gyro, 6 for accel, and 2 for temp
-				System.out.println("Error reading data, < " + bytes.length + " bytes");
+			System.out.println("Num elements read: " + r);
+			
+			for(int i = 0; i < r; i++) {
+				gyroIn = new DataInputStream(new ByteArrayInputStream(bytes));
+				float aVal = gyroIn.readFloat();
+				System.out.print(aVal + " ");
+			
 			}
-			gyroIn = new DataInputStream(new ByteArrayInputStream(bytes));
-			
-			short aVal = gyroIn.readShort();
-
-			System.out.println("got data: " + aVal);
-			
+			System.out.println();
 
 			try {
 				Thread.sleep(700);
