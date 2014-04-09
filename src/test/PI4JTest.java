@@ -71,7 +71,8 @@ public class PI4JTest {
 		
 		while (true) {
 			
-			int r = device.read(0x3B, bytes, 0, bytes.length);
+//			int r = device.read(0x3B, bytes, 0, bytes.length);
+			int r = device.read(bytes, 0, bytes.length);
 
 			System.out.println("Num elements read: " + r);
 			
