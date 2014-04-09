@@ -36,7 +36,7 @@ OUTS=1
 
 # various old or test scripts
 
-/usr/bin/sudo /usr/bin/java -cp build/picode.jar test.PI4JTest > stdout &
+# /usr/bin/sudo /usr/bin/java -cp build/picode.jar test.PI4JTest > stdout &
 # echo ~ > stdout &
 # libs/minimulib/minimu9-ahrs -b /dev/i2c-1 > stdout &
 # /usr/bin/sudo /usr/bin/java -cp build/picode.jar dynamic.DynamoPI $BUF $SR $INS $OUTS > stdout &
