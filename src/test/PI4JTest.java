@@ -63,7 +63,7 @@ public class PI4JTest {
 		
 		int numElements = 6;
 		
-		bytes = new byte[numElements];
+		bytes = new byte[numElements * 4];		//assuming floats!!
 		DataInputStream gyroIn;
 		
 		while (true) {
@@ -75,7 +75,7 @@ public class PI4JTest {
 			
 
 			gyroIn = new DataInputStream(new ByteArrayInputStream(bytes));
-			for(int i = 0; i < r; i++) {
+			for(int i = 0; i < numElements; i++) {
 				float aVal = gyroIn.readFloat();
 				System.out.print(aVal + " ");
 			
