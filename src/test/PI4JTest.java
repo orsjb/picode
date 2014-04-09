@@ -54,7 +54,7 @@ public class PI4JTest {
 			gyroIn = new DataInputStream(new ByteArrayInputStream(bytes));
 			for(int i = 0; i < numElements; i++) {
 				
-				short s = gyroIn.readShort();
+				short s = Short.reverseBytes(gyroIn.readShort());
 				
 //				float aVal = gyroIn.readFloat();
 				
