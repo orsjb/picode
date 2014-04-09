@@ -34,19 +34,15 @@ public class PI4JTest {
 	}
 
 	public void tryWriting() throws IOException {
-		
 		// start sensing, using config registries 6B and 6C
-		
 		device.write(0x6B, (byte) 0b00000000);
 		device.write(0x6C, (byte) 0b00000000);
 		System.out.println("Configuring Device OK!");
-
 		// config gyro
 		device.write(0x1B, (byte) 0b00011000);
 		// config accel
 		device.write(0x1C, (byte) 0b00000100);
 		System.out.println("Configuring sensors OK!");
-
 	}
 
 	public void startReading() {
@@ -65,7 +61,7 @@ public class PI4JTest {
 
 	private void readingSensors() throws IOException {
 		
-		int numElements = 30;
+		int numElements = 6;
 		
 		bytes = new byte[numElements];
 		DataInputStream gyroIn;
@@ -77,8 +73,9 @@ public class PI4JTest {
 
 			System.out.println("Num elements read: " + r);
 			
+
+			gyroIn = new DataInputStream(new ByteArrayInputStream(bytes));
 			for(int i = 0; i < r; i++) {
-				gyroIn = new DataInputStream(new ByteArrayInputStream(bytes));
 				float aVal = gyroIn.readFloat();
 				System.out.print(aVal + " ");
 			
