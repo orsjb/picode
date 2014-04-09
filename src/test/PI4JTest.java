@@ -19,7 +19,7 @@ public class PI4JTest {
 
 	public static void main(String[] args) throws IOException {
 		PI4JTest pit = new PI4JTest();
-		pit.testStuff();
+//		pit.tryWriting();
 		pit.startReading();
 	}
 
@@ -32,7 +32,7 @@ public class PI4JTest {
 		System.out.println("Connected to device OK!");
 	}
 
-	public void testStuff() throws IOException {
+	public void tryWriting() throws IOException {
 		
 		// start sensing, using config registries 6B and 6C
 		
