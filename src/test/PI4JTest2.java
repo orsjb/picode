@@ -22,14 +22,30 @@ public class PI4JTest2 {
 	public static void main(String[] args) {
 		final GpioController gpio = GpioFactory.getInstance();
 		System.out.println("Got GPIO instance.");
-		GpioPinDigitalInput myInPin = gpio.provisionDigitalInputPin(RaspiPin.GPIO_03); 
+		//the pins
+		GpioPinDigitalInput myInPin2 = gpio.provisionDigitalInputPin(RaspiPin.GPIO_02); 
+		System.out.println("Got GPIO pin 2.");
+
+		GpioPinDigitalInput myInPin3 = gpio.provisionDigitalInputPin(RaspiPin.GPIO_03); 
 		System.out.println("Got GPIO pin 3.");
+
+		GpioPinDigitalInput myInPin4 = gpio.provisionDigitalInputPin(RaspiPin.GPIO_04); 
+		System.out.println("Got GPIO pin 4.");
+
+		GpioPinDigitalInput myInPin5 = gpio.provisionDigitalInputPin(RaspiPin.GPIO_05); 
+		System.out.println("Got GPIO pin 5.");
+		
+		
 //		myInPin.addListener(new MyInputListener());
 //		System.out.println("Set up listener for GPIO pin 3.");
 		
 		while(true) {
-			PinState myButtonState = myInPin.getState();
-			System.out.println(myButtonState.getValue());
+			System.out.println(myInPin2.getState() + " " + myInPin3.getState() + " " + myInPin4.getState() + " " + myInPin5.getState());
+			try {
+				Thread.sleep(500);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
 		}
 	}
 }
