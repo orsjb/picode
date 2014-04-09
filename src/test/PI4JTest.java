@@ -25,7 +25,8 @@ public class PI4JTest {
 
 	public PI4JTest() throws IOException {
 		System.out.println("Starting sensors reading:");
-		bus = I2CFactory.getInstance(I2CBus.BUS_1);
+//		bus = I2CFactory.getInstance(I2CBus.BUS_1);
+		bus = I2CFactory.getInstance(I2CBus.BUS_0);
 		System.out.println("Connected to bus OK!");
 		// get device itself
 		device = bus.getDevice(0x68);
