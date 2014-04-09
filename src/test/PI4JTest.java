@@ -20,7 +20,7 @@ public class PI4JTest {
 	public static void main(String[] args) throws IOException {
 		PI4JTest pit = new PI4JTest();
 //		pit.tryWriting();
-		pit.startReading();
+//		pit.startReading();
 	}
 
 	public PI4JTest() throws IOException {
