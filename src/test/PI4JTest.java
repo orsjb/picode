@@ -29,7 +29,7 @@ public class PI4JTest {
 //		bus = I2CFactory.getInstance(I2CBus.BUS_0);
 		System.out.println("Connected to bus OK!");
 		// get device itself
-		device = bus.getDevice(0x68);
+		device = bus.getDevice(0x18);
 		System.out.println("Connected to device OK!");
 	}
 
