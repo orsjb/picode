@@ -22,5 +22,7 @@ public class PI4JTest2 {
 		final GpioController gpio = GpioFactory.getInstance();
 		GpioPinDigitalInput myInPin = gpio.provisionDigitalInputPin(RaspiPin.GPIO_03); 
 		myInPin.addListener(new MyInputListener());
+		
+		while(true) {}
 	}
 }
