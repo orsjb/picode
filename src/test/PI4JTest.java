@@ -26,6 +26,12 @@ public class PI4JTest {
 		// get device itself - gyro?
 		device = bus.getDevice(0x6b);
 		System.out.println("Connected to device OK!");
+		
+		
+		/*
+		 * writeGyrReg(L3G_CTRL_REG1, 0b00001111); // Normal power mode, all axes enabled
+		 * writeGyrReg(L3G_CTRL_REG4, 0b00110000); // Continuous update, 2000 dps full scale
+		 */
 	}
 
 	public void startReading() {
@@ -43,9 +49,10 @@ public class PI4JTest {
 	}
 
 	private void readingSensors() throws IOException {
-		int numElements = 3;
-		int bytesPerElement = 2;
-		bytes = new byte[numElements * bytesPerElement];		//assuming short??!!
+		int numElements = 3;									//
+		int bytesPerElement = 2;								//assuming short?
+		int numBytes = numElements * bytesPerElement;			//
+		bytes = new byte[numBytes];								//
 		DataInputStream gyroIn;
 		while (true) {
 			int r = device.read(bytes, 0, bytes.length);
@@ -54,17 +61,34 @@ public class PI4JTest {
 			gyroIn = new DataInputStream(new ByteArrayInputStream(bytes));
 			for(int i = 0; i < numElements; i++) {
 				
-				short s = gyroIn.readShort();
+				short s = gyroIn.readShort();					//assuming short?
 				System.out.print(s + " ");
 			
 			}
 			System.out.println();
 			try {
-				Thread.sleep(700);
+				Thread.sleep(100);
 			} catch (InterruptedException ex) {
 				ex.printStackTrace();
 			}
 		}
+		
+		/*
+		 * The C code...
+		 * 
+		 * void readGYR(int *g)
+{
+        uint8_t block[6];
+        selectDevice(file,GYR_ADDRESS);
+ 
+        readBlock(0x80 | L3G_OUT_X_L, sizeof(block), block);
+ 
+        *g = (int16_t)(block[1] << 8 | block[0]);
+        *(g+1) = (int16_t)(block[3] << 8 | block[2]);
+        *(g+2) = (int16_t)(block[5] << 8 | block[4]); }
+        *
+		 */
+		
 	}
 
 }
