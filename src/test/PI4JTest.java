@@ -45,7 +45,7 @@ public class PI4JTest {
 	private void readingSensors() throws IOException {
 		int numElements = 3;
 		int bytesPerElement = 2;
-		bytes = new byte[numElements * bytesPerElement];		//assuming floats!!
+		bytes = new byte[numElements * bytesPerElement];		//assuming short??!!
 		DataInputStream gyroIn;
 		while (true) {
 			int r = device.read(bytes, 0, bytes.length);
