@@ -66,7 +66,7 @@ public class PI4JTest {
 				
 				float f = (short)(b << 8 | a);
 				
-				System.out.print(f + " ");
+				System.out.print(a + "," + b + " ");
 			
 			}
 			System.out.println();
