@@ -61,8 +61,12 @@ public class PI4JTest {
 			gyroIn = new DataInputStream(new ByteArrayInputStream(bytes));
 			for(int i = 0; i < numElements; i++) {
 				
-				short s = gyroIn.readShort();					//assuming short?
-				System.out.print(s + " ");
+				byte a = gyroIn.readByte();
+				byte b = gyroIn.readByte();
+				
+				float f = (short)(b << 8 | a);
+				
+				System.out.print(f + " ");
 			
 			}
 			System.out.println();
@@ -76,8 +80,7 @@ public class PI4JTest {
 		/*
 		 * The C code...
 		 * 
-		 * void readGYR(int *g)
-{
+		 
         uint8_t block[6];
         selectDevice(file,GYR_ADDRESS);
  
@@ -86,7 +89,8 @@ public class PI4JTest {
         *g = (int16_t)(block[1] << 8 | block[0]);
         *(g+1) = (int16_t)(block[3] << 8 | block[2]);
         *(g+2) = (int16_t)(block[5] << 8 | block[4]); }
-        *
+        
+         *
 		 */
 		
 	}
