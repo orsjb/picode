@@ -76,7 +76,7 @@ public class PI4JTest {
 						
 						
 						
-						Thread.sleep(10);
+						Thread.sleep(100);
 					} catch (Exception e) {
 						e.printStackTrace();
 					}
