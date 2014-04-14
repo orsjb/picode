@@ -72,11 +72,11 @@ public class PI4JTest {
 						
 						
 						
-						System.out.println(gyroData[0] + " " + gyroData[1] + " " + gyroData[2] + " " + accelData[0] + " " + accelData[1] + " " + accelData[2] + " ");
+						System.out.println(gyroData[0] + "\t" + gyroData[1] + "\t" + gyroData[2] + "\t" + accelData[0] + "\t" + accelData[1] + "\t" + accelData[2] + "\t");
 						
 						
 						
-						Thread.sleep(100);
+						Thread.sleep(10);
 					} catch (Exception e) {
 						e.printStackTrace();
 					}
