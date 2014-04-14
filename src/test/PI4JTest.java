@@ -25,7 +25,6 @@ public class PI4JTest {
 
 	I2CBus bus;
 	I2CDevice gyrodevice, acceldevice, magdevice;
-	byte[] bytes;
 	
 	
 
@@ -95,7 +94,7 @@ public class PI4JTest {
 		int numElements = 3; //
 		int bytesPerElement = 2; // assuming short?
 		int numBytes = numElements * bytesPerElement; //
-		bytes = new byte[numBytes]; //
+		byte[] bytes = new byte[numBytes]; //
 		DataInputStream gyroIn;
 		int r = gyrodevice.read(GYRO_DATA_ADDR, bytes, 0, bytes.length);
 //			System.out.println("Num bytes read: " + r);
@@ -114,11 +113,22 @@ public class PI4JTest {
 		int numElements = 3; //
 		int bytesPerElement = 2; // assuming short?
 		int numBytes = numElements * bytesPerElement; //
-		bytes = new byte[numBytes]; //
+		byte[] bytes = new byte[numBytes]; //
+		
+		
+		
 		DataInputStream accelIn;
 		int r = acceldevice.read(0xa8, bytes, 0, bytes.length);
+		
+
+		//read the bytes backwards
+		byte[] backwardBytes = new byte[numBytes];
+		for(int i = 0; i < numBytes; i++) {
+			backwardBytes[numBytes - i - 1] = bytes[i];
+		}
+		
 //			System.out.println("Num bytes read: " + r);
-		accelIn = new DataInputStream(new ByteArrayInputStream(bytes));
+		accelIn = new DataInputStream(new ByteArrayInputStream(backwardBytes));
 		for (int i = 0; i < numElements; i++) {
 		
 			byte a = accelIn.readByte();	//least sig
