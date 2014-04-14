@@ -109,7 +109,7 @@ public class PI4JTest {
 	}
 	
 	private void readingSensorsAccel() throws IOException {
-		System.out.println("ACCEL");
+//		System.out.println("ACCEL");
 		int numElements = 3; //
 		int bytesPerElement = 2; // assuming short?
 		int numBytes = numElements * bytesPerElement; //
