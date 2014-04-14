@@ -41,14 +41,6 @@ public class PI4JTest {
 		System.out.println("Starting sensors reading:");
 		bus = I2CFactory.getInstance(I2CBus.BUS_1);
 		System.out.println("Connected to bus OK!");
-		// get devices!
-//		System.out.println("Connected to devices OK!");
-
-		/*
-		 * writeGyrReg(L3G_CTRL_REG1, 0b00001111); // Normal power mode, all
-		 * axes enabled writeGyrReg(L3G_CTRL_REG4, 0b00110000); // Continuous
-		 * update, 2000 dps full scale
-		 */
 
 		// GYRO
 		gyrodevice = bus.getDevice(GYR_ADDRESS);
@@ -56,8 +48,6 @@ public class PI4JTest {
 		gyrodevice.write(0x23, (byte) 0b00110000);
 
 		// ACCEL
-		// Normal power mode, all axes enabled -- 0x20
-		// Continuous update, 2000 dps full scale -- 0x23
 		acceldevice = bus.getDevice(ACC_ADDRESS);
 		acceldevice.write(0x20, (byte) 0b01010111);
 		acceldevice.write(0x23, (byte) 0b00101000);
@@ -67,7 +57,7 @@ public class PI4JTest {
 //		gyrodevice.write(0x20, (byte) 0b00001111);
 //		gyrodevice.write(0x23, (byte) 0b00110000);
 
-		// TEMP?????
+		// TEMP
 
 	}
 
@@ -77,8 +67,15 @@ public class PI4JTest {
 			public void run() {
 				while(true) {
 					try {
-//						readingSensorsGyro();
-						readingSensorsAccel();
+						float[] gyroData = readingSensorsGyro();
+						float[] accelData = readingSensorsAccel();
+						
+						
+						
+						System.out.println(gyroData[0] + " " + gyroData[1] + " " + gyroData[2] + " " + accelData[0] + " " + accelData[1] + " " + accelData[2] + " ");
+						
+						
+						
 						Thread.sleep(10);
 					} catch (Exception e) {
 						e.printStackTrace();
@@ -89,68 +86,22 @@ public class PI4JTest {
 		new Thread(task).start();
 	}
 
-	private void readingSensorsGyro() throws IOException {
-		System.out.println("GYRO");
+	private float[] readingSensorsGyro() throws IOException {
 		int numElements = 3; //
+		float[] result = new float[numElements];
 		int bytesPerElement = 2; // assuming short?
 		int numBytes = numElements * bytesPerElement; //
 		byte[] bytes = new byte[numBytes]; //
-		DataInputStream gyroIn;
-		int r = gyrodevice.read(GYRO_DATA_ADDR, bytes, 0, bytes.length);
-//			System.out.println("Num bytes read: " + r);
-		gyroIn = new DataInputStream(new ByteArrayInputStream(bytes));
-		for (int i = 0; i < numElements; i++) {
-			byte a = gyroIn.readByte();
-			byte b = gyroIn.readByte();
-			float f = (b << 8 | a);
-			System.out.print(a + ":" + b + "  " + "(" + f + "), ");
-		}
-		System.out.println();
-	}
-	
-	private void readingSensorsAccel() throws IOException {
-//		System.out.println("ACCEL");
-		int numElements = 3; //
-		int bytesPerElement = 2; // assuming short?
-		int numBytes = numElements * bytesPerElement; //
-		byte[] bytes = new byte[numBytes]; //
-		
-		
-		
 		DataInputStream accelIn;
-		int r = acceldevice.read(0xa8, bytes, 0, bytes.length);
-		
-
-		//read the bytes backwards
-//		byte[] backwardBytes = new byte[numBytes];
-//		for(int i = 0; i < numBytes; i++) {
-//			backwardBytes[numBytes - i - 1] = bytes[i];
-//		}
-		
-//			System.out.println("Num bytes read: " + r);
-//		accelIn = new DataInputStream(new ByteArrayInputStream(backwardBytes));
+		gyrodevice.read(0xa8, bytes, 0, bytes.length);
 		accelIn = new DataInputStream(new ByteArrayInputStream(bytes));
 		for (int i = 0; i < numElements; i++) {
-		
-			byte a = accelIn.readByte();	//least sig
+			byte a = accelIn.readByte(); //least sig
 			byte b = accelIn.readByte(); //most sig
-			
-//			short s = accelIn.readShort();
-			
-//			String aString = String.format("%02X", a);
-//			String bString = String.format("%02X", b);
-			
-//			String aString = Integer.toBinaryString((int)a);
-//			String bString = Integer.toBinaryString((int)b);
-			
-			
-//			System.out.print(aString + ":" + bString + "  ");
-//			System.out.print(a + ":" + b + "(" + x + ") -- ");
-			
-//			System.out.print(byte2Str(a) + ":" + byte2Str(b) + " ");
-			
 			boolean[] abits = getBits(a);
 			boolean[] bbits = getBits(b);
+			
+			System.out.print(bits2String(abits) + ":" + bits2String(bbits) + "   ");
 			
 			boolean[] shortybits = new boolean[16];
 			for(int j = 0; j < 8; j++) {
@@ -159,34 +110,44 @@ public class PI4JTest {
 			for(int j = 0; j < 4; j++) {
 				shortybits[j + 12] = abits[j];
 			}
-			
-			
-//			int x = ((a >> 4) | (b << 8));
-			
-			System.out.print("[ " + bits2Int(shortybits) + " ]  ");
-			 
-			
-//			System.out.print(s + "  ");
+			int theInt = bits2Int(shortybits);
+			result[i] = theInt / 5000f;
 		}
+		
 		System.out.println();
+		
+		return result;
+	}
+	
+	private float[] readingSensorsAccel() throws IOException {
+		int numElements = 3; //
+		float[] result = new float[numElements];
+		int bytesPerElement = 2; // assuming short?
+		int numBytes = numElements * bytesPerElement; //
+		byte[] bytes = new byte[numBytes]; //
+		DataInputStream accelIn;
+		acceldevice.read(0xa8, bytes, 0, bytes.length);
+		accelIn = new DataInputStream(new ByteArrayInputStream(bytes));
+		for (int i = 0; i < numElements; i++) {
+			byte a = accelIn.readByte(); //least sig
+			byte b = accelIn.readByte(); //most sig
+			boolean[] abits = getBits(a);
+			boolean[] bbits = getBits(b);
+			boolean[] shortybits = new boolean[16];
+			for(int j = 0; j < 8; j++) {
+				shortybits[j + 4] = bbits[j];
+			}
+			for(int j = 0; j < 4; j++) {
+				shortybits[j + 12] = abits[j];
+			}
+			int theInt = bits2Int(shortybits);
+			result[i] = theInt / 5000f;
+		}
+		return result;
 	}
 	
 
-	/*
-	 * The C code...
-	 * 
-	 * 
-	 * uint8_t block[6]; selectDevice(file,GYR_ADDRESS);
-	 * 
-	 * readBlock(0x80 | L3G_OUT_X_L, sizeof(block), block);
-	 * 
-	 * g = (int16_t)(block[1] << 8 | block[0]);(g+1) = (int16_t)(block[3] <<
-	 * 8 | block[2]);(g+2) = (int16_t)(block[5] << 8 | block[4]); }
-	 */
-	
-	
-	
-	private static boolean[] getBits(byte inByte) {
+	public static boolean[] getBits(byte inByte) {
 		boolean[] bits = new boolean[8];
 		for (int j = 0; j < 8; j++) {
 			// Shift each bit by 1 starting at zero shift
@@ -197,7 +158,7 @@ public class PI4JTest {
 		return bits;
 	}
 	
-	private static String bits2String(boolean[] bbits) {
+	public static String bits2String(boolean[] bbits) {
 		StringBuffer b = new StringBuffer();
 		for(boolean v : bbits) {
 			b.append(v?1:0);
@@ -205,13 +166,13 @@ public class PI4JTest {
 		return b.toString();
 	}
 	
-	private static int bits2Int(boolean[] bbits) {
+	public static int bits2Int(boolean[] bbits) {
 		String s = bits2String(bbits);
 		return Integer.valueOf(s, 2);
 	}
 
 	
-	private static String byte2Str(byte inByte) {
+	public static String byte2Str(byte inByte) {
 		boolean[] bbits = getBits(inByte);
 		return bits2String(bbits);
 	}
