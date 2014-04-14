@@ -147,11 +147,23 @@ public class PI4JTest {
 //			System.out.print(aString + ":" + bString + "  ");
 //			System.out.print(a + ":" + b + "(" + x + ") -- ");
 			
-			System.out.print(byte2Str(a) + ":" + byte2Str(b) + " ");
-
-			int x = ((a >> 4) | (b << 8));
+//			System.out.print(byte2Str(a) + ":" + byte2Str(b) + " ");
 			
-			System.out.print("[ " + x + " ]  ");
+			boolean[] abits = getBits(a);
+			boolean[] bbits = getBits(b);
+			
+			boolean[] shortybits = new boolean[16];
+			for(int j = 0; j < 8; j++) {
+				shortybits[j + 4] = bbits[j];
+			}
+			for(int j = 0; j < 4; j++) {
+				shortybits[j + 12] = abits[j];
+			}
+			
+			
+//			int x = ((a >> 4) | (b << 8));
+			
+			System.out.print("[ " + bits2String(shortybits) + " ]  ");
 			 
 			
 //			System.out.print(s + "  ");
@@ -185,15 +197,23 @@ public class PI4JTest {
 		return bits;
 	}
 	
-
-	
-	private static String byte2Str(byte inByte) {
-		boolean[] bbits = getBits(inByte);
+	private static String bits2String(boolean[] bbits) {
 		StringBuffer b = new StringBuffer();
 		for(boolean v : bbits) {
 			b.append(v?1:0);
 		}
 		return b.toString();
+	}
+	
+	private static int bits2Int(boolean[] bbits) {
+		String s = bits2String(bbits);
+		return Integer.valueOf(s, 2);
+	}
+
+	
+	private static String byte2Str(byte inByte) {
+		boolean[] bbits = getBits(inByte);
+		return bits2String(bbits);
 	}
 
 }
