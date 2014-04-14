@@ -131,22 +131,22 @@ public class PI4JTest {
 		accelIn = new DataInputStream(new ByteArrayInputStream(backwardBytes));
 		for (int i = 0; i < numElements; i++) {
 		
-			byte a = accelIn.readByte();	//least sig
-			byte b = accelIn.readByte(); //most sig
+//			byte a = accelIn.readByte();	//least sig
+//			byte b = accelIn.readByte(); //most sig
 			
-//			short s = accelIn.readShort();
+			short s = accelIn.readShort();
 			
-			String aString = String.format("%02X", a);
-			String bString = String.format("%02X", b);
+//			String aString = String.format("%02X", a);
+//			String bString = String.format("%02X", b);
 			
 //			String aString = Integer.toBinaryString((int)a);
 //			String bString = Integer.toBinaryString((int)b);
 			
-			int x = (b | a << 8)>>4;
+//			int x = (b | a << 8)>>4;
 			
 //			System.out.print(aString + ":" + bString + "  ");
-			System.out.print(a + ":" + b + "(" + x + ") -- ");
-//			System.out.print(x + "  ");
+//			System.out.print(a + ":" + b + "(" + x + ") -- ");
+			System.out.print(s + "  ");
 		}
 		System.out.println();
 	}
