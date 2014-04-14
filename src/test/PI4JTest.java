@@ -14,9 +14,11 @@ import com.pi4j.io.i2c.I2CFactory;
 
 public class PI4JTest {
 
-	final static byte MAG_ADDRESS = (0x3C >> 1);
-	final static byte ACC_ADDRESS = (0x32 >> 1);
-	final static byte GYR_ADDRESS = (0xD6 >> 1);
+//	final static byte MAG_ADDRESS = (0x3C >> 1);
+//	final static byte ACC_ADDRESS = (0x32 >> 1);
+//	final static byte GYR_ADDRESS = (0xD6 >> 1);
+
+	final static byte GYR_ADDRESS = (0x6b);
 
 	I2CBus bus;
 	I2CDevice gyrodevice, acceldevice, magdevice;
@@ -48,9 +50,9 @@ public class PI4JTest {
 		// ACCEL
 		// Normal power mode, all axes enabled -- 0x20
 		// Continuous update, 2000 dps full scale -- 0x23
-		acceldevice = bus.getDevice(ACC_ADDRESS);
-		acceldevice.write(0x20, (byte) 0b01010111);
-		acceldevice.write(0x23, (byte) 0b00101000);
+//		acceldevice = bus.getDevice(ACC_ADDRESS);
+//		acceldevice.write(0x20, (byte) 0b01010111);
+//		acceldevice.write(0x23, (byte) 0b00101000);
 
 		// MAG
 //		magdevice = bus.getDevice(MAG_ADDRESS);
@@ -93,7 +95,7 @@ public class PI4JTest {
 
 				float f = (short) (b << 8 | a);
 
-				System.out.print(a + "." + b + "  " + "(" + f + "), ");
+				System.out.print(a + ":" + b + "  " + "(" + f + "), ");
 
 			}
 			System.out.println();
