@@ -127,8 +127,8 @@ public class PI4JTest {
 //			String bString = String.format("%02X", b);
 			
 
-			String aString = Integer.toBinaryString(a);
-			String bString = Integer.toBinaryString(b);
+			String aString = Integer.toBinaryString((int)a);
+			String bString = Integer.toBinaryString((int)b);
 			
 //			float f = (a | b << 8) >> 4;
 			
