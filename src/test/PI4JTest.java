@@ -163,7 +163,7 @@ public class PI4JTest {
 			
 //			int x = ((a >> 4) | (b << 8));
 			
-			System.out.print("[ " + bits2String(shortybits) + " ]  ");
+			System.out.print("[ " + bits2Int(shortybits) + " ]  ");
 			 
 			
 //			System.out.print(s + "  ");
