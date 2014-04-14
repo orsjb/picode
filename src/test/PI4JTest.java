@@ -136,11 +136,11 @@ public class PI4JTest {
 //			String aString = Integer.toBinaryString((int)a);
 //			String bString = Integer.toBinaryString((int)b);
 			
-//			float f = (a | b << 8) >> 4;
+			int x = (a | b << 8);
 			
 			
 //			System.out.print(aString + ":" + bString + "  ");
-			System.out.print(a + ":" + b + "  ");
+			System.out.print(a + ":" + b + "(" + x + ") -- ");
 		}
 		System.out.println();
 	}
