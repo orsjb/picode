@@ -125,7 +125,7 @@ public class PI4JTest {
 //			byte a = accelIn.readByte();	//least sig
 //			byte b = accelIn.readByte(); //most sig
 			
-			short s = accelIn.readShort();
+			float s = accelIn.readFloat();
 			
 //			String aString = String.format("%02X", a);
 //			String bString = String.format("%02X", b);
