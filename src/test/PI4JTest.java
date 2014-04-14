@@ -18,7 +18,7 @@ public class PI4JTest {
 //	final static byte ACC_ADDRESS = (0x32 >> 1);
 //	final static byte GYR_ADDRESS = (0xD6 >> 1);
 
-	final static byte GYR_ADDRESS = (0x6b);
+	final static byte GYR_ADDRESS = 0x6b;
 
 	I2CBus bus;
 	I2CDevice gyrodevice, acceldevice, magdevice;
@@ -84,7 +84,7 @@ public class PI4JTest {
 		bytes = new byte[numBytes]; //
 		DataInputStream gyroIn;
 		while (true) {
-			int r = gyrodevice.read(bytes, 0, bytes.length);
+			int r = gyrodevice.read(0x80, bytes, 0, bytes.length);
 			System.out.println("Num bytes read: " + r);
 
 			gyroIn = new DataInputStream(new ByteArrayInputStream(bytes));
