@@ -143,11 +143,17 @@ public class PI4JTest {
 //			String aString = Integer.toBinaryString((int)a);
 //			String bString = Integer.toBinaryString((int)b);
 			
-//			int x = (b | a << 8)>>4;
 			
 //			System.out.print(aString + ":" + bString + "  ");
 //			System.out.print(a + ":" + b + "(" + x + ") -- ");
+			
 			System.out.print(byte2Str(a) + ":" + byte2Str(b) + " ");
+
+			int x = ((b >> 4) | (a << 8));
+			
+			System.out.print("[ " + x + " ]  ");
+			 
+			
 //			System.out.print(s + "  ");
 		}
 		System.out.println();
