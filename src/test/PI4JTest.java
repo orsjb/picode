@@ -122,11 +122,15 @@ public class PI4JTest {
 		for (int i = 0; i < numElements; i++) {
 			
 			
-			byte a = accelIn.readByte();
-			byte b = accelIn.readByte();
+			byte a = accelIn.readByte();	//least sig
+			byte b = accelIn.readByte(); //most sig
 			
 			String aString = String.format("%02X", a);
 			String bString = String.format("%02X", b);
+			
+			
+			
+			
 			
 
 //			String aString = Integer.toBinaryString((int)a);
@@ -135,7 +139,8 @@ public class PI4JTest {
 //			float f = (a | b << 8) >> 4;
 			
 			
-			System.out.print(aString + ":" + bString + "  ");
+//			System.out.print(aString + ":" + bString + "  ");
+			System.out.print(a + ":" + b + "  ");
 		}
 		System.out.println();
 	}
