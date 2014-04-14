@@ -89,7 +89,7 @@ public class PI4JTest {
 		DataInputStream gyroIn;
 		while (true) {
 			int r = gyrodevice.read(0xa8, bytes, 0, bytes.length);
-//			System.out.println("Num bytes read: " + r);
+			System.out.println("Num bytes read: " + r);
 
 			gyroIn = new DataInputStream(new ByteArrayInputStream(bytes));
 			for (int i = 0; i < numElements; i++) {
