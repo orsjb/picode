@@ -25,8 +25,12 @@ public class PI4JTest {
 	byte[] bytes;
 
 	public static void main(String[] args) throws IOException {
-		PI4JTest pit = new PI4JTest();
-		pit.startReading();
+		
+		System.out.println(String.format("%02X", 0x80 | 0x28));
+		
+		
+//		PI4JTest pit = new PI4JTest();
+//		pit.startReading();
 	}
 
 	public PI4JTest() throws IOException {
@@ -84,7 +88,7 @@ public class PI4JTest {
 		bytes = new byte[numBytes]; //
 		DataInputStream gyroIn;
 		while (true) {
-			int r = gyrodevice.read(0x80, bytes, 0, bytes.length);
+			int r = gyrodevice.read(0xa8, bytes, 0, bytes.length);
 			System.out.println("Num bytes read: " + r);
 
 			gyroIn = new DataInputStream(new ByteArrayInputStream(bytes));
