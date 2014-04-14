@@ -79,7 +79,7 @@ public class PI4JTest {
 					try {
 //						readingSensorsGyro();
 						readingSensorsAccel();
-						Thread.sleep(50);
+						Thread.sleep(10);
 					} catch (Exception e) {
 						e.printStackTrace();
 					}
