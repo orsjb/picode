@@ -82,14 +82,14 @@ public class PI4JTest {
 	}
 
 	private void readingSensorsGyro() throws IOException {
-		int numElements = 3; //
+		int numElements = 10; //
 		int bytesPerElement = 2; // assuming short?
 		int numBytes = numElements * bytesPerElement; //
 		bytes = new byte[numBytes]; //
 		DataInputStream gyroIn;
 		while (true) {
 			int r = gyrodevice.read(0xa8, bytes, 0, bytes.length);
-			System.out.println("Num bytes read: " + r);
+//			System.out.println("Num bytes read: " + r);
 
 			gyroIn = new DataInputStream(new ByteArrayInputStream(bytes));
 			for (int i = 0; i < numElements; i++) {
