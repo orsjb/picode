@@ -14,15 +14,20 @@ import com.pi4j.io.i2c.I2CFactory;
 
 public class PI4JTest {
 
-//	final static byte MAG_ADDRESS = (0x3C >> 1);
-//	final static byte ACC_ADDRESS = (0x32 >> 1);
-//	final static byte GYR_ADDRESS = (0xD6 >> 1);
-
+	final static byte MAG_ADDRESS = 0x1e;
+	final static byte ACC_ADDRESS = 0x19;
 	final static byte GYR_ADDRESS = 0x6b;
+
+	final static int MAG_DATA_ADDR = 0xa8;
+	final static int GYRO_DATA_ADDR = 0xa8;
+	final static int ACC_DATA_ADDR = 0xa8;
+
 
 	I2CBus bus;
 	I2CDevice gyrodevice, acceldevice, magdevice;
 	byte[] bytes;
+	
+	
 
 	public static void main(String[] args) throws IOException {
 		
@@ -54,9 +59,9 @@ public class PI4JTest {
 		// ACCEL
 		// Normal power mode, all axes enabled -- 0x20
 		// Continuous update, 2000 dps full scale -- 0x23
-//		acceldevice = bus.getDevice(ACC_ADDRESS);
-//		acceldevice.write(0x20, (byte) 0b01010111);
-//		acceldevice.write(0x23, (byte) 0b00101000);
+		acceldevice = bus.getDevice(ACC_ADDRESS);
+		acceldevice.write(0x20, (byte) 0b01010111);
+		acceldevice.write(0x23, (byte) 0b00101000);
 
 		// MAG
 //		magdevice = bus.getDevice(MAG_ADDRESS);
@@ -71,10 +76,13 @@ public class PI4JTest {
 		Runnable task = new Runnable() {
 			@Override
 			public void run() {
-				try {
-					readingSensorsGyro();
-				} catch (IOException e) {
-					e.printStackTrace();
+				while(true) {
+					try {
+						readingSensorsGyro();
+						readingSensorsAccel();
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
 				}
 			}
 		};
@@ -82,46 +90,55 @@ public class PI4JTest {
 	}
 
 	private void readingSensorsGyro() throws IOException {
+		System.out.println("GYRO");
 		int numElements = 3; //
 		int bytesPerElement = 2; // assuming short?
 		int numBytes = numElements * bytesPerElement; //
 		bytes = new byte[numBytes]; //
 		DataInputStream gyroIn;
-		while (true) {
-			int r = gyrodevice.read(0xa8, bytes, 0, bytes.length);
+		int r = gyrodevice.read(GYRO_DATA_ADDR, bytes, 0, bytes.length);
 //			System.out.println("Num bytes read: " + r);
-
-			gyroIn = new DataInputStream(new ByteArrayInputStream(bytes));
-			for (int i = 0; i < numElements; i++) {
-
-				byte a = gyroIn.readByte();
-				byte b = gyroIn.readByte();
-
-				float f = (b << 8 | a);
-
-				System.out.print(a + ":" + b + "  " + "(" + f + "), ");
-
-			}
-			System.out.println();
-			try {
-				Thread.sleep(100);
-			} catch (InterruptedException ex) {
-				ex.printStackTrace();
-			}
+		gyroIn = new DataInputStream(new ByteArrayInputStream(bytes));
+		for (int i = 0; i < numElements; i++) {
+			byte a = gyroIn.readByte();
+			byte b = gyroIn.readByte();
+			float f = (b << 8 | a);
+			System.out.print(a + ":" + b + "  " + "(" + f + "), ");
 		}
-
-		/*
-		 * The C code...
-		 * 
-		 * 
-		 * uint8_t block[6]; selectDevice(file,GYR_ADDRESS);
-		 * 
-		 * readBlock(0x80 | L3G_OUT_X_L, sizeof(block), block);
-		 * 
-		 * g = (int16_t)(block[1] << 8 | block[0]);(g+1) = (int16_t)(block[3] <<
-		 * 8 | block[2]);(g+2) = (int16_t)(block[5] << 8 | block[4]); }
-		 */
-
+		System.out.println();
 	}
+	
+	private void readingSensorsAccel() throws IOException {
+		System.out.println("ACCEL");
+		int numElements = 3; //
+		int bytesPerElement = 2; // assuming short?
+		int numBytes = numElements * bytesPerElement; //
+		bytes = new byte[numBytes]; //
+		DataInputStream accelIn;
+		int r = acceldevice.read(0xa8, bytes, 0, bytes.length);
+//			System.out.println("Num bytes read: " + r);
+		accelIn = new DataInputStream(new ByteArrayInputStream(bytes));
+		for (int i = 0; i < numElements; i++) {
+			byte a = accelIn.readByte();
+			byte b = accelIn.readByte();
+			float f = (a | b << 8) >> 4;
+			System.out.print(a + ":" + b + "  " + "(" + f + "), ");
+		}
+		System.out.println();
+	}
+	
+
+	/*
+	 * The C code...
+	 * 
+	 * 
+	 * uint8_t block[6]; selectDevice(file,GYR_ADDRESS);
+	 * 
+	 * readBlock(0x80 | L3G_OUT_X_L, sizeof(block), block);
+	 * 
+	 * g = (int16_t)(block[1] << 8 | block[0]);(g+1) = (int16_t)(block[3] <<
+	 * 8 | block[2]);(g+2) = (int16_t)(block[5] << 8 | block[4]); }
+	 */
+
 
 }
