@@ -4,6 +4,10 @@ import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
 
+import com.pi4j.io.gpio.GpioController;
+import com.pi4j.io.gpio.GpioFactory;
+import com.pi4j.io.gpio.PinPullResistance;
+import com.pi4j.io.gpio.RaspiPin;
 import com.pi4j.io.i2c.I2CBus;
 import com.pi4j.io.i2c.I2CDevice;
 import com.pi4j.io.i2c.I2CFactory;
@@ -32,6 +36,14 @@ public class PI4JTest {
 		 * writeGyrReg(L3G_CTRL_REG1, 0b00001111); // Normal power mode, all axes enabled
 		 * writeGyrReg(L3G_CTRL_REG4, 0b00110000); // Continuous update, 2000 dps full scale
 		 */
+		
+		
+		GpioController gpio = GpioFactory.getInstance();
+		gpio.provisionDigitalInputPin(RaspiPin.GPIO_00, PinPullResistance.PULL_DOWN);
+		
+		
+		
+		
 	}
 
 	public void startReading() {
@@ -66,7 +78,7 @@ public class PI4JTest {
 				
 				float f = (short)(b << 8 | a);
 				
-				System.out.print(a + "," + b + " ");
+				System.out.print(a + "." + b + "  " + "(" + f +"), ");
 			
 			}
 			System.out.println();
