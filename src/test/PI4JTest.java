@@ -130,10 +130,10 @@ public class PI4JTest {
 			String aString = Integer.toBinaryString(a);
 			String bString = Integer.toBinaryString(b);
 			
-			float f = (a | b << 8) >> 4;
+//			float f = (a | b << 8) >> 4;
 			
 			
-			System.out.print(aString + ":" + bString + "  " + "(" + f + "), ");
+			System.out.print(aString + ":" + bString + "  ");
 		}
 		System.out.println();
 	}
