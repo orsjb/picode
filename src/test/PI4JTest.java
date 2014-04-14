@@ -132,7 +132,7 @@ public class PI4JTest {
 //			String aString = Integer.toBinaryString((int)a);
 //			String bString = Integer.toBinaryString((int)b);
 			
-			int x = (b | a << 8);
+			int x = (b | a << 8)>>4;
 			
 //			System.out.print(aString + ":" + bString + "  ");
 			System.out.print(a + ":" + b + "(" + x + ") -- ");
