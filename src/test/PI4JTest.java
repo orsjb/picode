@@ -149,7 +149,7 @@ public class PI4JTest {
 			
 			System.out.print(byte2Str(a) + ":" + byte2Str(b) + " ");
 
-			int x = ((b >> 4) | (a << 8));
+			int x = ((a >> 4) | (b << 8));
 			
 			System.out.print("[ " + x + " ]  ");
 			 
