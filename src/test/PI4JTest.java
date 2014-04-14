@@ -120,15 +120,17 @@ public class PI4JTest {
 //			System.out.println("Num bytes read: " + r);
 		accelIn = new DataInputStream(new ByteArrayInputStream(bytes));
 		for (int i = 0; i < numElements; i++) {
+			
+			
 			byte a = accelIn.readByte();
 			byte b = accelIn.readByte();
 			
-//			String aString = String.format("%02X", a);
-//			String bString = String.format("%02X", b);
+			String aString = String.format("%02X", a);
+			String bString = String.format("%02X", b);
 			
 
-			String aString = Integer.toBinaryString((int)a);
-			String bString = Integer.toBinaryString((int)b);
+//			String aString = Integer.toBinaryString((int)a);
+//			String bString = Integer.toBinaryString((int)b);
 			
 //			float f = (a | b << 8) >> 4;
 			
