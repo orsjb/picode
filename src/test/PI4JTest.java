@@ -122,19 +122,20 @@ public class PI4JTest {
 		
 
 		//read the bytes backwards
-		byte[] backwardBytes = new byte[numBytes];
-		for(int i = 0; i < numBytes; i++) {
-			backwardBytes[numBytes - i - 1] = bytes[i];
-		}
+//		byte[] backwardBytes = new byte[numBytes];
+//		for(int i = 0; i < numBytes; i++) {
+//			backwardBytes[numBytes - i - 1] = bytes[i];
+//		}
 		
 //			System.out.println("Num bytes read: " + r);
-		accelIn = new DataInputStream(new ByteArrayInputStream(backwardBytes));
+//		accelIn = new DataInputStream(new ByteArrayInputStream(backwardBytes));
+		accelIn = new DataInputStream(new ByteArrayInputStream(bytes));
 		for (int i = 0; i < numElements; i++) {
 		
-//			byte a = accelIn.readByte();	//least sig
-//			byte b = accelIn.readByte(); //most sig
+			byte a = accelIn.readByte();	//least sig
+			byte b = accelIn.readByte(); //most sig
 			
-			short s = accelIn.readShort();
+//			short s = accelIn.readShort();
 			
 //			String aString = String.format("%02X", a);
 //			String bString = String.format("%02X", b);
@@ -146,7 +147,8 @@ public class PI4JTest {
 			
 //			System.out.print(aString + ":" + bString + "  ");
 //			System.out.print(a + ":" + b + "(" + x + ") -- ");
-			System.out.print(s + "  ");
+			System.out.print(byte2Str(a) + ":" + byte2Str(b) + " ");
+//			System.out.print(s + "  ");
 		}
 		System.out.println();
 	}
@@ -163,6 +165,29 @@ public class PI4JTest {
 	 * g = (int16_t)(block[1] << 8 | block[0]);(g+1) = (int16_t)(block[3] <<
 	 * 8 | block[2]);(g+2) = (int16_t)(block[5] << 8 | block[4]); }
 	 */
+	
+	
+	
+	private static boolean[] getBits(byte inByte) {
+		boolean[] bits = new boolean[8];
+		for (int j = 0; j < 8; j++) {
+			// Shift each bit by 1 starting at zero shift
+			byte tmp = (byte) (inByte >> j);
+			// Check byte with mask 00000001 for LSB
+			bits[7-j] = (tmp & 0x01) == 1;
+		}
+		return bits;
+	}
+	
 
+	
+	private static String byte2Str(byte inByte) {
+		boolean[] bbits = getBits(inByte);
+		StringBuffer b = new StringBuffer();
+		for(boolean v : bbits) {
+			b.append(v?1:0);
+		}
+		return b.toString();
+	}
 
 }
