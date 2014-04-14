@@ -26,11 +26,11 @@ public class PI4JTest {
 
 	public static void main(String[] args) throws IOException {
 		
-		System.out.println(String.format("%02X", 0x80 | 0x28));
+//		System.out.println(String.format("%02X", 0x80 | 0x28));
 		
 		
-//		PI4JTest pit = new PI4JTest();
-//		pit.startReading();
+		PI4JTest pit = new PI4JTest();
+		pit.startReading();
 	}
 
 	public PI4JTest() throws IOException {
