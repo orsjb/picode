@@ -78,9 +78,10 @@ public class PI4JTest {
 			public void run() {
 				while(true) {
 					try {
-						readingSensorsGyro();
+//						readingSensorsGyro();
 						readingSensorsAccel();
-					} catch (IOException e) {
+						Thread.sleep(50);
+					} catch (Exception e) {
 						e.printStackTrace();
 					}
 				}
