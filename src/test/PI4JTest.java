@@ -120,7 +120,7 @@ public class PI4JTest {
 			byte b = accelIn.readByte(); //most sig
 			boolean[] abits = getBits(a);
 			boolean[] bbits = getBits(b);
-			System.out.print(bits2String(abits) + ":" + bits2String(bbits) + "   ");
+//			System.out.print(bits2String(abits) + ":" + bits2String(bbits) + "   ");
 			boolean[] shortybits = new boolean[16];
 			for(int j = 0; j < 8; j++) {
 				shortybits[j] = bbits[j];
@@ -132,7 +132,6 @@ public class PI4JTest {
 			result[i] = theInt / 5000f;
 		}
 		
-		System.out.println();
 		
 		return result;
 	}
@@ -147,10 +146,15 @@ public class PI4JTest {
 		acceldevice.read(0xa8, bytes, 0, bytes.length);
 		accelIn = new DataInputStream(new ByteArrayInputStream(bytes));
 		for (int i = 0; i < numElements; i++) {
+			
 			byte a = accelIn.readByte(); //least sig
 			byte b = accelIn.readByte(); //most sig
 			boolean[] abits = getBits(a);
 			boolean[] bbits = getBits(b);
+			
+			System.out.print(bits2String(abits) + ":" + bits2String(bbits) + "   ");
+			
+			
 			boolean[] shortybits = new boolean[16];
 			for(int j = 0; j < 8; j++) {
 				shortybits[j + 4] = bbits[j];
@@ -159,8 +163,11 @@ public class PI4JTest {
 				shortybits[j + 12] = abits[j];
 			}
 			int theInt = bits2Int(shortybits);
-			result[i] = theInt / 5000f;
+			result[i] = theInt;
+			
+			
 		}
+		System.out.println();
 		return result;
 	}
 	
