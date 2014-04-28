@@ -58,8 +58,8 @@ public class PI4JTest {
 
 		// ACCEL
 		acceldevice = bus.getDevice(ACC_ADDRESS);
-//		acceldevice.write(0x20, (byte) 0b01010111);
-//		acceldevice.write(0x23, (byte) 0b00101000);
+		acceldevice.write(0x20, (byte) 0b01010111);
+		acceldevice.write(0x23, (byte) 0b00101000);
 
 		// MAG
 //		magdevice = bus.getDevice(MAG_ADDRESS);
@@ -81,15 +81,17 @@ public class PI4JTest {
 						
 						
 						
-						System.out.println(gyroData[0] + "\t" + gyroData[1] + "\t" + gyroData[2] + "\t" + accelData[0] + "\t" + accelData[1] + "\t" + accelData[2] + "\t");
+//						System.out.println(gyroData[0] + "\t" + gyroData[1] + "\t" + gyroData[2] + "\t" + accelData[0] + "\t" + accelData[1] + "\t" + accelData[2] + "\t");
+						System.out.println(accelData[0] + "\t" + accelData[1] + "\t" + accelData[2] + "\t");
 						
-						Object[] args = new Object[6];
-						args[0] = gyroData[0];
-						args[1] = gyroData[1];
-						args[2] = gyroData[2];
-						args[3] = accelData[0];
-						args[4] = accelData[1];
-						args[5] = accelData[2];
+						
+						Object[] args = new Object[3];
+//						args[0] = gyroData[0];
+//						args[1] = gyroData[1];
+//						args[2] = gyroData[2];
+						args[0] = accelData[0];
+						args[1] = accelData[1];
+						args[2] = accelData[2];
 						
 						OSCMessage m = new OSCMessage("/data", args);
 						serv.send(m, new InetSocketAddress("boing.local", 4432));
