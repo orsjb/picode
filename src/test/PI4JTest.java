@@ -152,7 +152,7 @@ public class PI4JTest {
 			boolean[] abits = getBits(a);
 			boolean[] bbits = getBits(b);
 			
-//			System.out.print(bits2String(abits) + ":" + bits2String(bbits) + "   ");
+			System.out.print(bits2String(abits) + ":" + bits2String(bbits));
 			
 			
 			boolean[] shortybits = new boolean[12];
@@ -165,7 +165,7 @@ public class PI4JTest {
 			int theInt = bits2Int(shortybits);
 			result[i] = theInt;
 			
-			System.out.print(bits2String(shortybits) + "   ");
+			System.out.print("(" + bits2String(shortybits) + ")   ");
 			
 		}
 		System.out.println();
