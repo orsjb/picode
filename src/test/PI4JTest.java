@@ -85,14 +85,23 @@ public class PI4JTest {
 //						System.out.println(gyroData[0] + "\t" + gyroData[1] + "\t" + gyroData[2] + "\t" + accelData[0] + "\t" + accelData[1] + "\t" + accelData[2] + "\t");
 //						System.out.println(accelData[0] + "\t" + accelData[1] + "\t" + accelData[2] + "\t");
 						
+						double M_PI = 3.14159265358979323846;
+						double RAD_TO_DEG = 57.29578;
 						
-						Object[] args = new Object[3];
+						double accXangle = (float) (Math.atan2(accelData[1],accelData[2])+M_PI)*RAD_TO_DEG;
+						double accYangle = (float) (Math.atan2(accelData[2],accelData[0])+M_PI)*RAD_TO_DEG;
+						
+						
+						Object[] args = new Object[5];
 //						args[0] = gyroData[0];
 //						args[1] = gyroData[1];
 //						args[2] = gyroData[2];
 						args[0] = accelData[0];
 						args[1] = accelData[1];
 						args[2] = accelData[2];
+						
+						args[3] = accXangle;
+						args[4] = accYangle;
 						
 						OSCMessage m = new OSCMessage("/data", args);
 						serv.send(m, new InetSocketAddress("boing.local", 4432));
@@ -167,7 +176,7 @@ public class PI4JTest {
 			result[i] = theInt;
 			
 			
-			System.out.print(bits2String(shortybits) + " (" + bits2Int(shortybits) + ")     ");
+			System.out.print(bits2String(shortybits) + " (" + theInt + ")     ");
 			
 		}
 		System.out.println();
