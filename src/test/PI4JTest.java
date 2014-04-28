@@ -201,8 +201,10 @@ public class PI4JTest {
 		int result = 0;
 		
 		int length = bbits.length - 1;
-		for(int i = 1; i < length; i++) {
-			result += Math.pow(2, (bbits[length - i]?1:0));
+		for(int i = 0; i < length; i++) {
+//			result += Math.pow(2, (bbits[length - i]?1:0));
+			
+			result += bbits[length - i]? Math.pow(2, i) : 0;
 		}
 		
 		if(bbits[0]) result = -result;
