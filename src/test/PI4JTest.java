@@ -3,6 +3,7 @@ package test;
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
+import java.net.InetSocketAddress;
 
 import com.pi4j.io.gpio.GpioController;
 import com.pi4j.io.gpio.GpioFactory;
@@ -11,6 +12,9 @@ import com.pi4j.io.gpio.RaspiPin;
 import com.pi4j.io.i2c.I2CBus;
 import com.pi4j.io.i2c.I2CDevice;
 import com.pi4j.io.i2c.I2CFactory;
+
+import de.sciss.net.OSCMessage;
+import de.sciss.net.OSCServer;
 
 public class PI4JTest {
 
@@ -26,6 +30,8 @@ public class PI4JTest {
 	I2CBus bus;
 	I2CDevice gyrodevice, acceldevice, magdevice;
 	
+
+	final OSCServer serv = OSCServer.newUsing(OSCServer.UDP, 4432);
 	
 
 	public static void main(String[] args) throws IOException {
@@ -38,6 +44,9 @@ public class PI4JTest {
 	}
 
 	public PI4JTest() throws IOException {
+		
+		serv.start();
+		
 		System.out.println("Starting sensors reading:");
 		bus = I2CFactory.getInstance(I2CBus.BUS_1);
 		System.out.println("Connected to bus OK!");
@@ -74,7 +83,16 @@ public class PI4JTest {
 						
 						System.out.println(gyroData[0] + "\t" + gyroData[1] + "\t" + gyroData[2] + "\t" + accelData[0] + "\t" + accelData[1] + "\t" + accelData[2] + "\t");
 						
+						Object[] args = new Object[6];
+						args[0] = gyroData[0];
+						args[1] = gyroData[1];
+						args[2] = gyroData[2];
+						args[3] = accelData[0];
+						args[4] = accelData[1];
+						args[5] = accelData[2];
 						
+						OSCMessage m = new OSCMessage("/data", args);
+						serv.send(m, new InetSocketAddress("boing.local", 4432));
 						
 						Thread.sleep(10);
 					} catch (Exception e) {
