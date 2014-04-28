@@ -53,13 +53,13 @@ public class PI4JTest {
 
 		// GYRO
 		gyrodevice = bus.getDevice(GYR_ADDRESS);
-		gyrodevice.write(0x20, (byte) 0b00001111);
-		gyrodevice.write(0x23, (byte) 0b00110000);
+//		gyrodevice.write(0x20, (byte) 0b00001111);
+//		gyrodevice.write(0x23, (byte) 0b00110000);
 
 		// ACCEL
 		acceldevice = bus.getDevice(ACC_ADDRESS);
-		acceldevice.write(0x20, (byte) 0b01010111);
-		acceldevice.write(0x23, (byte) 0b00101000);
+//		acceldevice.write(0x20, (byte) 0b01010111);
+//		acceldevice.write(0x23, (byte) 0b00101000);
 
 		// MAG
 //		magdevice = bus.getDevice(MAG_ADDRESS);
