@@ -12,6 +12,7 @@ import com.pi4j.io.gpio.RaspiPin;
 import com.pi4j.io.i2c.I2CBus;
 import com.pi4j.io.i2c.I2CDevice;
 import com.pi4j.io.i2c.I2CFactory;
+import com.pi4j.wiringpi.Shift;
 
 import de.sciss.net.OSCMessage;
 import de.sciss.net.OSCServer;
@@ -152,7 +153,7 @@ public class PI4JTest {
 			boolean[] abits = getBits(a);
 			boolean[] bbits = getBits(b);
 			
-			System.out.print(bits2String(abits) + ":" + bits2String(bbits));
+//			System.out.print(bits2String(abits) + ":" + bits2String(bbits));
 			
 			
 			boolean[] shortybits = new boolean[12];
@@ -165,7 +166,8 @@ public class PI4JTest {
 			int theInt = bits2Int(shortybits);
 			result[i] = theInt;
 			
-			System.out.print("(" + bits2String(shortybits) + ")   ");
+			
+			System.out.print(bits2String(shortybits) + " (" + bits2Int(shortybits) + ")     ");
 			
 		}
 		System.out.println();
@@ -193,8 +195,19 @@ public class PI4JTest {
 	}
 	
 	public static int bits2Int(boolean[] bbits) {
-		String s = bits2String(bbits);
-		return Integer.valueOf(s, 2);
+//		String s = bits2String(bbits);
+//		return Integer.valueOf(s, 2);
+		
+		int result = 0;
+		
+		int length = bbits.length - 1;
+		for(int i = 1; i < length; i++) {
+			result += Math.pow(2, (bbits[length - i]?1:0));
+		}
+		
+		if(bbits[0]) result = -result;
+		return result;
+		
 	}
 
 	
