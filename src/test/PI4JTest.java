@@ -91,6 +91,8 @@ public class PI4JTest {
 						double accXangle = (float) (Math.atan2(accelData[1],accelData[2])+M_PI)*RAD_TO_DEG;
 						double accYangle = (float) (Math.atan2(accelData[2],accelData[0])+M_PI)*RAD_TO_DEG;
 						
+						System.out.println(accelData[0] + "\t" + accelData[1] + "\t" + accelData[2] + "\t" + accXangle + "\t" + accYangle);
+						
 						
 						Object[] args = new Object[5];
 //						args[0] = gyroData[0];
