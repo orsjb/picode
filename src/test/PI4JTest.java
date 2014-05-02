@@ -99,12 +99,14 @@ public class PI4JTest {
 						args[0] = accelData[0];
 						args[1] = accelData[1];
 						args[2] = accelData[2];
+						//
+						//
 						
 						args[3] = accXangle;
 						args[4] = accYangle;
 						
-						OSCMessage m = new OSCMessage("/data", args);
-						serv.send(m, new InetSocketAddress("boing.local", 4432));
+						//OSCMessage m = new OSCMessage("/data", args);
+						//serv.send(m, new InetSocketAddress("boing.local", 4432));
 						
 						Thread.sleep(10);
 					} catch (Exception e) {
