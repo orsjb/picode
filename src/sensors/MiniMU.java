@@ -1,18 +1,21 @@
-package test;
+package sensors;
 
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
-import java.net.InetSocketAddress;
 
 import com.pi4j.io.i2c.I2CBus;
 import com.pi4j.io.i2c.I2CDevice;
 import com.pi4j.io.i2c.I2CFactory;
 
-import de.sciss.net.OSCMessage;
-import de.sciss.net.OSCServer;
-
-public class PI4JTest {
+public class MiniMU {
+	
+	public static abstract class MiniMUListener {
+		public void accelData(double x, double y, double z) {}
+		public void gyroData(double x, double y, double z) {}
+		public void magData(double x, double y, double z) {}
+		public void tempData(double t) {}
+	}
 
 	final static byte MAG_ADDRESS = 0x1e;
 	final static byte ACC_ADDRESS = 0x19;
@@ -26,60 +29,61 @@ public class PI4JTest {
 	I2CBus bus;
 	I2CDevice gyrodevice, acceldevice, magdevice;
 	
-
-	final OSCServer serv = OSCServer.newUsing(OSCServer.UDP, 4432);
+	MiniMUListener listener;
 	
-
-	public static void main(String[] args) throws IOException {
-		PI4JTest pit = new PI4JTest();
-		pit.startReading();
+	public MiniMU(MiniMUListener listener) {
+		this();
+		setListener(listener);
 	}
 
-	public PI4JTest() throws IOException {
-		serv.start();
-		System.out.println("Starting sensors reading:");
-		bus = I2CFactory.getInstance(I2CBus.BUS_1);
-		System.out.println("Connected to bus OK!");
-		// GYRO
-		gyrodevice = bus.getDevice(GYR_ADDRESS);
-//		gyrodevice.write(0x20, (byte) 0b00001111);
-//		gyrodevice.write(0x23, (byte) 0b00110000);
-		// ACCEL
-		acceldevice = bus.getDevice(ACC_ADDRESS);
-		acceldevice.write(0x20, (byte) 0b01010111);
-		acceldevice.write(0x23, (byte) 0b00101000);
-		// MAG
-//		magdevice = bus.getDevice(MAG_ADDRESS);
-//		gyrodevice.write(0x20, (byte) 0b00001111);
-//		gyrodevice.write(0x23, (byte) 0b00110000);
-		// TEMP
+	public MiniMU() {
+		try {
+			System.out.println("Starting sensors reading:");
+			bus = I2CFactory.getInstance(I2CBus.BUS_1);
+			System.out.println("Connected to bus OK!");
+			// GYRO
+			gyrodevice = bus.getDevice(GYR_ADDRESS);
+//			gyrodevice.write(0x20, (byte) 0b00001111);
+//			gyrodevice.write(0x23, (byte) 0b00110000);
+			// ACCEL
+			acceldevice = bus.getDevice(ACC_ADDRESS);
+			acceldevice.write(0x20, (byte) 0b01010111);
+			acceldevice.write(0x23, (byte) 0b00101000);
+			// MAG
+//			magdevice = bus.getDevice(MAG_ADDRESS);
+//			gyrodevice.write(0x20, (byte) 0b00001111);
+//			gyrodevice.write(0x23, (byte) 0b00110000);
+			// TEMP
+		} catch(IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public void setListener(MiniMUListener listener) {
+		this.listener = listener;
 	}
 
-	public void startReading() {
+	public void start() {
 		Runnable task = new Runnable() {
 			@Override
 			public void run() {
 				while(true) {
 					try {
-						float[] gyroData = readingSensorsGyro();
+//						float[] gyroData = readingSensorsGyro();
 						float[] accelData = readingSensorsAccel();
 //						System.out.println(gyroData[0] + "\t" + gyroData[1] + "\t" + gyroData[2] + "\t" + accelData[0] + "\t" + accelData[1] + "\t" + accelData[2] + "\t");
 //						System.out.println(accelData[0] + "\t" + accelData[1] + "\t" + accelData[2] + "\t");
-						double M_PI = 3.14159265358979323846;
-						double RAD_TO_DEG = 57.29578;
-						double accXangle = (float) (Math.atan2(accelData[1],accelData[2])+M_PI)*RAD_TO_DEG;
-						double accYangle = (float) (Math.atan2(accelData[2],accelData[0])+M_PI)*RAD_TO_DEG;
-						Object[] args = new Object[5];
-//						args[0] = gyroData[0];
-//						args[1] = gyroData[1];
-//						args[2] = gyroData[2];
-						args[0] = accelData[0];
-						args[1] = accelData[1];
-						args[2] = accelData[2];
-						args[3] = accXangle;
-						args[4] = accYangle;
-						OSCMessage m = new OSCMessage("/data", args);
-						serv.send(m, new InetSocketAddress("boing.local", 4432));
+//						double M_PI = 3.14159265358979323846;
+//						double RAD_TO_DEG = 57.29578;
+//						double accXangle = (float) (Math.atan2(accelData[1],accelData[2])+M_PI)*RAD_TO_DEG;
+//						double accYangle = (float) (Math.atan2(accelData[2],accelData[0])+M_PI)*RAD_TO_DEG;
+						//pass data on to listeners
+						if(listener != null) {
+							listener.accelData(accelData[0], accelData[1], accelData[2]);
+//							listener.gyroData(x, y, z);
+//							listener.magData(x, y, z);
+//							listener.tempData(t);
+						}
 						Thread.sleep(10);
 					} catch (Exception e) {
 						e.printStackTrace();

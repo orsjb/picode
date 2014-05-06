@@ -13,4 +13,8 @@ public abstract class AudioSetup {
 		int outchans = Integer.parseInt(args[3]);
 		return new AudioContext(new JavaSoundAudioIO(bufSize), bufSize, new IOAudioFormat(sampleRate, 16, inchans, outchans));
 	}
+	
+	public static AudioContext getAudioContext() {			
+		return getAudioContext(new String[] {"8192", "22050", "0", "1"});
+	}
 }
