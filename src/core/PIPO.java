@@ -1,5 +1,7 @@
-package dynamic;
+package core;
 import java.io.Serializable;
+
+import pi.dynamic.DynamoPI;
 
 /**
  * PI Playback Object.

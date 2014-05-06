@@ -1,4 +1,4 @@
-package dynamic;
+package pi.dynamic;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -8,6 +8,8 @@ import java.net.Socket;
 import java.util.Hashtable;
 import java.util.Random;
 
+import pi.ConnectionClient;
+import core.AudioSetup;
 import net.beadsproject.beads.core.AudioContext;
 import net.beadsproject.beads.core.Bead;
 import net.beadsproject.beads.core.IOAudioFormat;

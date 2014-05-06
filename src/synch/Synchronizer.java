@@ -16,11 +16,11 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Map;
 
+import pi.dynamic.DynamoPI;
+import core.AudioSetup;
 import net.beadsproject.beads.core.AudioContext;
 import net.beadsproject.beads.core.IOAudioFormat;
 import net.beadsproject.beads.core.io.JavaSoundAudioIO;
-import dynamic.AudioSetup;
-import dynamic.DynamoPI;
 
 public class Synchronizer {
 

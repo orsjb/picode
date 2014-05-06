@@ -1,4 +1,4 @@
-package sensors;
+package pi.sensors;
 
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;

@@ -1,12 +1,12 @@
 package my_pipos.miri;
 
+import pi.dynamic.DynamoPI;
+import server.dynamic.SendToPI;
+import core.PIPO;
 import net.beadsproject.beads.core.Bead;
 import net.beadsproject.beads.ugens.Envelope;
 import net.beadsproject.beads.ugens.Glide;
 import net.beadsproject.beads.ugens.WavePlayer;
-import dynamic.DynamoPI;
-import dynamic.PIPO;
-import dynamic.SendToPI;
 
 public class RingModPIPO implements PIPO {
 

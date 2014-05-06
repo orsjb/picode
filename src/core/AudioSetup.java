@@ -1,4 +1,4 @@
-package dynamic;
+package core;
 
 import net.beadsproject.beads.core.AudioContext;
 import net.beadsproject.beads.core.IOAudioFormat;

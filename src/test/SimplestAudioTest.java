@@ -1,8 +1,8 @@
 package test;
 
+import core.AudioSetup;
 import net.beadsproject.beads.core.AudioContext;
 import net.beadsproject.beads.ugens.Noise;
-import dynamic.AudioSetup;
 
 public class SimplestAudioTest {
 	public static void main(String[] args) {

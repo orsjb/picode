@@ -1,10 +1,10 @@
 package my_pipos.miri;
 
+import pi.dynamic.DynamoPI;
+import server.dynamic.SendToPI;
+import core.PIPO;
 import net.beadsproject.beads.data.SampleManager;
 import net.beadsproject.beads.ugens.Envelope;
-import dynamic.DynamoPI;
-import dynamic.PIPO;
-import dynamic.SendToPI;
 
 public class PianoPIPO implements PIPO {
 

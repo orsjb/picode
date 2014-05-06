@@ -1,12 +1,12 @@
 package my_pipos.breaks;
 
+import pi.dynamic.DynamoPI;
+import server.dynamic.SendToPI;
+import core.PIPO;
 import net.beadsproject.beads.data.Buffer;
 import net.beadsproject.beads.ugens.Function;
 import net.beadsproject.beads.ugens.GranularSamplePlayer;
 import net.beadsproject.beads.ugens.WavePlayer;
-import dynamic.DynamoPI;
-import dynamic.PIPO;
-import dynamic.SendToPI;
 
 public class PIPOVal implements PIPO {
 

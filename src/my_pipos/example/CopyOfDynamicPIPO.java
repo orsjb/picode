@@ -2,14 +2,14 @@ package my_pipos.example;
 
 import java.net.SocketAddress;
 
+import pi.dynamic.DynamoPI;
+import server.dynamic.SendToPI;
+import core.PIPO;
 import net.beadsproject.beads.data.Buffer;
 import net.beadsproject.beads.ugens.Gain;
 import net.beadsproject.beads.ugens.WavePlayer;
 import de.sciss.net.OSCListener;
 import de.sciss.net.OSCMessage;
-import dynamic.DynamoPI;
-import dynamic.PIPO;
-import dynamic.SendToPI;
 
 public class CopyOfDynamicPIPO implements PIPO {
 

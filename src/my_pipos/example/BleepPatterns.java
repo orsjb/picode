@@ -1,13 +1,13 @@
 
 package my_pipos.example;
 
+import pi.dynamic.DynamoPI;
+import server.dynamic.SendToPI;
+import core.PIPO;
 import net.beadsproject.beads.core.Bead;
 import net.beadsproject.beads.ugens.Envelope;
 import net.beadsproject.beads.ugens.Gain;
 import net.beadsproject.beads.ugens.Noise;
-import dynamic.DynamoPI;
-import dynamic.PIPO;
-import dynamic.SendToPI;
 
 public class BleepPatterns implements PIPO {
 

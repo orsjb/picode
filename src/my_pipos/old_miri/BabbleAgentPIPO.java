@@ -1,5 +1,8 @@
 package my_pipos.old_miri;
 
+import pi.dynamic.DynamoPI;
+import server.dynamic.SendToPI;
+import core.PIPO;
 import net.beadsproject.beads.core.UGen;
 import net.beadsproject.beads.data.Buffer;
 import net.beadsproject.beads.data.Sample;
@@ -8,9 +11,6 @@ import net.beadsproject.beads.ugens.Envelope;
 import net.beadsproject.beads.ugens.Function;
 import net.beadsproject.beads.ugens.Glide;
 import net.beadsproject.beads.ugens.WavePlayer;
-import dynamic.DynamoPI;
-import dynamic.PIPO;
-import dynamic.SendToPI;
 
 public class BabbleAgentPIPO implements PIPO {
 

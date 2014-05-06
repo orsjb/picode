@@ -2,6 +2,9 @@ package my_pipos.breaks;
 
 import java.net.SocketAddress;
 
+import pi.dynamic.DynamoPI;
+import server.dynamic.SendToPI;
+import core.PIPO;
 import net.beadsproject.beads.core.Bead;
 import net.beadsproject.beads.data.SampleManager;
 import net.beadsproject.beads.events.KillTrigger;
@@ -11,9 +14,6 @@ import net.beadsproject.beads.ugens.GranularSamplePlayer;
 import net.beadsproject.beads.ugens.SamplePlayer;
 import de.sciss.net.OSCListener;
 import de.sciss.net.OSCMessage;
-import dynamic.DynamoPI;
-import dynamic.PIPO;
-import dynamic.SendToPI;
 
 public class PIPOAll implements PIPO {
 

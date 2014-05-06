@@ -1,13 +1,13 @@
 package test;
 
-import sensors.MiniMU;
-import sensors.MiniMU.MiniMUListener;
+import pi.sensors.MiniMU;
+import pi.sensors.MiniMU.MiniMUListener;
+import core.AudioSetup;
 import net.beadsproject.beads.core.AudioContext;
 import net.beadsproject.beads.data.Buffer;
 import net.beadsproject.beads.ugens.Gain;
 import net.beadsproject.beads.ugens.Glide;
 import net.beadsproject.beads.ugens.WavePlayer;
-import dynamic.AudioSetup;
 
 public class MiniMUTest {
 

@@ -1,8 +1,8 @@
 package my_pipos.breaks;
 
-import dynamic.DynamoPI;
-import dynamic.PIPO;
-import dynamic.SendToPI;
+import pi.dynamic.DynamoPI;
+import server.dynamic.SendToPI;
+import core.PIPO;
 
 public class PIPOLoadData implements PIPO {
 

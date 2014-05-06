@@ -1,4 +1,4 @@
-package dynamic;
+package pi.dynamic;
 
 
 public class DynamoClassLoader extends ClassLoader {

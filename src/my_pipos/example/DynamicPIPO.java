@@ -1,11 +1,11 @@
 package my_pipos.example;
 
+import pi.dynamic.DynamoPI;
+import core.PIPO;
 import net.beadsproject.beads.core.Bead;
 import net.beadsproject.beads.data.Sample;
 import net.beadsproject.beads.data.SampleManager;
 import net.beadsproject.beads.ugens.SamplePlayer;
-import dynamic.DynamoPI;
-import dynamic.PIPO;
 
 public class DynamicPIPO implements PIPO {
 	
