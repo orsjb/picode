@@ -146,9 +146,9 @@ public class MiniMU {
 			}
 			int theInt = bits2Int(shortybits);
 			result[i] = theInt;
-			System.out.print(bits2String(shortybits) + " (" + theInt + ")     ");
+//			System.out.print(bits2String(shortybits) + " (" + theInt + ")     ");
 		}
-		System.out.println();
+//		System.out.println();
 		return result;
 	}
 
