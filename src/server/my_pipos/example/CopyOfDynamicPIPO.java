@@ -3,7 +3,7 @@ package server.my_pipos.example;
 import java.net.SocketAddress;
 
 import pi.dynamic.DynamoPI;
-import server.dynamic.SendToPI;
+import server.network.SendToPI;
 import core.PIPO;
 import net.beadsproject.beads.data.Buffer;
 import net.beadsproject.beads.ugens.Gain;

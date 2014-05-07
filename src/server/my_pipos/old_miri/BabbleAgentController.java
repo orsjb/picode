@@ -1,7 +1,7 @@
 package server.my_pipos.old_miri;
 
 import pi.dynamic.DynamoPI;
-import server.dynamic.SendToPI;
+import server.network.SendToPI;
 import core.PIPO;
 
 public class BabbleAgentController implements PIPO {

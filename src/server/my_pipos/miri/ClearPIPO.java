@@ -1,7 +1,7 @@
 package server.my_pipos.miri;
 
 import pi.dynamic.DynamoPI;
-import server.dynamic.SendToPI;
+import server.network.SendToPI;
 import core.PIPO;
 
 public class ClearPIPO implements PIPO {

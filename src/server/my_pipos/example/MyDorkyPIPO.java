@@ -1,7 +1,7 @@
 package server.my_pipos.example;
 
 import pi.dynamic.DynamoPI;
-import server.dynamic.SendToPI;
+import server.network.SendToPI;
 import core.PIPO;
 import net.beadsproject.beads.data.Sample;
 import net.beadsproject.beads.data.SampleManager;

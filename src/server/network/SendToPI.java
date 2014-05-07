@@ -1,4 +1,4 @@
-package server.dynamic;
+package server.network;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;

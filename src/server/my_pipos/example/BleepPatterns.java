@@ -2,7 +2,7 @@
 package server.my_pipos.example;
 
 import pi.dynamic.DynamoPI;
-import server.dynamic.SendToPI;
+import server.network.SendToPI;
 import core.PIPO;
 import net.beadsproject.beads.core.Bead;
 import net.beadsproject.beads.ugens.Envelope;
