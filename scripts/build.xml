@@ -6,8 +6,15 @@
 		PI Code, a bunch of stuff for running audio on raspberry PIs.
 	</description>
     
+	<!-- Working directory -->
+	<property name="work" value=".." />  
+	
 	<!-- Build directory -->
-	<property name="build" value="build" />  
+	<property name="build" value="${work}/build" />  
+	<!-- Library directory -->
+	<property name="libs" value="${work}/libs" /> 
+	<!-- Bin directory -->
+	<property name="bin" value="${work}/bin" />  
     
 	<!-- 
 	Compile everything down to one jar.
@@ -15,8 +22,8 @@
 	<target name ="makejar" description="Create a jar for the picode project">
 	    <mkdir dir="${build}" />
 		<jar jarfile="${build}/picode.jar">
-		    <fileset dir="bin" includes="**/*.class" />
-		    <zipgroupfileset dir="libs" includes="**/*.jar" />
+		    <fileset dir="${bin}" includes="**/*.class" />
+		    <zipgroupfileset dir="${libs}" includes="**/*.jar" />
 		</jar>
 	</target>
   

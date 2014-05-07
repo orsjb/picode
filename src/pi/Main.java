@@ -80,7 +80,7 @@ public class Main {
 					pl.addInput(sp);
 				}
 			}
-		});
+		}); 
 		ac.start();
 		
 		//OSCServer
