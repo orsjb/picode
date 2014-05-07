@@ -4,9 +4,10 @@ import net.beadsproject.beads.core.AudioContext;
 import net.beadsproject.beads.core.IOAudioFormat;
 import net.beadsproject.beads.core.io.JavaSoundAudioIO;
 
-public abstract class AudioSetup {
+public abstract class AudioSetup { 
 
 	public static AudioContext getAudioContext(String[] args) {			//args are bufSize (8192), sample rate (22050), input channels (0), output channels (1)
+		System.out.println("Creating AudioContext");
 		int bufSize = Integer.parseInt(args[0]);
 		int sampleRate = Integer.parseInt(args[1]);
 		int inchans = Integer.parseInt(args[2]);
