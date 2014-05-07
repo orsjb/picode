@@ -25,7 +25,7 @@ import de.sciss.net.OSCServer;
  * @author ollie
  */
 
-public class MasterServer extends Application implements OSCListener {
+public class ControllerMain extends Application implements OSCListener {
 	
 	OSCServer serv = null;
 	ObservableList<LocalPIRepresentation> thePIs;

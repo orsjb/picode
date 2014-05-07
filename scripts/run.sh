@@ -24,19 +24,19 @@ fi
 DIR=`dirname $0`
 cd ${DIR}/..
 
-# choose what to run
-# args are generally bufSize (8192), sample rate (22050), input channels (0), output channels (1)
+# Run the main app
+# args are bufSize (8192), sample rate (22050), input channels (0), output channels (1)
 
 BUF=512
 SR=11000
 INS=0
 OUTS=1
 
-/usr/bin/sudo /usr/bin/java -cp build/picode.jar test.MiniMUTest $BUF $SR $INS $OUTS  > stdout &
+/usr/bin/sudo /usr/bin/java -cp build/picode.jar pi.PIMain $BUF $SR $INS $OUTS  > stdout &
 
 ### various old or test scripts ###
 
-
+# /usr/bin/sudo /usr/bin/java -cp build/picode.jar test.MiniMUTest $BUF $SR $INS $OUTS  > stdout &
 # /usr/bin/sudo /usr/bin/java -cp build/picode.jar test.PI4JTest > stdout &
 # libs/minimulib/minimu9-ahrs -b /dev/i2c-1 | /usr/bin/sudo /usr/bin/java -cp build/picode.jar test.PrintStdIn $BUF $SR $INS $OUTS > stdout &
 # echo ~ > stdout &
