@@ -3,6 +3,8 @@ package server;
 import java.io.IOException;
 import java.net.SocketAddress;
 
+import server.jfx_gui.PIRepCell;
+import server.network.LocalPIRepresentation;
 import javafx.application.Application;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -44,7 +46,7 @@ public class MasterServer extends Application implements OSCListener {
     	serv.addOSCListener(this);
     }
     
-    private void setupGUI(Stage stage) {
+	private void setupGUI(Stage stage) {
     	ListView<LocalPIRepresentation> list = new ListView<LocalPIRepresentation>();
     	thePIs = FXCollections.observableArrayList();
     	list.setItems(thePIs);

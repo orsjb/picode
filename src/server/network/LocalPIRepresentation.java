@@ -1,15 +1,19 @@
-package server;
+package server.network;
 
 
 
 public class LocalPIRepresentation {
 
-	String hostname;
 	long lastTimeSeen;
 	
 	public LocalPIRepresentation(String hostname) {
 		this.hostname = hostname;
 	}
-	
+
+	String hostname;
+	public String getHostname() {
+		return hostname;
+	}
+
 	
 }
