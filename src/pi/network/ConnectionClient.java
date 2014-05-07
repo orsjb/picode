@@ -1,4 +1,4 @@
-package pi;
+package pi.network;
 
 import java.io.BufferedReader;
 import java.io.FileReader;

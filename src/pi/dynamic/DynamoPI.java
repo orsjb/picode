@@ -8,7 +8,7 @@ import java.net.Socket;
 import java.util.Hashtable;
 import java.util.Random;
 
-import pi.ConnectionClient;
+import pi.network.ConnectionClient;
 import core.AudioSetup;
 import net.beadsproject.beads.core.AudioContext;
 import net.beadsproject.beads.core.Bead;

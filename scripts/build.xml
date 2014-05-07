@@ -6,7 +6,9 @@
 		PI Code, a bunch of stuff for running audio on raspberry PIs.
 	</description>
     
-	<!-- Working directory -->
+	<!-- Working directory 
+		This file lives in scripts so we specify the parent dir as the working dir.
+	-->
 	<property name="work" value=".." />  
 	
 	<!-- Build directory -->
