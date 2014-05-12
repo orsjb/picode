@@ -118,10 +118,8 @@ public class DynamoPI {
 								pipo.action(DynamoPI.this);
 							} catch (Exception e) {
 								e.printStackTrace(); // catching all exceptions
-														// means that
-														// we avert an exception
-														// heading up
-								// to audio processes.
+													 // means that we avert an exception
+													 // heading up to audio processes.
 							}
 						}
 						s.close();
