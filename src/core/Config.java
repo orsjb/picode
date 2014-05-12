@@ -8,6 +8,9 @@ public abstract class Config {
 	public final static int codeSendPort		= 2225;
 	public final static int controlSendPort		= 2226;
 	
+	//places
+	public final static String workingDir = "/home/pi/git/pisound";
+	public final static String audioDir = workingDir + "/audio"; 
 	
 	
 }

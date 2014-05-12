@@ -35,8 +35,6 @@ public class Synchronizer {
 	 * r <MAC1> <timeMS> <MAC2> <timeMS>
 	 */
 	
-	AudioContext ac;
-	
 	String myMAC; //how to uniquely identify this machine
 	String myIP;
 	MulticastSocket broadcastSocket;
@@ -44,11 +42,8 @@ public class Synchronizer {
 	int multicastPort = 2225;
 	long timeCorrection = 0;			//add this to current time to get the REAL current time
 	long stableTimeCorrection = 0;
-	long startTimeAbs;
 	long lastTick;
 	int stabilityCount = 0;
-	boolean doLaunch = false;
-	boolean launched = false;
 
 	boolean on = true;
 	boolean verbose = false;
@@ -57,15 +52,10 @@ public class Synchronizer {
 	
 	Map<Long, Map<String, long[]>> log;		//first referenced by message send time, then by respodent's name, with the time the respondent replied and the current time
 	
-	public Synchronizer(AudioContext _ac) {
+	public Synchronizer() {
 		
 		//basics
 		log = new Hashtable<Long, Map<String, long[]>>();
-		
-		//audio
-		ac = _ac;
-		
-		startTimeAbs = System.currentTimeMillis();
 		
 		try {
 			//basic init => find out my mac address and IP address
@@ -101,19 +91,6 @@ public class Synchronizer {
 						//display
 						Date d = new Date(timeNow);
 						System.out.println("The time is: " + d.getHours() + ":" + d.getMinutes() + ":" + d.getSeconds() + " (short correction = " + timeCorrection + "ms, long correction = " + stableTimeCorrection + "ms)");
-						//launch after 30s
-						long correctedStartTime = startTimeAbs + timeCorrection + stableTimeCorrection;
-						
-						//this is temp - replace this with a remote message to start audio
-						if(timeNow - correctedStartTime > 30000 && !launched) {
-							doLaunch = true;
-							launched = true;
-						}
-						
-						if(doLaunch) {
-							launch();
-							doLaunch = false;
-						}
 						lastTick = tick;
 					}
 					try {
@@ -125,14 +102,6 @@ public class Synchronizer {
 			}
 		};
 		t.start();
-	}
-	
-	private void launch() {
-		try {
-			new DynamoPI(ac);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
 	}
 	
 	private void setupListener() throws IOException {
@@ -331,7 +300,7 @@ public class Synchronizer {
 	
 	
 	public static void main(String[] args) {
-		new Synchronizer(AudioSetup.getAudioContext(args));
+		new Synchronizer();
 	}
 	
 }
