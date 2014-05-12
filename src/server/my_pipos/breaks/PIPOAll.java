@@ -2,9 +2,6 @@ package server.my_pipos.breaks;
 
 import java.net.SocketAddress;
 
-import pi.dynamic.DynamoPI;
-import server.network.SendToPI;
-import core.PIPO;
 import net.beadsproject.beads.core.Bead;
 import net.beadsproject.beads.data.SampleManager;
 import net.beadsproject.beads.events.KillTrigger;
@@ -12,6 +9,10 @@ import net.beadsproject.beads.ugens.Envelope;
 import net.beadsproject.beads.ugens.Gain;
 import net.beadsproject.beads.ugens.GranularSamplePlayer;
 import net.beadsproject.beads.ugens.SamplePlayer;
+import pi.dynamic.DynamoPI;
+import pi.network.ControllerConnection;
+import server.network.SendToPI;
+import core.PIPO;
 import de.sciss.net.OSCListener;
 import de.sciss.net.OSCMessage;
 
@@ -39,9 +40,9 @@ public class PIPOAll implements PIPO {
 		double[] distribution = {0.5, 1, 1.5, 2, 3, 2.5, 1.25};
 		d.put("dist", distribution);
 		//create the osc listener
-		OSCListener listener = new OSCListener() {
+		ControllerConnection.Listener listener = new ControllerConnection.Listener() {
 			@Override
-			public void messageReceived(OSCMessage msg, SocketAddress sender, long time) {
+			public void msg(OSCMessage msg) {
 				//TODO
 			}
 		};
@@ -83,7 +84,7 @@ public class PIPOAll implements PIPO {
 			}
 		};
 		//set up
-		d.oscServer.addOSCListener(listener);
+		d.controller.addListener(listener);
 		d.pattern(pattern);
 		//store 
 		d.put("oscctrl", listener);

@@ -1,4 +1,4 @@
-package pi.synch;
+package pi.test;
 
 import java.net.DatagramPacket;
 import java.net.InetAddress;

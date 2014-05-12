@@ -1,4 +1,4 @@
-package pi.synch;
+package pi.test;
 
 import java.io.IOException;
 import java.net.DatagramPacket;

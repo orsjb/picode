@@ -3,7 +3,6 @@ package pi.dynamic;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Hashtable;
@@ -16,24 +15,14 @@ import net.beadsproject.beads.ugens.Clock;
 import net.beadsproject.beads.ugens.Envelope;
 import net.beadsproject.beads.ugens.PolyLimit;
 import net.beadsproject.beads.ugens.Static;
-import pi.network.ConnectionClient;
+import pi.network.ControllerConnection;
 import pi.sensors.MiniMU;
+import pi.synch.Synchronizer;
 import core.AudioSetup;
+import core.Config;
 import core.PIPO;
-import de.sciss.net.OSCServer;
 
 public class DynamoPI {
-
-	/*
-	 * NOTE on access.
-	 * 
-	 * Currently this is v lazy. Ultimately make these private and wrap as many
-	 * up in appropriate wrapper methods. DynamoPI should always be in control
-	 * of its own state. Objects that do things to DynamoPI might wander off and
-	 * get confused. Need to be able to do reset and access any elements that
-	 * have been added. (Unfortunately OSCServer is a bit lame as it doesn't
-	 * allow access to its listeners).
-	 */
 
 	// audio stuffs
 	public final AudioContext ac;
@@ -41,23 +30,22 @@ public class DynamoPI {
 	public final Envelope clockInterval;
 	public final PolyLimit pl;
 	boolean audioOn = false;
-	
-	//sensor stuffs
+
+	// sensor stuffs
 	public final MiniMU mu;
 
 	// shared data
 	public final Hashtable<String, Object> share = new Hashtable<String, Object>();
-	int nextID = 0;
+	int nextElementID = 0;
 
 	// random number generator
 	public final Random rng = new Random();
 
 	// network stuff
-	public OSCServer oscServer;
-	public ConnectionClient connectionClient;
+	public ControllerConnection controller;
+	public Synchronizer synch;
 
 	public static void main(String[] args) throws IOException {
-
 		new DynamoPI(AudioSetup.getAudioContext(args));
 	}
 
@@ -71,87 +59,79 @@ public class DynamoPI {
 		ac.out.addInput(pl);
 		ac.out.addDependent(clock);
 		System.out.println("DynamoPI audio setup complete.");
-		
-		
-		
+		// sensor setup
+		mu = new MiniMU();
 		// start the connection
-		
-		
-		
-		// Block until handshake with server is complete
-		System.out.println("Waiting for response from server...");
-		connectionClient = new ConnectionClient();
-		// Now begin sending alive messages in a separate thread
-		connectionClient.beginSendAlive();
-		
-		
-		
-		// socket server (listens to incoming classes)
-		DynamoClassLoader loader = new DynamoClassLoader(ClassLoader.getSystemClassLoader());
-		ServerSocket server = new ServerSocket(1234);
-		// OSC server
-		oscServer = OSCServer.newUsing(OSCServer.UDP, 5555);
-		oscServer.start();
-		// start socket server listening loop
-		while (true) {
-			// must reopen socket each time
-			Socket s = server.accept();
-			Class<? extends PIPO> pipoClass = null;
-			try {
-				InputStream input = s.getInputStream();
-				ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-				int data = input.read();
-				while (data != -1) {
-					buffer.write(data);
-					data = input.read();
-				}
-				byte[] classData = buffer.toByteArray();
-				Class<?> c = loader.createNewClass(classData);
-				Class<?>[] interfaces = c.getInterfaces();
-				boolean isPIPO = false;
-				for (Class<?> cc : interfaces) {
-					if (cc.equals(PIPO.class)) {
-						isPIPO = true;
-						break;
-					}
-				}
-				if (isPIPO) {
-					pipoClass = (Class<? extends PIPO>) c;
-					System.out.println("new PIPO >> " + pipoClass.getName());
-					// this means we're done with the sequence, time to recreate
-					// the classloader to avoid duplicate errors
-					loader = new DynamoClassLoader(ClassLoader.getSystemClassLoader());
-				}
-			} catch (Exception e) {/* snub it? */
-				System.out.println("Exception Caught trying to read Object from Socket");
-				e.printStackTrace();
-			}
-			if (pipoClass != null) {
-				PIPO pipo = null;
-				try {
-					pipo = pipoClass.newInstance();
-					pipo.action(this);
-					respond(s.getInetAddress());
-				} catch (Exception e) {
-					e.printStackTrace(); // catching all exceptions means that
-											// we avert an exception heading up
-					// to audio processes.
-				}
-			}
-			s.close();
-		}
-
+		controller = new ControllerConnection();
+		synch = new Synchronizer();
+		// start listening for code
+		startListeningForCode();
 	}
 
-	private void respond(InetAddress masterAddress) {
-		// try {
-		// Socket s = new Socket(masterAddress, 4321);
-		// TODO send back whatever status info you want here
-		// (list of what is connected to "clock", "pl", stored in "share", name
-		// of last sent object, etc.)
-		// } catch (IOException e) {
-		// e.printStackTrace();
-		// }
+	private void startListeningForCode() {
+		new Thread() {
+			public void run() {
+				try {
+					// socket server (listens to incoming classes)
+					DynamoClassLoader loader = new DynamoClassLoader(ClassLoader.getSystemClassLoader());
+					ServerSocket server = new ServerSocket(Config.codeToPIPort);
+					// start socket server listening loop
+					while (true) {
+						// must reopen socket each time
+						Socket s = server.accept();
+						Class<? extends PIPO> pipoClass = null;
+						try {
+							InputStream input = s.getInputStream();
+							ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+							int data = input.read();
+							while (data != -1) {
+								buffer.write(data);
+								data = input.read();
+							}
+							byte[] classData = buffer.toByteArray();
+							Class<?> c = loader.createNewClass(classData);
+							Class<?>[] interfaces = c.getInterfaces();
+							boolean isPIPO = false;
+							for (Class<?> cc : interfaces) {
+								if (cc.equals(PIPO.class)) {
+									isPIPO = true;
+									break;
+								}
+							}
+							if (isPIPO) {
+								pipoClass = (Class<? extends PIPO>) c;
+								System.out.println("new PIPO >> " + pipoClass.getName());
+								// this means we're done with the sequence, time
+								// to
+								// recreate
+								// the classloader to avoid duplicate errors
+								loader = new DynamoClassLoader(ClassLoader.getSystemClassLoader());
+							}
+						} catch (Exception e) {/* snub it? */
+							System.out.println("Exception Caught trying to read Object from Socket");
+							e.printStackTrace();
+						}
+						if (pipoClass != null) {
+							PIPO pipo = null;
+							try {
+								pipo = pipoClass.newInstance();
+								pipo.action(DynamoPI.this);
+							} catch (Exception e) {
+								e.printStackTrace(); // catching all exceptions
+														// means that
+														// we avert an exception
+														// heading up
+								// to audio processes.
+							}
+						}
+						s.close();
+					}
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}.start();
+
 	}
 
 	public void put(String s, Object o) {
@@ -184,7 +164,7 @@ public class DynamoPI {
 
 	public String pattern(Bead pattern) {
 		clock.addMessageListener(pattern);
-		String name = "pattern" + nextID++;
+		String name = "pattern" + nextElementID++;
 		put(name, pattern);
 		System.out.println(name);
 		return name;
@@ -192,7 +172,7 @@ public class DynamoPI {
 
 	public String sound(UGen snd) {
 		pl.addInput(snd);
-		String name = "snd" + nextID++;
+		String name = "snd" + nextElementID++;
 		put(name, snd);
 		System.out.println(name);
 		return name;
@@ -209,13 +189,8 @@ public class DynamoPI {
 		share.clear();
 		pl.clearInputConnections();
 		pl.clearDependents();
-		oscServer.dispose();
-		try {
-			oscServer = OSCServer.newUsing(OSCServer.UDP, 5555);
-			oscServer.start();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		mu.clearListeners();
+		controller.clearListeners();
 	}
 
 	// This is like reset() except that any sounds currently playing are kept.
@@ -227,13 +202,8 @@ public class DynamoPI {
 		clock.clearDependents();
 		share.clear();
 		pl.clearDependents();
-		oscServer.dispose();
-		try {
-			oscServer = OSCServer.newUsing(OSCServer.UDP, 5555);
-			oscServer.start();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		mu.clearListeners();
+		controller.clearListeners();
 	}
 
 	public void fadeOutClearSound(float fadeTime) {
@@ -250,7 +220,7 @@ public class DynamoPI {
 	}
 
 	public int myIndex() {
-		return connectionClient.getId();
+		return controller.getID();
 	}
 
 }

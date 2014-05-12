@@ -3,6 +3,8 @@ package pi.sensors;
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
+import java.util.HashSet;
+import java.util.Set;
 
 import com.pi4j.io.i2c.I2CBus;
 import com.pi4j.io.i2c.I2CDevice;
@@ -29,11 +31,11 @@ public class MiniMU {
 	I2CBus bus;
 	I2CDevice gyrodevice, acceldevice, magdevice;
 	
-	MiniMUListener listener;
+	Set<MiniMUListener> listeners = new HashSet<MiniMUListener>();
 	
 	public MiniMU(MiniMUListener listener) {
 		this();
-		setListener(listener);
+		addListener(listener);
 	}
 
 	public MiniMU() {
@@ -59,8 +61,16 @@ public class MiniMU {
 		}
 	}
 	
-	public void setListener(MiniMUListener listener) {
-		this.listener = listener;
+	public void addListener(MiniMUListener listener) {
+		listeners.add(listener);
+	}
+	
+	public void removeListener(MiniMUListener listener) {
+		listeners.remove(listener);
+	}
+	
+	public void clearListeners() {
+		listeners.clear();
 	}
 
 	public void start() {
@@ -78,7 +88,7 @@ public class MiniMU {
 //						double accXangle = (float) (Math.atan2(accelData[1],accelData[2])+M_PI)*RAD_TO_DEG;
 //						double accYangle = (float) (Math.atan2(accelData[2],accelData[0])+M_PI)*RAD_TO_DEG;
 						//pass data on to listeners
-						if(listener != null) {
+						for(MiniMUListener listener : listeners) {
 							listener.accelData(accelData[0], accelData[1], accelData[2]);
 //							listener.gyroData(x, y, z);
 //							listener.magData(x, y, z);

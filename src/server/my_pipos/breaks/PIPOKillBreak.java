@@ -1,13 +1,13 @@
 package server.my_pipos.breaks;
 
-import pi.dynamic.DynamoPI;
-import server.network.SendToPI;
-import core.PIPO;
 import net.beadsproject.beads.events.KillTrigger;
 import net.beadsproject.beads.ugens.Envelope;
 import net.beadsproject.beads.ugens.Gain;
 import net.beadsproject.beads.ugens.GranularSamplePlayer;
-import de.sciss.net.OSCListener;
+import pi.dynamic.DynamoPI;
+import pi.network.ControllerConnection;
+import server.network.SendToPI;
+import core.PIPO;
 
 public class PIPOKillBreak implements PIPO {
 
@@ -22,11 +22,11 @@ public class PIPOKillBreak implements PIPO {
 	public void action(final DynamoPI d) {
 
 		//store
-		OSCListener listener = (OSCListener)d.get("amenctrl");
+		ControllerConnection.Listener listener = (ControllerConnection.Listener)d.get("amenctrl");
 		GranularSamplePlayer gsp = (GranularSamplePlayer)d.get("amen");
 		Gain g = (Gain)d.get("amengain");
 		
-		d.oscServer.removeOSCListener(listener);
+		d.controller.removeListener(listener);
 		
 		float pitch = gsp.getPitchUGen().getValue();
 		Envelope e = new Envelope(d.ac, pitch);

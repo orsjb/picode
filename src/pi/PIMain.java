@@ -1,10 +1,6 @@
 package pi;
 
-import java.io.IOException;
-
 import pi.dynamic.DynamoPI;
-import pi.network.StatusUpdateSender;
-import pi.synch.Synchronizer;
 import core.AudioSetup;
 
 /**
@@ -21,12 +17,6 @@ import core.AudioSetup;
  * @param args
  */
 public class PIMain {
-
-	/** Handles synchronization. */
-	Synchronizer synchronizer;
-	
-	/** Sends status updates to the controller. */
-	StatusUpdateSender statusUpdateSender;
 	
 	/** Runs audio and listens for control. */
 	DynamoPI dynamo;
@@ -36,13 +26,7 @@ public class PIMain {
 	}
 	
 	public PIMain(String[] args) throws Exception {	
-		
-		
 		dynamo = new DynamoPI(AudioSetup.getAudioContext(args));
-		synchronizer = new Synchronizer();
-		statusUpdateSender = new StatusUpdateSender();
-		
-		
 	}
 
 }

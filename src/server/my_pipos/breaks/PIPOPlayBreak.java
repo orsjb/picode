@@ -1,16 +1,14 @@
 package server.my_pipos.breaks;
 
-import java.net.SocketAddress;
-
-import pi.dynamic.DynamoPI;
-import server.network.SendToPI;
-import core.PIPO;
 import net.beadsproject.beads.data.SampleManager;
 import net.beadsproject.beads.ugens.Envelope;
 import net.beadsproject.beads.ugens.Gain;
 import net.beadsproject.beads.ugens.GranularSamplePlayer;
 import net.beadsproject.beads.ugens.SamplePlayer;
-import de.sciss.net.OSCListener;
+import pi.dynamic.DynamoPI;
+import pi.network.ControllerConnection;
+import server.network.SendToPI;
+import core.PIPO;
 import de.sciss.net.OSCMessage;
 
 public class PIPOPlayBreak implements PIPO {
@@ -33,9 +31,9 @@ public class PIPOPlayBreak implements PIPO {
 		g.addInput(gsp);
 		d.sound(g);
 		
-		OSCListener listener = new OSCListener() {
+		ControllerConnection.Listener listener = new ControllerConnection.Listener() {
 			@Override
-			public void messageReceived(OSCMessage msg, SocketAddress sender, long time) {
+			public void msg(OSCMessage msg) {
 				if(msg.getName().equals("rate")) {
 					float arg = (Float)msg.getArg(0);
 					gsp.getRateUGen().setValue(arg);
@@ -52,7 +50,7 @@ public class PIPOPlayBreak implements PIPO {
 				}
 			}
 		};
-		d.oscServer.addOSCListener(listener);
+		d.controller.addListener(listener);
 		
 		//store
 		d.put("amenctrl", listener);

@@ -1,15 +1,13 @@
 package server.my_pipos.miri;
 
-import java.net.SocketAddress;
-
-import pi.dynamic.DynamoPI;
-import server.network.SendToPI;
-import core.PIPO;
 import net.beadsproject.beads.core.Bead;
 import net.beadsproject.beads.data.Buffer;
 import net.beadsproject.beads.ugens.Envelope;
 import net.beadsproject.beads.ugens.WavePlayer;
-import de.sciss.net.OSCListener;
+import pi.dynamic.DynamoPI;
+import pi.network.ControllerConnection;
+import server.network.SendToPI;
+import core.PIPO;
 import de.sciss.net.OSCMessage;
 
 public class InstallationPIPO implements PIPO {
@@ -80,8 +78,8 @@ public class InstallationPIPO implements PIPO {
 //		masterGain.clear();
 //		masterGain.addSegment(sampleGain, 1000f);
 		
-		d.oscServer.addOSCListener(new OSCListener() {
-			public void messageReceived(OSCMessage m, SocketAddress sender, long t) {
+		d.controller.addListener(new ControllerConnection.Listener() {
+			public void msg(OSCMessage m) {
 				System.out.println("OSC Message");
 				if (m.getName().equals("/PI/sensor/density") && m.getArgCount() == 1) {
 					switch ((Integer)m.getArg(0)) {
