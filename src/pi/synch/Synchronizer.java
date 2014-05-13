@@ -127,6 +127,26 @@ public class Synchronizer {
 		t.start();
 	}
 	
+	public void doAtTime(final Runnable r, long time) {
+		final long waitTime = correctedTimeNow() - time;
+		if(waitTime <= 0) {				//either run immediately
+			r.run();
+		} else {						//or wait the required time
+			//create a new thread just in order to run this incoming thread
+			new Thread() {
+				public void run() {
+					try {
+						Thread.sleep(waitTime);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+					r.run();
+				}
+			}.start();
+			
+		}
+	}
+	
 	private void startSending() {
 		Thread t = new Thread() {
 			public void run() {
@@ -192,6 +212,14 @@ public class Synchronizer {
 			stabilityCount = 0;
 			stableTimeCorrection += timeCorrection;
 			timeCorrection = 0;
+		}
+	}
+	
+	public float getStability() {
+		if(stableTimeCorrection == 0) {
+			return 0; 
+		} else {
+			return (float)(timeCorrection / stableTimeCorrection);
 		}
 	}
 	

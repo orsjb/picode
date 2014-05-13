@@ -14,13 +14,14 @@ import net.beadsproject.beads.core.UGen;
 import net.beadsproject.beads.ugens.Clock;
 import net.beadsproject.beads.ugens.Envelope;
 import net.beadsproject.beads.ugens.PolyLimit;
-import net.beadsproject.beads.ugens.Static;
 import pi.network.ControllerConnection;
 import pi.sensors.MiniMU;
 import pi.synch.Synchronizer;
 import core.AudioSetup;
 import core.Config;
 import core.PIPO;
+import core.Util;
+import de.sciss.net.OSCMessage;
 
 public class DynamoPI {
 
@@ -29,6 +30,7 @@ public class DynamoPI {
 	public final Clock clock;
 	public final Envelope clockInterval;
 	public final PolyLimit pl;
+	public final Envelope masterGainEnv;
 	boolean audioOn = false;
 
 	// sensor stuffs
@@ -52,6 +54,9 @@ public class DynamoPI {
 	public DynamoPI(AudioContext _ac) throws IOException {
 		ac = _ac;
 		// default audio setup (note we don't start the audio context yet)
+		masterGainEnv = new Envelope(ac, 0);
+		masterGainEnv.addSegment(1, 5000);
+		ac.out.setGain(masterGainEnv);
 		clockInterval = new Envelope(ac, 500);
 		clock = new Clock(ac, clockInterval);
 		pl = new PolyLimit(ac, 1, 4);
@@ -65,8 +70,42 @@ public class DynamoPI {
 		// start the connection
 		controller = new ControllerConnection();
 		synch = new Synchronizer();
+		//start various other listeners
+		startCommandListener();
 		// start listening for code
 		startListeningForCode();
+	}
+	
+	private void startCommandListener() {
+		ControllerConnection.Listener commandListener = new ControllerConnection.Listener() {
+			@Override
+			public void msg(OSCMessage msg) {
+				//master commands...
+				if(msg.getName().equals("/PI/sync")) {
+					//TODO
+				} else if(msg.getName().equals("/PI/reboot")) {
+					Util.rebootPI();
+				} else if(msg.getName().equals("/PI/gain")) {
+					masterGainEnv.addSegment((Float)msg.getArg(0), (Float)msg.getArg(1));
+				} else if(msg.getName().equals("/PI/reset")) {
+					reset();
+				} else if(msg.getName().equals("/PI/reset_sounding")) {
+					resetLeaveSounding();
+				} else if(msg.getName().equals("/PI/clearsound")) {
+					clearSound();
+				} else if(msg.getName().equals("/PI/fadeout_reset")) {
+					fadeOutReset((Float)msg.getArg(0));
+				} else if(msg.getName().equals("/PI/fadeout_clearsound")) {
+					fadeOutClearSound((Float)msg.getArg(0));
+				} else if(msg.getName().equals("/PI/fadeout")) {
+					fadeOut((Float)msg.getArg(0));
+				} else if(msg.getName().equals("/PI/fadein")) {
+					fadeIn((Float)msg.getArg(0));
+				}
+				
+			}
+		};
+		controller.addListener(commandListener);
 	}
 
 	private void startListeningForCode() {
@@ -176,46 +215,65 @@ public class DynamoPI {
 		System.out.println(name);
 		return name;
 	}
-
-	public void reset() {
-		ac.out.clearDependents();
-		ac.out.addDependent(clock);
+	
+	/**
+	 * Warning, this leaves dependents etc. Just cleans the audio signal chain.
+	 */
+	public void clearSound() {
+		//rebuilt top elements of signal chain
 		ac.out.clearInputConnections();
 		ac.out.addInput(pl);
-		clock.clearMessageListeners();
-		clock.clearInputConnections();
-		clock.clearDependents();
-		share.clear();
 		pl.clearInputConnections();
-		pl.clearDependents();
-		mu.clearListeners();
-		controller.clearListeners();
+	}
+
+	public void reset() {
+		resetLeaveSounding();
+		clearSound();
 	}
 
 	// This is like reset() except that any sounds currently playing are kept.
 	public void resetLeaveSounding() {
+		//clear dependencies and inputs
 		ac.out.clearDependents();
 		ac.out.addDependent(clock);
 		clock.clearMessageListeners();
 		clock.clearInputConnections();
 		clock.clearDependents();
-		share.clear();
 		pl.clearDependents();
+		//clear data store
+		share.clear();
+		//clear mu listeners
 		mu.clearListeners();
+		//clear osc listeners
 		controller.clearListeners();
+		//re-connect the main command listener
+		startCommandListener();
 	}
 
 	public void fadeOutClearSound(float fadeTime) {
-		Envelope e = new Envelope(ac, ac.out.getValue());
-		e.addSegment(0, fadeTime, new Bead() {
+		masterGainEnv.addSegment(0, fadeTime, new Bead() {
 			public void messageReceived(Bead message) {
-				pl.clearInputConnections();
-				ac.out.clearInputConnections();
-				ac.out.addInput(pl);
-				ac.out.setGain(new Static(ac, 1));
+				clearSound();
+				masterGainEnv.addSegment(1, 10);
 			}
 		});
-		ac.out.setGain(e);
+	}
+	
+	public void fadeOutReset(float fadeTime) {
+		masterGainEnv.addSegment(0, fadeTime, new Bead() {
+			public void messageReceived(Bead message) {
+				reset();
+				masterGainEnv.addSegment(1, 10);
+			}
+		});
+	}
+	
+	public void fadeOut(float fadeTime) {
+		masterGainEnv.addSegment(0, fadeTime);
+	}
+	
+	public void fadeIn(float fadeTime) {
+		masterGainEnv.addSegment(1, fadeTime);
 	}
 
 	public int myIndex() {
@@ -223,3 +281,5 @@ public class DynamoPI {
 	}
 
 }
+
+

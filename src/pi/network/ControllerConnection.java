@@ -37,17 +37,14 @@ public class ControllerConnection {
 		oscServer.addOSCListener(new OSCListener() {
 			@Override
 			public void messageReceived(OSCMessage msg, SocketAddress src, long time) {
-				for(Listener l : listeners) {
-					l.msg(msg);
-				}
-			}
-		});
-		//set up a delegate listener that listens for the ID assigned to this PI
-		addListener(new Listener() {
-			@Override
-			public void msg(OSCMessage msg) {
+				//include default listener behaviour that listens for the ID assigned to this PI
 				if(msg.getName().equals("/PI/set_id")) {
 					myID = (Integer)msg.getArg(0);
+				} else {
+					//all other messages get forwarded to delegate listeners
+					for(Listener l : listeners) {
+						l.msg(msg);
+					}
 				}
 			}
 		});

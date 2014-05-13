@@ -1,0 +1,26 @@
+Messages from controller to PI
+
+	* /PI/set_id <int:id>
+
+	* /PI/sync <long:time>
+
+	* /PI/reboot 
+
+	* /PI/gain <float:target> <float:durationMS>
+
+	* /PI/reset
+	
+	* /PI/reset_sounding
+	
+	* /PI/clearsound
+	
+	* /PI/fadeout_reset <float:timeMS>
+	
+	* /PI/fadeout_clearsound <float:timeMS>
+	
+	* /PI/fadeout <float:timeMS>
+	
+	* /PI/fadein <float:timeMS>
+
+Messages from PI to controller
+
