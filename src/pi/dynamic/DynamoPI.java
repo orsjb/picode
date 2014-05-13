@@ -61,6 +61,7 @@ public class DynamoPI {
 		System.out.println("DynamoPI audio setup complete.");
 		// sensor setup
 		mu = new MiniMU();
+		mu.start();
 		// start the connection
 		controller = new ControllerConnection();
 		synch = new Synchronizer();

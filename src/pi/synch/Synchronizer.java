@@ -18,6 +18,8 @@ import java.util.Map;
 
 import pi.dynamic.DynamoPI;
 import core.AudioSetup;
+import core.Config;
+import core.Util;
 import net.beadsproject.beads.core.AudioContext;
 import net.beadsproject.beads.core.IOAudioFormat;
 import net.beadsproject.beads.core.io.JavaSoundAudioIO;
@@ -36,10 +38,7 @@ public class Synchronizer {
 	 */
 	
 	String myMAC; //how to uniquely identify this machine
-	String myIP;
 	MulticastSocket broadcastSocket;
-	String multicastGroup = "225.2.2.5";
-	int multicastPort = 2225;
 	long timeCorrection = 0;			//add this to current time to get the REAL current time
 	long stableTimeCorrection = 0;
 	long lastTick;
@@ -59,15 +58,15 @@ public class Synchronizer {
 		
 		try {
 			//basic init => find out my mac address and IP address
-			getMyMACAddressAndIPAddress();
+			myMAC = Util.macWlan;
 			//start listening
 			setupListener();
 			//setup sender
 			broadcastSocket = new MulticastSocket();
 			//start sending
 			startSending();
-			//display clock
-			displayClock();
+			//display clock (optional)
+			//displayClock();
 		} catch(Exception e) {
 			e.printStackTrace();
 		}
@@ -105,8 +104,8 @@ public class Synchronizer {
 	}
 	
 	private void setupListener() throws IOException {
-		final MulticastSocket s = new MulticastSocket(multicastPort);
-		s.joinGroup(InetAddress.getByName(multicastGroup));
+		final MulticastSocket s = new MulticastSocket(Config.clockSynchPort);
+		s.joinGroup(InetAddress.getByName(Config.multicastSynchAddr));
 		//start a listener thread
 		Thread t = new Thread() {
 			public void run() {
@@ -157,26 +156,23 @@ public class Synchronizer {
 		broadcastSocket.close();
 	}
 	
+	/**
+	 * Estimates the difference between this devices clock and the clock of the "leader" device.
+	 * This method modifies the value of the timeCorrection field, and less frequently updates the stableTimeCorrection field.
+	 */
 	private void calculateTimeCorrection() {
-		
 		for(Long sendTime : log.keySet()) {
 			Map<String, long[]> responses = log.get(sendTime);
 			//find the leader
 			String theLeader = myMAC;
-			
 			if(timedebug) System.out.println("At send time = " + sendTime);
-			
 			for(String mac : responses.keySet()) {
-				
 				if(timedebug) System.out.println("          Response from: " + mac + " return sent: " + responses.get(mac)[0] + ", received: " + responses.get(mac)[1]);
-				
 				if(theLeader.compareTo(mac) < 0) {
 					theLeader = mac;
 				}
 			}	
-			
 			if(timedebug) System.out.println("Leader is " + theLeader);
-			
 			if(theLeader != myMAC) {
 				//if you are not the leader then make a time adjustment
 				long[] times = responses.get(theLeader);
@@ -197,43 +193,6 @@ public class Synchronizer {
 			stableTimeCorrection += timeCorrection;
 			timeCorrection = 0;
 		}
-	}
-	
-	private void getMyMACAddressAndIPAddress() throws SocketException {
-		//first do all of this to find the MAC address which we will use as default UID
-		ArrayList<String> macs = new ArrayList<String>();
-		ArrayList<String> ips = new ArrayList<String>();
-		Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
-	    while (interfaces.hasMoreElements()) {
-	      NetworkInterface nif = interfaces.nextElement();
-	      if(!nif.isUp()) continue;
-	      byte[] lBytes = nif.getHardwareAddress();
-	      StringBuffer lStringBuffer = new StringBuffer();
-	      if (lBytes != null) {
-	        for (byte b : lBytes) {
-	          lStringBuffer.append(String.format("%1$02X", new Byte(b)));
-	        }
-	      }
-	      if(lStringBuffer.length() > 0) {
-	    	  System.out.print("Interface: " + nif.getDisplayName());
-	    	  System.out.println(" (MAC=" + lStringBuffer + ")");
-	    	  macs.add(lStringBuffer.toString());
-		      Enumeration<InetAddress> inetAddresses = nif.getInetAddresses();
-		      for (InetAddress inetAddress : Collections.list(inetAddresses)) {
-		    	  if(inetAddress instanceof Inet4Address) {
-		    		  ips.add(inetAddress.getHostAddress());
-		    		  System.out.println(" -- InetAddress: " + inetAddress.getHostAddress());
-		    	  }
-		    	  
-		      }
-	      }
-	    }
-		//our assumption is that the relevant hardware address (wifi) is the first in list
-		//but we'd prefer to do better than this
-		//but it doesn't really matter because this is just to identify the unit
-		myMAC = macs.get(0);
-		myIP = ips.get(0);
-		System.out.println("My IP address: " + myIP);
 	}
 	
 	public void messageReceived(String msg) {
@@ -269,6 +228,13 @@ public class Synchronizer {
 
 
 
+	/**
+	 * 
+	 * @param timeOriginallySent
+	 * @param otherMAC
+	 * @param timeReturnSent
+	 * @param currentTime
+	 */
 	private void log(long timeOriginallySent, String otherMAC, long timeReturnSent, long currentTime) {
 		if(!log.containsKey(timeOriginallySent)) {
 			log.put(timeOriginallySent, new Hashtable<String, long[]>());
@@ -276,6 +242,11 @@ public class Synchronizer {
 		log.get(timeOriginallySent).put(otherMAC, new long[] {timeReturnSent, currentTime});
 	}
 
+	/**
+	 * Send String s over the multicast group.
+	 * 
+	 * @param s the message to send.
+	 */
 	private void broadcast(String s) {
 		byte buf[] = null;
 		try {
@@ -287,7 +258,7 @@ public class Synchronizer {
 		// Create a DatagramPacket 
 		DatagramPacket pack = null;
 		try {
-			pack = new DatagramPacket(buf, buf.length, InetAddress.getByName(multicastGroup), multicastPort);
+			pack = new DatagramPacket(buf, buf.length, InetAddress.getByName(Config.multicastSynchAddr), Config.clockSynchPort);
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
 		} 
