@@ -82,7 +82,7 @@ public class DynamoPI {
 			public void msg(OSCMessage msg) {
 				//master commands...
 				if(msg.getName().equals("/PI/sync")) {
-					//TODO
+					sync((Long)msg.getArg(0));
 				} else if(msg.getName().equals("/PI/reboot")) {
 					Util.rebootPI();
 				} else if(msg.getName().equals("/PI/gain")) {
@@ -106,6 +106,19 @@ public class DynamoPI {
 			}
 		};
 		controller.addListener(commandListener);
+	}
+	
+	private void sync(long time) {
+		synch.doAtTime(new Runnable() {
+			public void run() {
+				
+				//****************************************************
+				//TODO
+				//****************************************************
+				
+				
+			}
+		}, time);
 	}
 
 	private void startListeningForCode() {
