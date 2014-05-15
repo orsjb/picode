@@ -1,13 +1,13 @@
 
 package server.my_pipos.example;
 
+import net.beadsproject.beads.data.Buffer;
+import net.beadsproject.beads.ugens.Glide;
+import net.beadsproject.beads.ugens.WavePlayer;
 import pi.dynamic.DynamoPI;
+import pi.sensors.MiniMU;
 import server.network.SendToPI;
 import core.PIPO;
-import net.beadsproject.beads.core.Bead;
-import net.beadsproject.beads.ugens.Envelope;
-import net.beadsproject.beads.ugens.Gain;
-import net.beadsproject.beads.ugens.Noise;
 
 public class BleepPatterns implements PIPO {
 
@@ -24,23 +24,26 @@ public class BleepPatterns implements PIPO {
 		
 		int id = d.myIndex();
 		
-
-		Bead pattern = new Bead() {
-			public void messageReceived(Bead message) {
-				
-				if(d.clock.isBeat()) {
-				
-				
-					Noise n = new Noise(d.ac);
-					Envelope e = new Envelope(d.ac, 1);
-					Gain g = new Gain(d.ac, 1, e);
-					//
-					
-				}
-			}
-		};
 		
-		d.pattern(pattern);
+		final Glide g = new Glide(d.ac);
+
+		WavePlayer wp = new WavePlayer(d.ac, g, Buffer.SINE);
+		d.pl.addInput(wp);
+		
+		
+		MiniMU.MiniMUListener myListener = new MiniMU.MiniMUListener() {
+
+			@Override
+			public void accelData(double x, double y, double z) {
+				g.setValue((float)x);
+			}
+			
+			public void freefallEvent() {
+				//
+			}
+			
+		};
+		d.mu.addListener(myListener);
 		
 		
 		
