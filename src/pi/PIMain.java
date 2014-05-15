@@ -16,7 +16,7 @@ import core.AudioSetup;
  * 
  * @param args
  */
-public class PIMain {
+public class PIMain { 
 	
 	/** Runs audio and listens for control. */
 	DynamoPI dynamo;
