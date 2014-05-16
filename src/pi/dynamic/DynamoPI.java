@@ -7,6 +7,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Hashtable;
 import java.util.Random;
+import java.util.Scanner;
 
 import net.beadsproject.beads.core.AudioContext;
 import net.beadsproject.beads.core.Bead;
@@ -20,10 +21,10 @@ import pi.synch.Synchronizer;
 import core.AudioSetup;
 import core.Config;
 import core.PIPO;
-import core.Util;
 import de.sciss.net.OSCMessage;
 
 public class DynamoPI {
+	
 
 	// audio stuffs
 	public final AudioContext ac;
@@ -84,7 +85,7 @@ public class DynamoPI {
 				if(msg.getName().equals("/PI/sync")) {
 					sync((Long)msg.getArg(0));
 				} else if(msg.getName().equals("/PI/reboot")) {
-					Util.rebootPI();
+					rebootPI();
 				} else if(msg.getName().equals("/PI/gain")) {
 					masterGainEnv.addSegment((Float)msg.getArg(0), (Float)msg.getArg(1));
 				} else if(msg.getName().equals("/PI/reset")) {
@@ -279,6 +280,13 @@ public class DynamoPI {
 	
 	public int myIndex() {
 		return controller.getID();
+	}
+	
+	//reboots the PI
+	public static void rebootPI() {
+		try {
+			Runtime.getRuntime().exec(new String[]{"/bin/bash","-c","sudo reboot"}).waitFor();
+		} catch (Exception e) {}
 	}
 
 }

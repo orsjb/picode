@@ -3,26 +3,15 @@ package pi.synch;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.DatagramPacket;
-import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
-import java.net.NetworkInterface;
-import java.net.SocketException;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
-import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Map;
 
-import pi.dynamic.DynamoPI;
-import core.AudioSetup;
+import pi.PIMain;
 import core.Config;
-import core.Util;
-import net.beadsproject.beads.core.AudioContext;
-import net.beadsproject.beads.core.IOAudioFormat;
-import net.beadsproject.beads.core.io.JavaSoundAudioIO;
 
 public class Synchronizer {
 
@@ -58,7 +47,10 @@ public class Synchronizer {
 		
 		try {
 			//basic init => find out my mac address and IP address
-			myMAC = Util.macWlan;
+			
+			
+			
+			myMAC = PIMain.myMAC;
 			//start listening
 			setupListener();
 			//setup sender
