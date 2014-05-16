@@ -2,85 +2,57 @@ package core;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.net.InetAddress;
 import java.net.NetworkInterface;
-import java.util.Enumeration;
 import java.util.Scanner;
 
 public abstract class Device {
 
-	public static final String myHostname;						//the hostname for this PI
-	public static final String myMAC;							//the wlan MAC for this PI
-	
-	static {
-		//get the hostname
-		String tmp = null;
-		try {
-			Scanner s = new Scanner(new File("/etc/hostname"));
-			tmp = s.next() + ".local";
-			System.out.println("My hostname is: " + tmp);
-			s.close();
-			//derive the MAC from the hostname
-		} catch (FileNotFoundException e) {
-			//e.printStackTrace();
-		}
-		myHostname = tmp;
-		if(myHostname != null) {
-			myMAC = myHostname.substring(8, 20);
-		} else {
-			myMAC = null;
-		}
-	}
-	
-	
-	//OLD............
-	
-	
-	//some hardware-related fields and methods
+	public static final String myHostname;						//the hostname for this PI (wifi)
+	public static final String myMAC;							//the wlan MAC for this PI (wifi)
 
-	//macWlan stores the wlan MAC address as a String, lowercase with no colons separating
-	public static final String macWlan;
 	static {
-		String result = "Unknown";
+		String tmpHostname = null;
+		String tmpMAC = null;
 		try {
-			
-			Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
-			while(interfaces.hasMoreElements()) {
-				NetworkInterface ni = interfaces.nextElement();
-				System.out.println("--" + ni.getDisplayName());
-			}
-			
-			
-			
-			
 			NetworkInterface netInterface;
 			if (System.getProperty("os.name").startsWith("Mac OS")) {
 				netInterface = NetworkInterface.getByName("en1");
 			} else {
 				netInterface = NetworkInterface.getByName("wlan0");
 			}
-			
-			
-			
-			byte[] mac = netInterface.getHardwareAddress();
-			StringBuilder builder = new StringBuilder();
-			for (byte a : mac) {
-				builder.append(String.format("%02x", a));
+			if(netInterface != null) {
+				byte[] mac = netInterface.getHardwareAddress();
+				StringBuilder builder = new StringBuilder();
+				for (byte a : mac) {
+					builder.append(String.format("%02x", a));
+				}
+				tmpMAC = builder.substring(0, builder.length() - 1);
+			} 
+			//first attempt at hostname is to query the /etc/hostname file which should have
+			//renamed itself (on the PI) before this Java code runs
+			try {
+				Scanner s = new Scanner(new File("/etc/hostname"));
+				tmpHostname = s.next() + ".local";
+				s.close();
+			} catch(Exception e) {/*Swallow this exception*/}
+			//if we don't have the mac derive the MAC from the hostname
+			if(tmpMAC == null && tmpHostname != null) {
+				tmpMAC = tmpHostname.substring(8, 20);
+			} 
+			//if we don't have the hostname get by traditional means
+			if(tmpHostname == null) {
+				tmpHostname = InetAddress.getLocalHost().getHostName();
 			}
-			result = builder.substring(0, builder.length() - 1);
-		} catch (Exception e) { //WiFi isn't up yet 
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		macWlan = result;
+		myHostname = tmpHostname;
+		myMAC = tmpMAC;
 	}
-
-	//returns the name in the form pisound-<MAC>.local
-	public static String getDeviceName() {
-		return "pisound-" + macWlan + ".local";
-	}
-
 	
 	public static void main(String[] args) {
-		System.out.println(macWlan);
+		System.out.println(myHostname + " " + myMAC);
 		
 	}
 	
