@@ -17,8 +17,6 @@ public class ControllerConnection {
 	public static interface Listener {
 		public void msg(OSCMessage msg);
 	}
-	
-	private static final int aliveInterval = 1000;   			//How often the PI sends an alive message to the server
 
 	int myID;										 			//ID assigned by the controller
 	private OSCServer oscServer;					 			//The one and only OSC server
@@ -55,7 +53,7 @@ public class ControllerConnection {
 			public void run() {
 				sendToController("/PI/alive", new Object[] {Util.getDeviceName()});
 				try {
-					Thread.sleep(aliveInterval);
+					Thread.sleep(Config.aliveInterval);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}

@@ -97,11 +97,7 @@ public class DynamoPI {
 					fadeOutReset((Float)msg.getArg(0));
 				} else if(msg.getName().equals("/PI/fadeout_clearsound")) {
 					fadeOutClearSound((Float)msg.getArg(0));
-				} else if(msg.getName().equals("/PI/fadeout")) {
-					fadeOut((Float)msg.getArg(0));
-				} else if(msg.getName().equals("/PI/fadein")) {
-					fadeIn((Float)msg.getArg(0));
-				}
+				} 
 				
 			}
 		};
@@ -281,14 +277,6 @@ public class DynamoPI {
 		});
 	}
 	
-	public void fadeOut(float fadeTime) {
-		masterGainEnv.addSegment(0, fadeTime);
-	}
-	
-	public void fadeIn(float fadeTime) {
-		masterGainEnv.addSegment(1, fadeTime);
-	}
-
 	public int myIndex() {
 		return controller.getID();
 	}

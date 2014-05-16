@@ -5,15 +5,12 @@ package controller.network;
 public class LocalPIRepresentation {
 
 	long lastTimeSeen;
-	String hostname;
-	int id;
+	public final String hostname;
+	public final int id;
 	
-	public LocalPIRepresentation(String hostname) {
+	public LocalPIRepresentation(String hostname, int id) {
 		this.hostname = hostname;
-	}
-
-	public String getHostname() {
-		return hostname;
+		this.id = id;
 	}
 
 	

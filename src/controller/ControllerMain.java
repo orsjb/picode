@@ -28,6 +28,15 @@ public class ControllerMain extends Application {
     @Override 
     public void start(Stage stage) {
     	setupGUI(stage);
+    	piConnection = new PIConnection();
+    	piConnection.setListener(new PIConnection.Listener() {
+			public void piRemoved(LocalPIRepresentation pi) {
+				thePIs.add(pi);
+			}
+			public void piAdded(LocalPIRepresentation pi) {
+				thePIs.remove(pi);
+			}
+		});
     }
     
 	private void setupGUI(Stage stage) {
@@ -36,7 +45,7 @@ public class ControllerMain extends Application {
     	list.setItems(thePIs);
     	list.setCellFactory(new Callback<ListView<LocalPIRepresentation>, ListCell<LocalPIRepresentation>>() {
 			@Override
-			public ListCell<LocalPIRepresentation> call(ListView<LocalPIRepresentation> arg0) {
+			public ListCell<LocalPIRepresentation> call(ListView<LocalPIRepresentation> theView) {
 				return new PIRepCell();
 			}
 		});
@@ -49,6 +58,19 @@ public class ControllerMain extends Application {
         stage.setScene(scene); 
         stage.sizeToScene(); 
         stage.show(); 
+        //set up thread to monitor the PI status
+        new Thread() {
+        	public void run() {
+        		while(true) {
+        			//TODO - not sure how to get updates from the view
+        			try {
+						Thread.sleep(400);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+        		}
+        	}
+        }.start();
     }
 
 

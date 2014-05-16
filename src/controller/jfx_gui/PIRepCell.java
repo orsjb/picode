@@ -14,7 +14,7 @@ public class PIRepCell extends ListCell<LocalPIRepresentation> {
     public void updateItem(LocalPIRepresentation item, boolean empty) {
         super.updateItem(item, empty);
         if (item != null) {
-        	Text name = new Text(item.getHostname());
+        	Text name = new Text(item.hostname);
             setGraphic(name);
         }
     }

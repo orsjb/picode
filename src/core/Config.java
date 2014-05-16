@@ -11,11 +11,12 @@ public abstract class Config {
 	public final static int codeToPIPort			= 2225;
 	public final static int controlToPIPort			= 2226;
 	
+	//How often the PI sends an alive message to the server
+	public static final int aliveInterval = 1000;   		
+	
 	//places
-	public final static String workingDir = "/home/pi/git/pisound";
+	public final static String workingDir = ".";
 	public final static String audioDir = workingDir + "/audio";
-	
-	
-	
+	public final static String knownPIsFile = workingDir + "/config/known_pis";
 	
 }
