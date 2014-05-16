@@ -107,14 +107,14 @@ public class DynamoPI {
 	private void sync(long time) {
 		synch.doAtTime(new Runnable() {
 			public void run() {
-				
-				//****************************************************
-				//TODO - what goes here?
-				//****************************************************
-				
-				
+				startAudio();
 			}
 		}, time);
+	}
+	
+	public void startAudio() {
+		ac.start();
+		audioOn = true;
 	}
 
 	private void startListeningForCode() {
