@@ -32,7 +32,7 @@ public class Synchronizer {
 
 	boolean on = true;
 	boolean verbose = true;
-	boolean veryverbose = false;
+	boolean veryverbose = true;
 	boolean timedebug = false;
 	
 	Map<Long, Map<String, long[]>> log;		//first referenced by message send time, then by respodent's name, with the time the respondent replied and the current time
@@ -298,7 +298,7 @@ public class Synchronizer {
 	
 	
 	public static void main(String[] args) {
-		Synchronizer s = new Synchronizer();
+		Synchronizer s = get();
 		s.displayClock();
 	}
 	
