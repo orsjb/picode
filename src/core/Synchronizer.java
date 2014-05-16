@@ -298,7 +298,8 @@ public class Synchronizer {
 	
 	
 	public static void main(String[] args) {
-		new Synchronizer();
+		Synchronizer s = new Synchronizer();
+		s.displayClock();
 	}
 	
 }
