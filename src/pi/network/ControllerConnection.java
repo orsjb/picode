@@ -6,9 +6,9 @@ import java.net.SocketAddress;
 import java.util.HashSet;
 import java.util.Set;
 
-import pi.sync.Synchronizer;
 import core.Config;
 import core.Device;
+import core.Synchronizer;
 import de.sciss.net.OSCListener;
 import de.sciss.net.OSCMessage;
 import de.sciss.net.OSCServer;

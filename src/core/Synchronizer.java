@@ -1,4 +1,4 @@
-package pi.sync;
+package core;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -9,9 +9,6 @@ import java.net.UnknownHostException;
 import java.util.Date;
 import java.util.Hashtable;
 import java.util.Map;
-
-import core.Config;
-import core.Device;
 
 public class Synchronizer {
 
