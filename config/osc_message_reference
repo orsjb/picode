@@ -17,10 +17,7 @@ Messages from controller to PI
 	* /PI/fadeout_reset <float:timeMS>
 	
 	* /PI/fadeout_clearsound <float:timeMS>
-	
-	* /PI/fadeout <float:timeMS>
-	
-	* /PI/fadein <float:timeMS>
 
 Messages from PI to controller
 
+	* /PI/alive <String:hostname> <long:timeMS>

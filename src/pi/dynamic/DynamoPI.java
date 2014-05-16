@@ -17,10 +17,10 @@ import net.beadsproject.beads.ugens.Envelope;
 import net.beadsproject.beads.ugens.PolyLimit;
 import pi.network.ControllerConnection;
 import pi.sensors.MiniMU;
+import pi.sync.Synchronizer;
 import core.AudioSetup;
 import core.Config;
 import core.PIPO;
-import core.Synchronizer;
 import de.sciss.net.OSCMessage;
 
 public class DynamoPI {
@@ -70,7 +70,7 @@ public class DynamoPI {
 		mu.start();
 		// start the connection
 		controller = new ControllerConnection();
-		synch = new Synchronizer();
+		synch = Synchronizer.get();
 		//start various other listeners
 		startCommandListener();
 		// start listening for code

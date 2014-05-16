@@ -1,4 +1,4 @@
-package core;
+package pi.sync;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -10,7 +10,8 @@ import java.util.Date;
 import java.util.Hashtable;
 import java.util.Map;
 
-import pi.PIMain;
+import core.Config;
+import core.Device;
 
 public class Synchronizer {
 
@@ -39,14 +40,26 @@ public class Synchronizer {
 	
 	Map<Long, Map<String, long[]>> log;		//first referenced by message send time, then by respodent's name, with the time the respondent replied and the current time
 	
-	public Synchronizer() {
-		
+	static Synchronizer singletonSynchronizer;
+	
+	public static Synchronizer get() {
+		if(singletonSynchronizer == null) {
+			singletonSynchronizer = new Synchronizer();
+		}
+		return singletonSynchronizer;
+	}
+	
+	public static long time() {
+		return get().correctedTimeNow();
+	}
+	
+	private Synchronizer() {
 		//basics
 		log = new Hashtable<Long, Map<String, long[]>>();
 		
 		try {
 			//basic init get my MAC address
-			myMAC = PIMain.myMAC;
+			myMAC = Device.myMAC;
 			//start listening
 			setupListener();
 			//setup sender

@@ -1,5 +1,6 @@
 package controller;
 
+import pi.sync.Synchronizer;
 import javafx.application.Application;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -12,7 +13,6 @@ import javafx.util.Callback;
 import controller.jfx_gui.PIRepCell;
 import controller.network.LocalPIRepresentation;
 import controller.network.PIConnection;
-import core.Synchronizer;
 
 /**
  * MasterServer keeps contact with all PIs. Can control them etc.
@@ -25,7 +25,6 @@ public class ControllerMain extends Application {
 	
 	ObservableList<LocalPIRepresentation> thePIs;
 	PIConnection piConnection;
-	Synchronizer synchronizer;
 
     @Override 
     public void start(Stage stage) {
@@ -39,7 +38,6 @@ public class ControllerMain extends Application {
 				thePIs.remove(pi);
 			}
 		});
-    	synchronizer = new Synchronizer();
     }
     
 	private void setupGUI(Stage stage) {

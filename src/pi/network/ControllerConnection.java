@@ -6,8 +6,9 @@ import java.net.SocketAddress;
 import java.util.HashSet;
 import java.util.Set;
 
-import pi.PIMain;
+import pi.sync.Synchronizer;
 import core.Config;
+import core.Device;
 import de.sciss.net.OSCListener;
 import de.sciss.net.OSCMessage;
 import de.sciss.net.OSCServer;
@@ -51,7 +52,7 @@ public class ControllerConnection {
 		//set up an indefinite thread to ping the controller
 		new Thread() {
 			public void run() {
-				sendToController("/PI/alive", new Object[] {PIMain.myHostname});
+				sendToController("/PI/alive", new Object[] {Device.myHostname, Synchronizer.time()});
 				try {
 					Thread.sleep(Config.aliveInterval);
 				} catch (InterruptedException e) {
