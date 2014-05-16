@@ -1,7 +1,6 @@
 package core;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.util.Scanner;
@@ -27,7 +26,7 @@ public abstract class Device {
 				for (byte a : mac) {
 					builder.append(String.format("%02x", a));
 				}
-				tmpMAC = builder.substring(0, builder.length() - 1);
+				tmpMAC = builder.substring(0, builder.length());
 			} 
 			//first attempt at hostname is to query the /etc/hostname file which should have
 			//renamed itself (on the PI) before this Java code runs
@@ -49,11 +48,15 @@ public abstract class Device {
 		}
 		myHostname = tmpHostname;
 		myMAC = tmpMAC;
+		//report
+		System.out.println("My hostname is: " + myHostname);
+		System.out.println("My wlan MAC address is: " + myMAC);
 	}
 	
 	public static void main(String[] args) {
-		System.out.println(myHostname + " " + myMAC);
-		
+		//static code above will run
+		@SuppressWarnings("unused")
+		String x = Device.myHostname;
 	}
 	
 }

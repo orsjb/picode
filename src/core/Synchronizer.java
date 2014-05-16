@@ -61,6 +61,7 @@ public class Synchronizer {
 			setupListener();
 			//setup sender
 			broadcastSocket = new MulticastSocket();
+			broadcastSocket.setTimeToLive(1);			//TODO does this let us get on with our work?
 			//start sending
 			startSending();
 			//display clock (optional)
