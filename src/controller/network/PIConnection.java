@@ -1,5 +1,7 @@
 package controller.network;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
@@ -30,12 +32,16 @@ public class PIConnection {
 		pis = new Hashtable<String, LocalPIRepresentation>();
 		knownPIs = new Hashtable<String, Integer>();
 		//read the known pis from file
-		Scanner s = new Scanner(Config.knownPIsFile);
-		while(s.hasNext()) {
-			String[] line = s.nextLine().split("[ ]");
-			knownPIs.put(line[0], Integer.parseInt(line[1]));
+		try {
+			Scanner s = new Scanner(new File(Config.knownPIsFile));
+			while(s.hasNext()) {
+				String[] line = s.nextLine().split("[ ]");
+				knownPIs.put(line[0], Integer.parseInt(line[1]));
+			}
+			s.close();
+		} catch (FileNotFoundException e1) {
+			e1.printStackTrace();
 		}
-		s.close();
 		// create the OSC Server
 		try {
 			oscServer = OSCServer.newUsing(OSCServer.UDP, Config.statusFromPIPort);
