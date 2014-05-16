@@ -2,7 +2,7 @@ package core;
 
 import java.net.NetworkInterface;
 
-public class Util {
+public abstract class Util {
 
 	//some hardware-related fields and methods
 	
@@ -39,6 +39,10 @@ public class Util {
 		try {
 			Runtime.getRuntime().exec(new String[]{"/bin/bash","-c","sudo reboot"}).waitFor();
 		} catch (Exception e) {}
+	}
+	
+	public static void main(String[] args ) {
+		System.out.println(macWlan);
 	}
 	
 }
