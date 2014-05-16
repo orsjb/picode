@@ -19,10 +19,10 @@ public class PIMain {
 		//get the hostname
 		Scanner s = new Scanner("/etc/hostname");
 		myHostname = s.next();
+		System.out.println("My hostname is: " + myHostname);
 		s.close();
 		//derive the MAC from the hostname
 		myMAC = myHostname.substring(8, 20);
-		System.out.println("My hostname is: " + myHostname);
 	}
 	
 	public static void main(String[] args) throws Exception {
