@@ -3,6 +3,7 @@ package core;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.net.NetworkInterface;
+import java.util.Enumeration;
 import java.util.Scanner;
 
 public abstract class Device {
@@ -41,12 +42,25 @@ public abstract class Device {
 	static {
 		String result = "Unknown";
 		try {
+			
+			Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
+			while(interfaces.hasMoreElements()) {
+				NetworkInterface ni = interfaces.nextElement();
+				System.out.println("--" + ni.getDisplayName());
+			}
+			
+			
+			
+			
 			NetworkInterface netInterface;
 			if (System.getProperty("os.name").startsWith("Mac OS")) {
 				netInterface = NetworkInterface.getByName("en1");
 			} else {
 				netInterface = NetworkInterface.getByName("wlan0");
 			}
+			
+			
+			
 			byte[] mac = netInterface.getHardwareAddress();
 			StringBuilder builder = new StringBuilder();
 			for (byte a : mac) {
