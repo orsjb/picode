@@ -22,6 +22,7 @@ public class PIMain {
 		s.close();
 		//derive the MAC from the hostname
 		myMAC = myHostname.substring(8, 20);
+		System.out.println("My hostname is: " + myHostname);
 	}
 	
 	public static void main(String[] args) throws Exception {
