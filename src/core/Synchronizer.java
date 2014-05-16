@@ -1,4 +1,4 @@
-package pi.synch;
+package core;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -11,7 +11,6 @@ import java.util.Hashtable;
 import java.util.Map;
 
 import pi.PIMain;
-import core.Config;
 
 public class Synchronizer {
 
@@ -46,10 +45,7 @@ public class Synchronizer {
 		log = new Hashtable<Long, Map<String, long[]>>();
 		
 		try {
-			//basic init => find out my mac address and IP address
-			
-			
-			
+			//basic init get my MAC address
 			myMAC = PIMain.myMAC;
 			//start listening
 			setupListener();

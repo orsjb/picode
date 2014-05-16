@@ -22,7 +22,7 @@ public class PIMain {
 		String tmp = null;
 		try {
 			Scanner s = new Scanner(new File("/etc/hostname"));
-			tmp = s.next();
+			tmp = s.next() + ".local";
 			System.out.println("My hostname is: " + tmp);
 			s.close();
 			//derive the MAC from the hostname
