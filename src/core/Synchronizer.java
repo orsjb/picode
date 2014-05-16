@@ -31,7 +31,7 @@ public class Synchronizer {
 	int stabilityCount = 0;
 
 	boolean on = true;
-	boolean verbose = false;
+	boolean verbose = true;
 	boolean veryverbose = false;
 	boolean timedebug = false;
 	
@@ -61,7 +61,7 @@ public class Synchronizer {
 			setupListener();
 			//setup sender
 			broadcastSocket = new MulticastSocket();
-			broadcastSocket.setTimeToLive(1);			//TODO does this let us get on with our work?
+//			broadcastSocket.setTimeToLive(1);			//TODO does this let us get on with our work?
 			//start sending
 			startSending();
 			//display clock (optional)
