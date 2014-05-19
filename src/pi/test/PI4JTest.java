@@ -222,12 +222,13 @@ public class PI4JTest {
 		if (bbits[0]) { // if the most significant bit is true
 			for(int i = 0; i < length; i++) { //
 				result += bbits[length - i]? Math.pow(2, i) : 0; // use the positive version 
+				result = result - 2048;
 			}
 		} else {
 			for(int i = 0; i < length; i++) {
-				result += bbits[length - i]? Math.pow(2, i) : 0; // subtract 2048
+				result += bbits[length - i]? Math.pow(2, i) : 0; // 
 			}
-			result = result - 2048;
+		
 		}
 
 		
