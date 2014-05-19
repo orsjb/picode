@@ -59,8 +59,8 @@ public class PI4JTest {
 
 		// ACCEL
 		acceldevice = bus.getDevice(ACC_ADDRESS);
-		acceldevice.write(0x20, (byte) 0b01010111);
-		acceldevice.write(0x23, (byte) 0b00101000);
+		acceldevice.write(0x20, (byte) 0b01000111);
+		acceldevice.write(0x23, (byte) 0x28);
 
 		// MAG
 //		magdevice = bus.getDevice(MAG_ADDRESS);
