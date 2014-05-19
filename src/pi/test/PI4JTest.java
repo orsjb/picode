@@ -211,29 +211,21 @@ public class PI4JTest {
 	}
 
 	public static int bits2Int(boolean[] bbits) {
-//		String s = bits2String(bbits);
-//		return Integer.valueOf(s, 2);
 
 		int result = 0;
-
 		int length = bbits.length - 1;
-		
 
 		if (bbits[0]) { // if the most significant bit is true
 			for(int i = 0; i < length; i++) { //
-				result += bbits[length - i]? Math.pow(2, i) : 0; // use the positive version 
-				result = result - 2048;
+				result += bbits[length - i] ? Math.pow(2, i) : 0; // use the positive version 
+				result = result - 4096;
 			}
 		} else {
 			for(int i = 0; i < length; i++) {
 				result += bbits[length - i]? Math.pow(2, i) : 0; // 
 			}
-		
 		}
-
-		
 		return result;
-
 	}
 
 
