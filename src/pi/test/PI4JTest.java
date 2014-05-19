@@ -179,10 +179,14 @@ public class PI4JTest {
 			int theInt = bits2Int(shortybits);
 			result[i] = theInt;
 
-			System.out.print(bits2String(shortybits) + " (" + theInt + ")     ");
+			System.out.print(bits2String(shortybits) + " ");
 
 		}
+				
 		System.out.println();
+		System.out.println(result[0] + " " + result[1] + " " + result[2]);
+		
+
 		return result;
 	}
 
