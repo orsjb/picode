@@ -218,7 +218,7 @@ public class PI4JTest {
 		if (bbits[0]) { // if the most significant bit is true
 			for(int i = 0; i < length; i++) { //
 				result -= bbits[length - i] ? 0 : Math.pow(2, i) ; // use the positive version 
-				// result = result - 4096;
+
 			}
 		} else {
 			for(int i = 0; i < length; i++) {
