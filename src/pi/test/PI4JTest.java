@@ -169,15 +169,12 @@ public class PI4JTest {
 //			System.out.print(bits2String(abits) + ":" + bits2String(bbits));
 
 
-			boolean[] shortybits = new boolean[16];
+			boolean[] shortybits = new boolean[12];
 			for(int j = 0; j < 8; j++) {
 				shortybits[j] = bbits[j];
 			}
 			for(int j = 0; j < 4; j++) {
 				shortybits[j + 8] = abits[j];
-			}
-			for(int j = 0; j < 4; j++) {
-				shortybits[j + 12] = false;
 			}
 			int theInt = bits2Int(shortybits);
 			result[i] = theInt;
@@ -216,13 +213,20 @@ public class PI4JTest {
 		int result = 0;
 
 		int length = bbits.length - 1;
-		for(int i = 0; i < length; i++) {
-//			result += Math.pow(2, (bbits[length - i]?1:0));
+		
 
-			result += bbits[length - i]? Math.pow(2, i) : 0;
+		if (bbits[bbits.length]) { // if the most significant bit is true
+			for(int i = 0; i < length; i++) { //
+				result += bbits[length - i]? Math.pow(2, i) : 0; // use the positive version 
+			}
+		} else {
+			for(int i = 0; i < length; i++) {
+				result += bbits[length - i]? Math.pow(2, i) : 0; // subtract 2048
+			}
+			result = result - 2048;
 		}
 
-		if(bbits[0]) result = -result;
+		
 		return result;
 
 	}
