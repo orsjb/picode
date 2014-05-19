@@ -169,18 +169,20 @@ public class PI4JTest {
 //			System.out.print(bits2String(abits) + ":" + bits2String(bbits));
 
 
-			boolean[] shortybits = new boolean[12];
+			boolean[] shortybits = new boolean[16];
 			for(int j = 0; j < 8; j++) {
 				shortybits[j] = bbits[j];
 			}
 			for(int j = 0; j < 4; j++) {
 				shortybits[j + 8] = abits[j];
 			}
+			for(int j = 0; j < 4; j++) {
+				shortybits[j + 12] = false;
+			}
 			int theInt = bits2Int(shortybits);
 			result[i] = theInt;
 
-
-			//System.out.print(bits2String(shortybits) + " (" + theInt + ")     ");
+			System.out.print(bits2String(shortybits) + " (" + theInt + ")     ");
 
 		}
 		System.out.println();
