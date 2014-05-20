@@ -3,7 +3,11 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="libs/beads-io.jar"/>
-	<classpathentry kind="lib" path="libs/beads.jar"/>
+	<classpathentry kind="lib" path="libs/beads.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="file:/Users/ollie/git/beads/build/doc/"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="lib" path="libs/jl1.0.1.jar"/>
 	<classpathentry kind="lib" path="libs/mp3spi1.9.4.jar"/>
 	<classpathentry kind="lib" path="libs/NetUtil.jar"/>

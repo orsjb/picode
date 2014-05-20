@@ -45,17 +45,12 @@ public class MiniMU {
 			System.out.println("Connected to bus OK!");
 			// GYRO
 			gyrodevice = bus.getDevice(GYR_ADDRESS);
-//			gyrodevice.write(0x20, (byte) 0b00001111);
-//			gyrodevice.write(0x23, (byte) 0b00110000);
+			gyrodevice.write(0x20, (byte) 0b00001111);
+			gyrodevice.write(0x23, (byte) 0b00110000);
 			// ACCEL
 			acceldevice = bus.getDevice(ACC_ADDRESS);
 			acceldevice.write(0x20, (byte) 0b01010111);
 			acceldevice.write(0x23, (byte) 0b00101000);
-			// MAG
-//			magdevice = bus.getDevice(MAG_ADDRESS);
-//			gyrodevice.write(0x20, (byte) 0b00001111);
-//			gyrodevice.write(0x23, (byte) 0b00110000);
-			// TEMP
 		} catch(IOException e) {
 			e.printStackTrace();
 		}
@@ -79,20 +74,12 @@ public class MiniMU {
 			public void run() {
 				while(true) {
 					try {
-//						float[] gyroData = readingSensorsGyro();
-						float[] accelData = readingSensorsAccel();
-//						System.out.println(gyroData[0] + "\t" + gyroData[1] + "\t" + gyroData[2] + "\t" + accelData[0] + "\t" + accelData[1] + "\t" + accelData[2] + "\t");
-//						System.out.println(accelData[0] + "\t" + accelData[1] + "\t" + accelData[2] + "\t");
-//						double M_PI = 3.14159265358979323846;
-//						double RAD_TO_DEG = 57.29578;
-//						double accXangle = (float) (Math.atan2(accelData[1],accelData[2])+M_PI)*RAD_TO_DEG;
-//						double accYangle = (float) (Math.atan2(accelData[2],accelData[0])+M_PI)*RAD_TO_DEG;
+						float[] gyroData = readSensorsGyro();
+						float[] accelData = readSensorsAccel();
 						//pass data on to listeners
 						for(MiniMUListener listener : listeners) {
 							listener.accelData(accelData[0], accelData[1], accelData[2]);
-//							listener.gyroData(x, y, z);
-//							listener.magData(x, y, z);
-//							listener.tempData(t);
+							listener.gyroData(gyroData[0], gyroData[1], gyroData[2]);
 						}
 						Thread.sleep(10);
 					} catch (Exception e) {
@@ -104,7 +91,7 @@ public class MiniMU {
 		new Thread(task).start();
 	}
 
-	private float[] readingSensorsGyro() throws IOException {
+	private float[] readSensorsGyro() throws IOException {
 		int numElements = 3; //
 		float[] result = new float[numElements];
 		int bytesPerElement = 2; // assuming short?
@@ -118,7 +105,6 @@ public class MiniMU {
 			byte b = accelIn.readByte(); //most sig
 			boolean[] abits = getBits(a);
 			boolean[] bbits = getBits(b);
-//			System.out.print(bits2String(abits) + ":" + bits2String(bbits) + "   ");
 			boolean[] shortybits = new boolean[16];
 			for(int j = 0; j < 8; j++) {
 				shortybits[j] = bbits[j];
@@ -132,7 +118,7 @@ public class MiniMU {
 		return result;
 	}
 	
-	private float[] readingSensorsAccel() throws IOException {
+	private float[] readSensorsAccel() throws IOException {
 		int numElements = 3; //
 		float[] result = new float[numElements];
 		int bytesPerElement = 2; // assuming short?
@@ -146,7 +132,6 @@ public class MiniMU {
 			byte b = accelIn.readByte(); //most sig
 			boolean[] abits = getBits(a);
 			boolean[] bbits = getBits(b);
-//			System.out.print(bits2String(abits) + ":" + bits2String(bbits));
 			boolean[] shortybits = new boolean[12];
 			for(int j = 0; j < 8; j++) {
 				shortybits[j] = bbits[j];
@@ -156,9 +141,7 @@ public class MiniMU {
 			}
 			int theInt = bits2Int(shortybits);
 			result[i] = theInt;
-//			System.out.print(bits2String(shortybits) + " (" + theInt + ")     ");
 		}
-//		System.out.println();
 		return result;
 	}
 
@@ -184,11 +167,15 @@ public class MiniMU {
 	public static int bits2Int(boolean[] bbits) {
 		int result = 0;
 		int length = bbits.length - 1;
-		for(int i = 0; i < length; i++) {
-//			result += Math.pow(2, (bbits[length - i]?1:0));
-			result += bbits[length - i]? Math.pow(2, i) : 0;
+		if (bbits[0]) { // if the most significant bit is true
+			for(int i = 0; i < length; i++) { //
+				result -= bbits[length - i] ? 0 : Math.pow(2, i) ; // use the positive version 
+			}
+		} else {
+			for(int i = 0; i < length; i++) {
+				result += bbits[length - i]? Math.pow(2, i) : 0; // 
+			}
 		}
-		if(bbits[0]) result = -result;
 		return result;
 	}
 	

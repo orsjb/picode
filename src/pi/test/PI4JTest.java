@@ -145,8 +145,6 @@ public class PI4JTest {
 			int theInt = bits2Int(shortybits);
 			result[i] = theInt / 5000f;
 		}
-
-
 		return result;
 	}
 
@@ -211,10 +209,8 @@ public class PI4JTest {
 	}
 
 	public static int bits2Int(boolean[] bbits) {
-
 		int result = 0;
 		int length = bbits.length - 1;
-
 		if (bbits[0]) { // if the most significant bit is true
 			for(int i = 0; i < length; i++) { //
 				result -= bbits[length - i] ? 0 : Math.pow(2, i) ; // use the positive version 
@@ -227,7 +223,6 @@ public class PI4JTest {
 		}
 		return result;
 	}
-
 
 	public static String byte2Str(byte inByte) {
 		boolean[] bbits = getBits(inByte);

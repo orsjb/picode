@@ -31,8 +31,9 @@ BUF=512
 SR=11000
 INS=0
 OUTS=1
+AUTOSTART=true
 
-/usr/bin/sudo /usr/bin/java -cp build/picode.jar pi.PIMain $BUF $SR $INS $OUTS  > stdout &
+/usr/bin/sudo /usr/bin/java -cp build/picode.jar pi.PIMain $BUF $SR $INS $OUTS $AUTOSTART  > stdout &
 
 ### various old or test scripts ###
 
