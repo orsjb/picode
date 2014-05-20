@@ -49,7 +49,7 @@ public class MiniMU {
 			gyrodevice.write(0x23, (byte) 0b00110000);
 			// ACCEL
 			acceldevice = bus.getDevice(ACC_ADDRESS);
-			acceldevice.write(0x20, (byte) 0b01010111);
+			acceldevice.write(0x20, (byte) 0b01000111);
 			acceldevice.write(0x23, (byte) 0b00101000);
 		} catch(IOException e) {
 			System.out.println("Warning: unable to communicate with the MiniMU, we're not going to be getting any sensor data :-(");
@@ -173,11 +173,11 @@ public class MiniMU {
 		int length = bbits.length - 1;
 		if (bbits[0]) { // if the most significant bit is true
 			for(int i = 0; i < length; i++) { //
-				result -= bbits[length - i] ? 0 : Math.pow(2, i) ; // use the positive version 
+				result -= bbits[length - i] ? 0 : Math.pow(2, i) ; // use the negative complement version 
 			}
 		} else {
 			for(int i = 0; i < length; i++) {
-				result += bbits[length - i]? Math.pow(2, i) : 0; // 
+				result += bbits[length - i]? Math.pow(2, i) : 0; // use the positive version
 			}
 		}
 		return result;

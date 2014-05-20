@@ -52,20 +52,22 @@ public class PI4JTest {
 		bus = I2CFactory.getInstance(I2CBus.BUS_1);
 		System.out.println("Connected to bus OK!");
 
+
 		// GYRO
 		gyrodevice = bus.getDevice(GYR_ADDRESS);
-//		gyrodevice.write(0x20, (byte) 0b00001111);
-//		gyrodevice.write(0x23, (byte) 0b00110000);
+		gyrodevice.write(0x20, (byte) 0b00001111);// Normal power mode, all axes enabled
+		gyrodevice.write(0x23, (byte) 0b00100000);// 2000 dps full scale
 
 		// ACCEL
 		acceldevice = bus.getDevice(ACC_ADDRESS);
-		acceldevice.write(0x20, (byte) 0b01000111);
-		acceldevice.write(0x23, (byte) 0x28);
+		acceldevice.write(0x20, (byte) 0b01000111);// normal power mode, all axes enabled, 50 Hz
+		acceldevice.write(0x23, (byte) 0x28);// 8 g full scale: FS = 10 on DLHC, high resolution output mode
 
 		// MAG
-//		magdevice = bus.getDevice(MAG_ADDRESS);
-//		gyrodevice.write(0x20, (byte) 0b00001111);
-//		gyrodevice.write(0x23, (byte) 0b00110000);
+	    // Enable magnetometer
+	    // Continuous conversion mode
+	    magdevice = bus.getDevice(MAG_ADDRESS);
+		magdevice.write(0x02, (byte) 0x00); // writeMagReg(LSM303_MR_REG_M, 0x00);
 
 		// TEMP
 
