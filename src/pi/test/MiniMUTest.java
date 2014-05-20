@@ -27,8 +27,8 @@ public class MiniMUTest {
 		MiniMUListener myListener = new MiniMUListener() {
 			public void accelData(double x, double y, double z) {
 				System.out.println("getting data from the MiniMU: " + x + " " + y);
-				freqCtrl.setValue(((float)Math.abs(x) * 1000f) % 10000f + 600f);
-				gainCtrl.setValue(((float)Math.abs(y) * 400f) % 400f / 1600f + 0.1f);
+				freqCtrl.setValue(((float)Math.abs(x) * 10f) % 10000f + 600f);
+				gainCtrl.setValue(((float)Math.abs(y) * 10f) % 400f / 1600f + 0.1f);
 			}
 		};
 		MiniMU mm = new MiniMU(myListener);
