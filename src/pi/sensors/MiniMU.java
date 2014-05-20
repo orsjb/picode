@@ -52,7 +52,7 @@ public class MiniMU {
 			acceldevice.write(0x20, (byte) 0b01010111);
 			acceldevice.write(0x23, (byte) 0b00101000);
 		} catch(IOException e) {
-			e.printStackTrace();
+			System.out.println("Warning: unable to communicate with the MiniMU, we're not going to be getting any sensor data :-(");
 		}
 	}
 	
@@ -81,8 +81,12 @@ public class MiniMU {
 							listener.accelData(accelData[0], accelData[1], accelData[2]);
 							listener.gyroData(gyroData[0], gyroData[1], gyroData[2]);
 						}
+					} catch (IOException e) {
+						System.out.println("MiniMU not receiving data.");
+					}
+					try {
 						Thread.sleep(10);
-					} catch (Exception e) {
+					} catch (InterruptedException e) {
 						e.printStackTrace();
 					}
 				}
