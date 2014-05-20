@@ -25,14 +25,18 @@ public class MiniMUTest {
 		ac.out.addInput(g);
 		//get listening to data
 		MiniMUListener myListener = new MiniMUListener() {
+			
 			public void accelData(double x, double y, double z) {
-				System.out.println("getting accel data from the MiniMU: " + x + " " + y);
+				String AccString = String.format("MiniMu Acc X/Y/Z = %05.2f %05.2f %05.2f", x,y,z);
+
+				System.out.println(AccString);
 				freqCtrl.setValue(((float)Math.abs(x) * 10f) % 10000f + 600f);
 				gainCtrl.setValue(((float)Math.abs(y) * 10f) % 400f / 1600f + 0.1f);
 			}
 			
 			public void gyroData(double x, double y, double z) {
-				System.out.println("getting gyro data from the MiniMU: " + x + " " + y);
+				String GyrString = String.format("MiniMu Gyr X/Y/Z = %05.2f %05.2f %05.2f", x,y,z);
+				System.out.println(GyrString);
 			}
 			
 		};

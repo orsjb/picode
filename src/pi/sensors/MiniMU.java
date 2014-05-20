@@ -117,7 +117,7 @@ public class MiniMU {
 				shortybits[j + 8] = abits[j];
 			}
 			int theInt = bits2Int(shortybits);
-			result[i] = theInt / 5000f;
+			result[i] = theInt;
 		}
 		return result;
 	}
