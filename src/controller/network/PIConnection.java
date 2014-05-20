@@ -142,6 +142,10 @@ public class PIConnection {
 	public void piReboot() {
 		sendToAllPIs("/PI/reboot");
 	}
+
+	public void piShutdown() {
+		sendToAllPIs("/PI/shutdown");
+	}
 	
 	public void piSync() {
 		long timeNow = System.currentTimeMillis();
