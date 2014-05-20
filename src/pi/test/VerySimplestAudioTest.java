@@ -12,7 +12,7 @@ public class VerySimplestAudioTest {
 		JavaSoundAudioIO.printMixerInfo();
 		System.out.println("------------");
 
-		AudioContext ac = new AudioContext(new JavaSoundAudioIO(512), 512, new IOAudioFormat(22050, 16, 0, 1));
+		AudioContext ac = new AudioContext(new JavaSoundAudioIO(1024), 1024, new IOAudioFormat(44100, 16, 0, 1));
 		Noise n = new Noise(ac);
 		ac.out.setGain(0.5f);
 		ac.out.addInput(n);
