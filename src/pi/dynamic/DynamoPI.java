@@ -7,14 +7,17 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Hashtable;
 import java.util.Random;
-import java.util.Scanner;
 
 import net.beadsproject.beads.core.AudioContext;
 import net.beadsproject.beads.core.Bead;
 import net.beadsproject.beads.core.UGen;
+import net.beadsproject.beads.data.Buffer;
+import net.beadsproject.beads.events.KillTrigger;
 import net.beadsproject.beads.ugens.Clock;
 import net.beadsproject.beads.ugens.Envelope;
+import net.beadsproject.beads.ugens.Gain;
 import net.beadsproject.beads.ugens.PolyLimit;
+import net.beadsproject.beads.ugens.WavePlayer;
 import pi.network.ControllerConnection;
 import pi.sensors.MiniMU;
 import core.AudioSetup;
@@ -49,7 +52,13 @@ public class DynamoPI {
 	public Synchronizer synch;
 
 	public static void main(String[] args) throws IOException {
-		new DynamoPI(AudioSetup.getAudioContext(args));
+		DynamoPI pi = new DynamoPI(AudioSetup.getAudioContext(args));
+		if(args.length > 4) {
+			boolean autostart = Boolean.parseBoolean(args[4]);
+			if(autostart) {
+				pi.startAudio();
+			}
+		}
 	}
 
 	public DynamoPI(AudioContext _ac) throws IOException {
@@ -86,6 +95,8 @@ public class DynamoPI {
 					sync((Long)msg.getArg(0));
 				} else if(msg.getName().equals("/PI/reboot")) {
 					rebootPI();
+				} else if(msg.getName().equals("/PI/shutdown")) {
+					shutdownPI();
 				} else if(msg.getName().equals("/PI/gain")) {
 					masterGainEnv.addSegment((Float)msg.getArg(0), (Float)msg.getArg(1));
 				} else if(msg.getName().equals("/PI/reset")) {
@@ -116,6 +127,25 @@ public class DynamoPI {
 	public void startAudio() {
 		ac.start();
 		audioOn = true;
+		testBleep();
+	}
+	
+	public void testBleep() {
+		Envelope e = new Envelope(ac, 0.4f);
+		Gain g = new Gain(ac, 1, e);
+		WavePlayer wp = new WavePlayer(ac, 500, Buffer.SINE);
+		g.addInput(wp);
+		pl.addInput(g);
+		e.addSegment(0.4f, 1000);
+		e.addSegment(0f, 100);
+		e.addSegment(0f, 1000);
+		e.addSegment(0.4f, 0);
+		e.addSegment(0.4f, 1000);
+		e.addSegment(0f, 100);
+		e.addSegment(0f, 1000);
+		e.addSegment(0.4f, 0);
+		e.addSegment(0.4f, 2000);
+		e.addSegment(0, 300, new KillTrigger(g));
 	}
 
 	private void startListeningForCode() {
@@ -288,6 +318,13 @@ public class DynamoPI {
 			Runtime.getRuntime().exec(new String[]{"/bin/bash","-c","sudo reboot"}).waitFor();
 		} catch (Exception e) {}
 	}
+	
+	//shuts down the PI
+		public static void shutdownPI() {
+			try {
+				Runtime.getRuntime().exec(new String[]{"/bin/bash","-c","sudo shutdown now"}).waitFor();
+			} catch (Exception e) {}
+		}
 
 }
 
