@@ -13,7 +13,6 @@ public abstract class AudioSetup {
 			int inchans = Integer.parseInt(args[2]);
 			int outchans = Integer.parseInt(args[3]);
 			System.out.println("Creating AudioContext with args: bufSize=" + bufSize + ", sampleRate=" + sampleRate + ", ins=" + inchans + ", outs=" + outchans);
-			JavaSoundAudioIO.printMixerInfo();
 			JavaSoundAudioIO jsaio = new JavaSoundAudioIO(bufSize);
 			AudioContext ac = new AudioContext(jsaio, bufSize, new IOAudioFormat(sampleRate, 16, inchans, outchans));
 			return ac;
