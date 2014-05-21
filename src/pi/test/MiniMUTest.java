@@ -14,7 +14,7 @@ public class MiniMUTest {
 	public static void main(String[] args) {
 		//audio
 		AudioContext ac = AudioSetup.getAudioContext(args);
-		ac.start();
+		//ac.start();
 		//controllers
 		final Glide freqCtrl = new Glide(ac, 500);
 		final Glide gainCtrl = new Glide(ac, 0.1f);
