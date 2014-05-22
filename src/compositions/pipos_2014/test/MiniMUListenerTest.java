@@ -15,11 +15,13 @@ public class MiniMUListenerTest implements PIPO {
 
 	public static void main(String[] args) throws Exception {
 		String fullClassName = Thread.currentThread().getStackTrace()[1].getClassName().replace(".", "/");
-		SendToPI.send(fullClassName, new String[]{"pisound-009e959c5093.local"});
+		SendToPI.send(fullClassName, new String[]{"pisound-009e959c5093.local", "pisound-009e959c510a.local"});
 	}
 	
 	@Override
 	public void action(final DynamoPI d) {
+		
+		d.reset();
 		
 		d.startAudio();
 		
@@ -39,7 +41,7 @@ public class MiniMUListenerTest implements PIPO {
 
 				System.out.println(AccString);
 				freqCtrl.setValue(((float)Math.abs(x) * 10f) % 10000f + 600f);
-				gainCtrl.setValue(((float)Math.abs(y) * 10f) % 400f / 1600f + 0.1f);
+				gainCtrl.setValue(((float)Math.abs(y) * 10f) % 400f / 3200f + 0.1f);
 			}
 			
 			public void gyroData(double x, double y, double z) {

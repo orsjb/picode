@@ -76,9 +76,11 @@ public class PIConnection {
 	}
 	
 	private void incomingMessage(OSCMessage msg) {
-		System.out.println("Message received: " + msg.getName());
 		if(msg.getName().equals("/PI/alive")) {
 			String piName = (String)msg.getArg(0);
+
+			System.out.println("PI Alive Message: " + piName);
+			
 			//see if we have this PI yet
 			LocalPIRepresentation thisPI = pis.get(piName);
 			if(thisPI == null) { //if not add it
