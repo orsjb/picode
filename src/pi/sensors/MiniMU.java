@@ -53,6 +53,7 @@ public class MiniMU {
 			acceldevice.write(0x23, (byte) 0b00101000);
 		} catch(IOException e) {
 			System.out.println("Warning: unable to communicate with the MiniMU, we're not going to be getting any sensor data :-(");
+			e.printStackTrace();
 		}
 	}
 	
