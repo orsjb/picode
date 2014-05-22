@@ -5,6 +5,8 @@ Messages from controller to PI
 	* /PI/sync <long:time>
 
 	* /PI/reboot 
+	
+	* /PI/shutdown 
 
 	* /PI/gain <float:target> <float:durationMS>
 
