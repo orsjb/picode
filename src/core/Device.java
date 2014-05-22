@@ -17,6 +17,10 @@ public abstract class Device {
 			NetworkInterface netInterface;
 			if (System.getProperty("os.name").startsWith("Mac OS")) {
 				netInterface = NetworkInterface.getByName("en1");
+				//if you can't get the wlan then get the ethernet mac address:
+				if(netInterface == null) {
+					netInterface = NetworkInterface.getByName("en0");
+				}
 			} else {
 				netInterface = NetworkInterface.getByName("wlan0");
 			}

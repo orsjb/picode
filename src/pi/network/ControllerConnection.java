@@ -52,11 +52,13 @@ public class ControllerConnection {
 		//set up an indefinite thread to ping the controller
 		new Thread() {
 			public void run() {
-				sendToController("/PI/alive", new Object[] {Device.myHostname, Synchronizer.time()});
-				try {
-					Thread.sleep(Config.aliveInterval);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
+				while(true) {
+					sendToController("/PI/alive", new Object[] {Device.myHostname, Synchronizer.time()});
+					try {
+						Thread.sleep(Config.aliveInterval);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
 				}
  				
 			}

@@ -5,6 +5,8 @@ import java.io.FileInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 
+import core.Config;
+
 
 public class SendToPI {
 
@@ -37,7 +39,7 @@ public class SendToPI {
         fis.close();
         byte[] bytes = buffer.toByteArray();
         for(String hostname : hostnames) {
-			Socket s = new Socket(hostname, 1234);
+			Socket s = new Socket(hostname, Config.codeToPIPort);
 			s.getOutputStream().write(bytes);
 			s.close();
         }

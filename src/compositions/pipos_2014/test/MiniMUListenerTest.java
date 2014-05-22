@@ -20,6 +20,9 @@ public class MiniMUListenerTest implements PIPO {
 	
 	@Override
 	public void action(final DynamoPI d) {
+		
+		d.startAudio();
+		
 		//controllers
 		final Glide freqCtrl = new Glide(d.ac, 500);
 		final Glide gainCtrl = new Glide(d.ac, 0.1f);
