@@ -59,11 +59,13 @@ public class Synchronizer {
 			myMAC = Device.myMAC;
 			//start listening
 			setupListener();
+			System.out.println("Synchronizer is listening.");
 			//setup sender
 			broadcastSocket = new MulticastSocket();
 			broadcastSocket.setTimeToLive(1);
 			//start sending
 			startSending();
+			System.out.println("Synchronizer is sending synch pulses.");
 			//display clock (optional)
 			//displayClock();
 		} catch(Exception e) {

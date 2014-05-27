@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 
+import javafx.application.Platform;
 import core.Config;
 import de.sciss.net.OSCListener;
 import de.sciss.net.OSCMessage;
@@ -27,6 +28,7 @@ public class PIConnection {
 	Map<String, LocalPIRepresentation> pis;
 	Map<String, Integer> knownPIs;
 	Listener listener;
+	int newID = -1;
 	
 	public PIConnection() {
 		pis = new Hashtable<String, LocalPIRepresentation>();
@@ -78,45 +80,50 @@ public class PIConnection {
 	private void incomingMessage(OSCMessage msg) {
 		if(msg.getName().equals("/PI/alive")) {
 			String piName = (String)msg.getArg(0);
-
 			System.out.println("PI Alive Message: " + piName);
-			
 			//see if we have this PI yet
 			LocalPIRepresentation thisPI = pis.get(piName);
 			if(thisPI == null) { //if not add it
-				int id = knownPIs.get(piName);
+				int id = 0;
+				if(knownPIs.containsKey(piName)) {
+					id = knownPIs.get(piName);					
+				} else {
+					id = newID--;
+				}
 				thisPI = new LocalPIRepresentation(piName, id);
 				pis.put(piName, thisPI);
-				//make sure this PI knows its ID
-				sendToPI(piName, "/PI/set_id", id);
 				//tell the listener
 				if(listener != null) {
 					listener.piAdded(thisPI);
 				}
+				//make sure this PI knows its ID
+				//since there is a lag in assigning an InetSocketAddress, and since this is the first
+				//message sent to the PI, it should be done in a separate thread.
+				final LocalPIRepresentation piID = thisPI;
+				new Thread() {
+					public void run() {
+						sendToPI(piID, "/PI/set_id", piID.id);					
+					}
+				}.start();
 			}
 			//keep up to date
 			thisPI.lastTimeSeen = System.currentTimeMillis();	//Ultimately this should be "corrected time"
 		}
 	}
 	
-	public void sendToPI(String piName, String msgName, Object... args) {
-		try {
-			InetSocketAddress target = new InetSocketAddress(piName, Config.controlToPIPort);
-			oscServer.send(new OSCMessage(msgName, args), target);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+	public void sendToPI(LocalPIRepresentation pi, String msgName, Object... args) {
+		pi.send(oscServer, new OSCMessage(msgName, args));
 	}
 	
 	public void sendToAllPIs(String msgName, Object... args) {
-		for(String piName : pis.keySet()) {
-			sendToPI(piName, msgName, args);
+		for(LocalPIRepresentation pi : pis.values()) {
+			sendToPI(pi, msgName, args);
 		}
 	}
 	
 	public void sendToPIList(String[] list, String msgName, Object... args) {
 		for(String piName : list) {
-			sendToPI(piName, msgName, args);
+			sendToPI(pis.get(piName), msgName, args);
 		}
 	}
 
@@ -130,10 +137,16 @@ public class PIConnection {
 				pisToRemove.add(piName);
 			}
 		}
-		for(String piName : pisToRemove) {
+		for(final String piName : pisToRemove) {
 			//tell the listener
 			if(listener != null) {
-				listener.piRemoved(pis.get(piName));
+				Platform.runLater(new Runnable() {
+			        @Override
+			        public void run() {
+						listener.piRemoved(pis.get(piName));
+						System.out.println("Removed PI from list: " + piName);
+			        }
+			   });
 			}
 			pis.remove(piName);
 		}

@@ -3,11 +3,13 @@ package controller;
 import javafx.application.Application;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.EventHandler;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 import javafx.util.Callback;
 import controller.jfx_gui.PIRepCell;
 import controller.network.LocalPIRepresentation;
@@ -31,15 +33,29 @@ public class ControllerMain extends Application {
     public void start(Stage stage) {
     	setupGUI(stage);
     	piConnection = new PIConnection();
+    	
+    	
     	piConnection.setListener(new PIConnection.Listener() {
 			public void piRemoved(LocalPIRepresentation pi) {
-				thePIs.add(pi);
-			}
-			public void piAdded(LocalPIRepresentation pi) {
 				thePIs.remove(pi);
 			}
+			public void piAdded(LocalPIRepresentation pi) {
+				System.out.println("Adding PI to list: " + pi.hostname + "(" + System.currentTimeMillis() + ")");
+				thePIs.add(pi);
+				System.out.println("Added PI to list: " + pi.hostname + "(" + System.currentTimeMillis() + ")");
+			}
 		});
+    	
+    	
+    	
     	synchronizer = Synchronizer.get();
+    	//get normal desktop application behaviour - closing the stage terminates the app
+    	stage.setOnCloseRequest(new EventHandler<WindowEvent>() {
+	      @Override
+	      public void handle (final WindowEvent event) {
+	          System.exit(0);
+	        }
+	    });
     }
     
 	private void setupGUI(Stage stage) {
@@ -61,19 +77,6 @@ public class ControllerMain extends Application {
         stage.setScene(scene); 
         stage.sizeToScene(); 
         stage.show(); 
-        //set up thread to monitor the PI status
-        new Thread() {
-        	public void run() {
-        		while(true) {
-        			//TODO - not sure how to get updates from the view
-        			try {
-						Thread.sleep(400);
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-					}
-        		}
-        	}
-        }.start();
     }
 
 
