@@ -35,8 +35,7 @@ AUTOSTART=true
 
 /usr/bin/sudo /usr/bin/java -cp build/picode.jar pi.PIMain $BUF $SR $INS $OUTS $AUTOSTART  > stdout &
 
-### various old or test scripts ###
-
+### Various old or test scripts ###
 # /usr/bin/sudo /usr/bin/java -cp build/picode.jar test.MiniMUTest $BUF $SR $INS $OUTS  > stdout &
 # /usr/bin/sudo /usr/bin/java -cp build/picode.jar test.PI4JTest > stdout &
 # libs/minimulib/minimu9-ahrs -b /dev/i2c-1 | /usr/bin/sudo /usr/bin/java -cp build/picode.jar test.PrintStdIn $BUF $SR $INS $OUTS > stdout &
@@ -44,3 +43,8 @@ AUTOSTART=true
 # libs/minimulib/minimu9-ahrs -b /dev/i2c-1 > stdout &
 # /usr/bin/sudo /usr/bin/java -cp build/picode.jar dynamic.DynamoPI $BUF $SR $INS $OUTS > stdout &
 # /usr/bin/sudo /usr/bin/java -cp build/picode.jar synch.Synchronizer $BUF $SR $INS $OUTS > stdout &
+####################################
+
+# Finally, run the network-monitor.sh script to keep WiFi connection alive
+
+/usr/bin/sudo scripts/network-monitor.sh
