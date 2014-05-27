@@ -47,4 +47,4 @@ AUTOSTART=true
 
 # Finally, run the network-monitor.sh script to keep WiFi connection alive
 
-/usr/bin/sudo scripts/network-monitor.sh
+/usr/bin/sudo scripts/network-monitor.sh > netstatus &
