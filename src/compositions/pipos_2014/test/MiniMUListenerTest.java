@@ -8,6 +8,7 @@ import net.beadsproject.beads.ugens.Envelope;
 import net.beadsproject.beads.ugens.Function;
 import net.beadsproject.beads.ugens.Gain;
 import net.beadsproject.beads.ugens.Glide;
+import net.beadsproject.beads.ugens.Static;
 import net.beadsproject.beads.ugens.WavePlayer;
 import pi.dynamic.DynamoPI;
 import pi.sensors.MiniMU.MiniMUListener;
@@ -23,7 +24,8 @@ public class MiniMUListenerTest implements PIPO {
 		SendToPI.send(fullClassName, new String[]{
 //				"pisound-009e959c5093.local", 
 //				"pisound-009e959c510a.local", 
-				"pisound-009e959c502d.local"
+				"pisound-009e959c502d.local",
+				"pisound-009e959c4dbc.local",
 				});
 	}
 	
@@ -31,7 +33,7 @@ public class MiniMUListenerTest implements PIPO {
 	public void action(final DynamoPI d) {
 		
 		d.reset();
-//		d.startAudio();
+		d.startAudio();
 		
 		//controllers
 		final Glide freqCtrl = new Glide(d.ac, 500);
@@ -51,7 +53,7 @@ public class MiniMUListenerTest implements PIPO {
 					WavePlayer wp = new WavePlayer(d.ac, f, Buffer.SQUARE);
 					Envelope e = new Envelope(d.ac, 0.f);
 					Gain g = new Gain(d.ac, 1, e);
-					e.addSegment(0.01f, 1);
+					e.addSegment(0.05f, 1);
 					e.addSegment(0, 200, new KillTrigger(g));
 					
 					g.addInput(wp);
@@ -60,8 +62,8 @@ public class MiniMUListenerTest implements PIPO {
 			}
 		});
 		
-		d.clock.setIntervalEnvelope(rateCtrl);
-//		d.clock.setIntervalEnvelope(new Static(d.ac, 500));
+//		d.clock.setIntervalEnvelope(rateCtrl);
+		d.clock.setIntervalEnvelope(new Static(d.ac, 500));
 		
 		
 		//get listening to data
@@ -72,7 +74,7 @@ public class MiniMUListenerTest implements PIPO {
 
 				System.out.println(AccString);
 				freqCtrl.setValue(((float)Math.abs(x) * 1f));
-				rateCtrl.setValue(1000f * (((float)Math.abs(y) * 3f) % 400f / 1600f + 0.01f));
+				rateCtrl.setValue(4000f * (((float)Math.abs(y) * 3f) % 400f / 1600f + 0.01f));
 //				rateCtrl.setValue(2000f * (((float)Math.abs(y) * 1f) + 0.01f));
 			}
 			
