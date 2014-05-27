@@ -25,7 +25,7 @@ import core.Synchronizer;
 
 public class ControllerMain extends Application {
 	
-	ObservableList<LocalPIRepresentation> thePIs;
+//	ObservableList<LocalPIRepresentation> thePIs;
 	PIConnection piConnection;
 	Synchronizer synchronizer;
 
@@ -35,16 +35,16 @@ public class ControllerMain extends Application {
     	piConnection = new PIConnection();
     	
     	
-    	piConnection.setListener(new PIConnection.Listener() {
-			public void piRemoved(LocalPIRepresentation pi) {
-				thePIs.remove(pi);
-			}
-			public void piAdded(LocalPIRepresentation pi) {
-				System.out.println("Adding PI to list: " + pi.hostname + "(" + System.currentTimeMillis() + ")");
-				thePIs.add(pi);
-				System.out.println("Added PI to list: " + pi.hostname + "(" + System.currentTimeMillis() + ")");
-			}
-		});
+//    	piConnection.setListener(new PIConnection.Listener() {
+//			public void piRemoved(LocalPIRepresentation pi) {
+//				thePIs.remove(pi);
+//			}
+//			public void piAdded(LocalPIRepresentation pi) {
+//				System.out.println("Adding PI to list: " + pi.hostname + "(" + System.currentTimeMillis() + ")");
+//				thePIs.add(pi);
+//				System.out.println("Added PI to list: " + pi.hostname + "(" + System.currentTimeMillis() + ")");
+//			}
+//		});
     	
     	
     	
@@ -60,8 +60,11 @@ public class ControllerMain extends Application {
     
 	private void setupGUI(Stage stage) {
     	ListView<LocalPIRepresentation> list = new ListView<LocalPIRepresentation>();
-    	thePIs = FXCollections.observableArrayList();
-    	list.setItems(thePIs);
+//    	thePIs = FXCollections.observableArrayList();
+//    	list.setItems(thePIs);
+    	
+    	list.setItems(piConnection.getPIs());
+    	
     	list.setCellFactory(new Callback<ListView<LocalPIRepresentation>, ListCell<LocalPIRepresentation>>() {
 			@Override
 			public ListCell<LocalPIRepresentation> call(ListView<LocalPIRepresentation> theView) {

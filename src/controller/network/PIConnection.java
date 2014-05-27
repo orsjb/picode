@@ -3,7 +3,6 @@ package controller.network;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.util.ArrayList;
 import java.util.Hashtable;
@@ -12,6 +11,9 @@ import java.util.Map;
 import java.util.Scanner;
 
 import javafx.application.Platform;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.collections.ObservableMap;
 import core.Config;
 import de.sciss.net.OSCListener;
 import de.sciss.net.OSCMessage;
@@ -25,13 +27,13 @@ public class PIConnection {
 	}
 	
 	OSCServer oscServer;
-	Map<String, LocalPIRepresentation> pis;
+	ObservableMap<String, LocalPIRepresentation> pis;
 	Map<String, Integer> knownPIs;
 	Listener listener;
 	int newID = -1;
 	
 	public PIConnection() {
-		pis = new Hashtable<String, LocalPIRepresentation>();
+		pis = FXCollections.observableMap(new Hashtable<String, LocalPIRepresentation>());
 		knownPIs = new Hashtable<String, Integer>();
 		//read the known pis from file
 		try {
@@ -75,6 +77,10 @@ public class PIConnection {
 	
 	public void setListener(Listener listener) {
 		this.listener = listener;
+	}
+	
+	public ObservableList<LocalPIRepresentation> getPIs() {
+		return FXCollections.observableArrayList(pis.values());
 	}
 	
 	private void incomingMessage(OSCMessage msg) {
