@@ -88,13 +88,13 @@ public class PIConnection {
 					id = newID--;
 				}
 				thisPI = new LocalPIRepresentation(piName, id);
+	        	pisByHostname.put(piName, thisPI);
 				final LocalPIRepresentation piToAdd = thisPI;
 				//adding needs to be done in an "app" thread because it affects the GUI.
 				Platform.runLater(new Runnable() {
 			        @Override
 			        public void run() {
 			        	thePIs.add(piToAdd);
-			        	pisByHostname.put(piToAdd.hostname, piToAdd);
 			        }
 		        });
 				//make sure this PI knows its ID
@@ -109,6 +109,9 @@ public class PIConnection {
 			}
 			//keep up to date
 			thisPI.lastTimeSeen = System.currentTimeMillis();	//Ultimately this should be "corrected time"
+			
+			
+			
 		}
 	}
 	

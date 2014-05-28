@@ -1,13 +1,17 @@
 package controller;
 
 import javafx.application.Application;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
 import javafx.scene.Group;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 import javafx.util.Callback;
@@ -33,21 +37,6 @@ public class ControllerMain extends Application {
     public void start(Stage stage) {
     	piConnection = new PIConnection();
     	setupGUI(stage);
-    	
-    	
-//    	piConnection.setListener(new PIConnection.Listener() {
-//			public void piRemoved(LocalPIRepresentation pi) {
-//				thePIs.remove(pi);
-//			}
-//			public void piAdded(LocalPIRepresentation pi) {
-//				System.out.println("Adding PI to list: " + pi.hostname + "(" + System.currentTimeMillis() + ")");
-//				thePIs.add(pi);
-//				System.out.println("Added PI to list: " + pi.hostname + "(" + System.currentTimeMillis() + ")");
-//			}
-//		});
-    	
-    	
-    	
     	synchronizer = Synchronizer.get();
     	//get normal desktop application behaviour - closing the stage terminates the app
     	stage.setOnCloseRequest(new EventHandler<WindowEvent>() {
@@ -59,12 +48,29 @@ public class ControllerMain extends Application {
     }
     
 	private void setupGUI(Stage stage) {
-    	ListView<LocalPIRepresentation> list = new ListView<LocalPIRepresentation>();
-//    	thePIs = FXCollections.observableArrayList();
-//    	list.setItems(thePIs);
-    	
+		Group masterGroup = new Group();
+		
+		
+		BorderPane border = new BorderPane();
+		
+		HBox hbox = new HBox();
+		hbox.setMinHeight(100);
+//		hbox.setMargin(arg0, arg1);
+		
+		border.setTop(hbox);
+		
+		VBox vbox = new VBox();
+		vbox.setMinWidth(50);
+		border.setLeft(vbox);
+
+		border.setRight(new VBox());
+		
+		masterGroup.getChildren().add(border);
+		
+		
+    	//list of PIs
+		ListView<LocalPIRepresentation> list = new ListView<LocalPIRepresentation>();
     	list.setItems(piConnection.getPIs());
-    	
     	list.setCellFactory(new Callback<ListView<LocalPIRepresentation>, ListCell<LocalPIRepresentation>>() {
 			@Override
 			public ListCell<LocalPIRepresentation> call(ListView<LocalPIRepresentation> theView) {
@@ -73,8 +79,23 @@ public class ControllerMain extends Application {
 		});
     	list.setPrefWidth(1000);
     	list.setPrefHeight(700);
-    	Group masterGroup = new Group();
-    	masterGroup.getChildren().add(list);
+    	
+       	border.setCenter(list);
+    	
+    	//master buttons
+    	Button rebootButton = new Button();
+    	rebootButton.setOnMouseClicked(new EventHandler<MouseEvent>() {
+
+			@Override
+			public void handle(MouseEvent e) {
+				System.out.println("Clicked");
+			}
+		});
+    	((Pane)border.getTop()).getChildren().add(rebootButton);
+    	
+    	//code view
+    	
+    	
         Scene scene = new Scene(masterGroup); 
         stage.setTitle("--PI Controller--"); 
         stage.setScene(scene); 
