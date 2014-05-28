@@ -53,7 +53,6 @@ public class Synchronizer {
 	private Synchronizer() {
 		//basics
 		log = new Hashtable<Long, Map<String, long[]>>();
-		
 		try {
 			//basic init get my MAC address
 			myMAC = Device.myMAC;

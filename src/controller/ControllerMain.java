@@ -25,14 +25,14 @@ import core.Synchronizer;
 
 public class ControllerMain extends Application {
 	
-//	ObservableList<LocalPIRepresentation> thePIs;
+
 	PIConnection piConnection;
 	Synchronizer synchronizer;
 
     @Override 
     public void start(Stage stage) {
-    	setupGUI(stage);
     	piConnection = new PIConnection();
+    	setupGUI(stage);
     	
     	
 //    	piConnection.setListener(new PIConnection.Listener() {

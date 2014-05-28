@@ -13,7 +13,6 @@ import java.util.Scanner;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.collections.ObservableMap;
 import core.Config;
 import de.sciss.net.OSCListener;
 import de.sciss.net.OSCMessage;
@@ -21,19 +20,15 @@ import de.sciss.net.OSCServer;
 
 public class PIConnection {
 	
-	public interface Listener {
-		public void piAdded(LocalPIRepresentation pi);
-		public void piRemoved(LocalPIRepresentation pi);
-	}
-	
 	OSCServer oscServer;
-	ObservableMap<String, LocalPIRepresentation> pis;
+	ObservableList<LocalPIRepresentation> thePIs;
+	Map<String, LocalPIRepresentation> pisByHostname;
 	Map<String, Integer> knownPIs;
-	Listener listener;
 	int newID = -1;
 	
 	public PIConnection() {
-		pis = FXCollections.observableMap(new Hashtable<String, LocalPIRepresentation>());
+		thePIs = FXCollections.observableArrayList(new ArrayList<LocalPIRepresentation>());
+		pisByHostname = new Hashtable<String, LocalPIRepresentation>();
 		knownPIs = new Hashtable<String, Integer>();
 		//read the known pis from file
 		try {
@@ -75,12 +70,8 @@ public class PIConnection {
 		}.start();
 	}
 	
-	public void setListener(Listener listener) {
-		this.listener = listener;
-	}
-	
 	public ObservableList<LocalPIRepresentation> getPIs() {
-		return FXCollections.observableArrayList(pis.values());
+		return thePIs;
 	}
 	
 	private void incomingMessage(OSCMessage msg) {
@@ -88,7 +79,7 @@ public class PIConnection {
 			String piName = (String)msg.getArg(0);
 			System.out.println("PI Alive Message: " + piName);
 			//see if we have this PI yet
-			LocalPIRepresentation thisPI = pis.get(piName);
+			LocalPIRepresentation thisPI = pisByHostname.get(piName);
 			if(thisPI == null) { //if not add it
 				int id = 0;
 				if(knownPIs.containsKey(piName)) {
@@ -97,11 +88,15 @@ public class PIConnection {
 					id = newID--;
 				}
 				thisPI = new LocalPIRepresentation(piName, id);
-				pis.put(piName, thisPI);
-				//tell the listener
-				if(listener != null) {
-					listener.piAdded(thisPI);
-				}
+				final LocalPIRepresentation piToAdd = thisPI;
+				//adding needs to be done in an "app" thread because it affects the GUI.
+				Platform.runLater(new Runnable() {
+			        @Override
+			        public void run() {
+			        	thePIs.add(piToAdd);
+			        	pisByHostname.put(piToAdd.hostname, piToAdd);
+			        }
+		        });
 				//make sure this PI knows its ID
 				//since there is a lag in assigning an InetSocketAddress, and since this is the first
 				//message sent to the PI, it should be done in a separate thread.
@@ -122,39 +117,37 @@ public class PIConnection {
 	}
 	
 	public void sendToAllPIs(String msgName, Object... args) {
-		for(LocalPIRepresentation pi : pis.values()) {
+		for(LocalPIRepresentation pi : pisByHostname.values()) {
 			sendToPI(pi, msgName, args);
 		}
 	}
 	
 	public void sendToPIList(String[] list, String msgName, Object... args) {
 		for(String piName : list) {
-			sendToPI(pis.get(piName), msgName, args);
+			sendToPI(pisByHostname.get(piName), msgName, args);
 		}
 	}
 
 	private void checkPIAliveness() {
 		long timeNow = System.currentTimeMillis();
 		List<String> pisToRemove = new ArrayList<String>();
-		for(String piName : pis.keySet()) {
-			LocalPIRepresentation thisPI = pis.get(piName);
+		for(String piName : pisByHostname.keySet()) {
+			LocalPIRepresentation thisPI = pisByHostname.get(piName);
 			long timeSinceSeen = timeNow - thisPI.lastTimeSeen;
 			if(timeSinceSeen > Config.aliveInterval * 5) {	//config this number?
 				pisToRemove.add(piName);
 			}
 		}
 		for(final String piName : pisToRemove) {
-			//tell the listener
-			if(listener != null) {
-				Platform.runLater(new Runnable() {
-			        @Override
-			        public void run() {
-						listener.piRemoved(pis.get(piName));
-						System.out.println("Removed PI from list: " + piName);
-			        }
-			   });
-			}
-			pis.remove(piName);
+			//removal needs to be done in an "app" thread because it affects the GUI.
+			Platform.runLater(new Runnable() {
+		        @Override
+		        public void run() {
+					thePIs.remove(pisByHostname.get(piName));
+					pisByHostname.remove(piName);
+					System.out.println("Removed PI from list: " + piName);
+		        }
+		   });
 		}
 	}
 	

@@ -18,7 +18,8 @@ public class MUListenerTest2 implements PIPO {
 		SendToPI.send(fullClassName, new String[]{
 //				"pisound-009e959c5093.local", 
 //				"pisound-009e959c510a.local", 
-				"pisound-009e959c502d.local"
+//				"pisound-009e959c502d.local", 
+				"pisound-009e959c50e2.local",
 				});
 	}
 	
