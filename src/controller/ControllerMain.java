@@ -15,6 +15,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 import javafx.util.Callback;
+import controller.jfx_gui.GUIBuilder;
 import controller.jfx_gui.PIRepCell;
 import controller.network.LocalPIRepresentation;
 import controller.network.PIConnection;
@@ -81,17 +82,11 @@ public class ControllerMain extends Application {
     	list.setPrefHeight(700);
     	
        	border.setCenter(list);
+       	
+       	GUIBuilder.createButtons((Pane)border.getTop(), piConnection);
     	
-    	//master buttons
-    	Button rebootButton = new Button();
-    	rebootButton.setOnMouseClicked(new EventHandler<MouseEvent>() {
 
-			@Override
-			public void handle(MouseEvent e) {
-				System.out.println("Clicked");
-			}
-		});
-    	((Pane)border.getTop()).getChildren().add(rebootButton);
+       	
     	
     	//code view
     	

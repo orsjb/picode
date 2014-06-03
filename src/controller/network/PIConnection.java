@@ -167,7 +167,7 @@ public class PIConnection {
 	
 	public void piSync() {
 		long timeNow = System.currentTimeMillis();
-		long timeToSync = timeNow + 3000;
+		long timeToSync = timeNow + 5000;
 		sendToAllPIs("/PI/sync", timeToSync);
 	}
 	
@@ -183,7 +183,7 @@ public class PIConnection {
 		sendToAllPIs("/PI/reset_sounding");
 	}
 
-	public void clearSound() {
+	public void piClearSound() {
 		sendToAllPIs("/PI/clearsound");
 	}
 
