@@ -2,6 +2,8 @@ package controller.jfx_gui;
 
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.geometry.Orientation;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
@@ -18,8 +20,9 @@ public class PIRepCell extends ListCell<LocalPIRepresentation> {
 	}
 	
 	@Override
-    public void updateItem(LocalPIRepresentation item, boolean empty) {
-        super.updateItem(item, empty);
+    public void updateItem(final LocalPIRepresentation item, boolean empty) {
+//        super.updateItem(item, empty);
+              
         if (item != null) {
         	//set up main panel
         	HBox hbox = new HBox();
@@ -28,22 +31,44 @@ public class PIRepCell extends ListCell<LocalPIRepresentation> {
         	Text name = new Text(item.hostname);
         	hbox.getChildren().add(name);
         	//
-        	Button b = new Button("X");
+        	Button b = new Button("Reset");
+        	b.setOnAction(new EventHandler<ActionEvent>() {
+        	    @Override public void handle(ActionEvent e) {
+        	    	item.send("/PI/reset");
+        	    }
+        	});
         	hbox.getChildren().add(b);
+        	//TODO 
         	//
-        	CheckBox c = new CheckBox("Include in Send");
-        	hbox.getChildren().add(c);
+        	for(int i = 0; i < 4; i++) {
+        		final int index = i;
+	        	CheckBox c = new CheckBox();
+	        	c.selectedProperty().addListener(new ChangeListener<Boolean>() {
+	                public void changed(ObservableValue<? extends Boolean> ov,
+	                        Boolean oldval, Boolean newval) {
+	                            item.groups[index] = newval;
+	                    }
+	                });
+	        	hbox.getChildren().add(c);
+        	}
+        	
         	//
         	Slider s = new Slider(1, 0, 1);
         	s.setOrientation(Orientation.HORIZONTAL);
         	s.valueProperty().addListener(new ChangeListener<Number>() {
+
 				@Override
-				public void changed(ObservableValue<? extends Number> arg0, Number arg1, Number arg2) {
-					// TODO Auto-generated method stub
-					
+				public void changed(ObservableValue<? extends Number> obs, Number oldval, Number newval) {
+					item.send("/PI/gain", (Double)newval, 100);
 				}
+				
 			});
         	hbox.getChildren().add(s);
+        	
+        	//a status string
+        	Text statusText = new Text("status unknown");
+        	hbox.getChildren().add(statusText);
+        	
         }
     }
 	

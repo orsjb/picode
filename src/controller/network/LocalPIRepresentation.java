@@ -15,18 +15,23 @@ public class LocalPIRepresentation {
 	public final String hostname;
 	public final int id;
 	private InetSocketAddress addr;
+	private final OSCServer server;
+	public final boolean[] groups;
 	
-	public LocalPIRepresentation(String hostname, int id) {
+	public LocalPIRepresentation(String hostname, int id, OSCServer server) {
 		this.hostname = hostname;
 		this.id = id;
+		this.server = server;
+		groups = new boolean[4];
 	}
 
-	public synchronized void send(OSCServer serv, OSCMessage msg) {
+	public synchronized void send(String msgName, Object... args) {
+		OSCMessage msg = new OSCMessage(msgName, args);
 		if(addr == null) {
 			addr = new InetSocketAddress(hostname, Config.controlToPIPort);
 		}
 		try {
-			serv.send(msg, addr);
+			server.send(msg, addr);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

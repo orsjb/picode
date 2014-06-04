@@ -87,7 +87,7 @@ public class PIConnection {
 				} else {
 					id = newID--;
 				}
-				thisPI = new LocalPIRepresentation(piName, id);
+				thisPI = new LocalPIRepresentation(piName, id, oscServer);
 	        	pisByHostname.put(piName, thisPI);
 				final LocalPIRepresentation piToAdd = thisPI;
 				//adding needs to be done in an "app" thread because it affects the GUI.
@@ -116,7 +116,7 @@ public class PIConnection {
 	}
 	
 	public void sendToPI(LocalPIRepresentation pi, String msgName, Object... args) {
-		pi.send(oscServer, new OSCMessage(msgName, args));
+		pi.send(msgName, args);
 	}
 	
 	public void sendToAllPIs(String msgName, Object... args) {
