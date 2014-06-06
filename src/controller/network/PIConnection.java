@@ -130,6 +130,10 @@ public class PIConnection {
 			sendToPI(pisByHostname.get(piName), msgName, args);
 		}
 	}
+	
+	public void sendToPIGroup(int group, String msgName, Object... args) {
+		//TODO send to group
+	}
 
 	private void checkPIAliveness() {
 		long timeNow = System.currentTimeMillis();
