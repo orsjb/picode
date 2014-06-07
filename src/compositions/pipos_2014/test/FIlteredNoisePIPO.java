@@ -9,7 +9,7 @@ import pi.sensors.MiniMU.MiniMUListener;
 import controller.network.SendToPI;
 import core.PIPO;
 
-public class CopyOfMUListenerTest2Noise implements PIPO {
+public class FIlteredNoisePIPO implements PIPO {
 
 	private static final long serialVersionUID = 1L;
 
