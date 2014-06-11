@@ -15,6 +15,9 @@ import controller.network.LocalPIRepresentation;
 
 public class PIRepCell extends ListCell<LocalPIRepresentation> {
 	
+	int count = 0;
+	boolean setup = false;
+	
 	public PIRepCell() {
 		setMinHeight(80);
 	}
@@ -22,8 +25,12 @@ public class PIRepCell extends ListCell<LocalPIRepresentation> {
 	@Override
     public void updateItem(final LocalPIRepresentation item, boolean empty) {
 //        super.updateItem(item, empty);
-		System.out.println("updateItem() " + Math.random());
+		System.out.println("updateItem() [" + this + "] " + count++ + " | (item = " + item + ")");
               
+		if(setup) {
+			return;
+		}
+		
         if (item != null) {
         	//set up main panel
         	HBox hbox = new HBox();
@@ -69,8 +76,10 @@ public class PIRepCell extends ListCell<LocalPIRepresentation> {
         	//a status string
         	Text statusText = new Text("status unknown");
         	hbox.getChildren().add(statusText);
-        	
+
+    		setup = true;
         }
+
     }
 	
 	

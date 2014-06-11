@@ -141,10 +141,12 @@ public class PIConnection {
 		long timeNow = System.currentTimeMillis();
 		List<String> pisToRemove = new ArrayList<String>();
 		for(String piName : pisByHostname.keySet()) {
-			LocalPIRepresentation thisPI = pisByHostname.get(piName);
-			long timeSinceSeen = timeNow - thisPI.lastTimeSeen;
-			if(timeSinceSeen > Config.aliveInterval * 5) {	//config this number?
-				pisToRemove.add(piName);
+			if(!piName.equals("Virtual Test PI")) {
+				LocalPIRepresentation thisPI = pisByHostname.get(piName);
+				long timeSinceSeen = timeNow - thisPI.lastTimeSeen;
+				if(timeSinceSeen > Config.aliveInterval * 5) {	//config this number?
+					pisToRemove.add(piName);
+				}
 			}
 		}
 		for(final String piName : pisToRemove) {
@@ -199,6 +201,13 @@ public class PIConnection {
 
 	public void piFadeoutClearsound(float decay) {
 		sendToAllPIs("/PI/fadeout_clearsound", decay);
+	}
+
+	public void createTestPI() {
+		String name = "Virtual Test PI";
+		LocalPIRepresentation virtualTestPI = new LocalPIRepresentation(name, 1, oscServer);
+		thePIs.add(virtualTestPI);
+		pisByHostname.put(name, virtualTestPI);
 	}
 	
 }

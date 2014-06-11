@@ -38,6 +38,10 @@ public class ControllerMain extends Application {
     public void start(Stage stage) {
     	piConnection = new PIConnection();
     	setupGUI(stage);
+    	
+    	//test code...
+    	piConnection.createTestPI();
+    	
     	synchronizer = Synchronizer.get();
     	//get normal desktop application behaviour - closing the stage terminates the app
     	stage.setOnCloseRequest(new EventHandler<WindowEvent>() {
