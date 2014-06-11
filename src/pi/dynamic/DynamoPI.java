@@ -55,7 +55,9 @@ public class DynamoPI {
 		DynamoPI pi = new DynamoPI(AudioSetup.getAudioContext(args));
 		if(args.length > 4) {
 			boolean autostart = Boolean.parseBoolean(args[4]);
+			System.out.println(args[4] + " is interpreted as " + autostart);
 			if(autostart) {
+				System.out.println("Detected autostart. Starting audio right away.");
 				pi.startAudio();
 			}
 		}
@@ -131,21 +133,23 @@ public class DynamoPI {
 	}
 	
 	public void testBleep() {
-		Envelope e = new Envelope(ac, 0.4f);
+		Envelope e = new Envelope(ac, 0);
 		Gain g = new Gain(ac, 1, e);
 		WavePlayer wp = new WavePlayer(ac, 500, Buffer.SINE);
 		g.addInput(wp);
 		pl.addInput(g);
-		e.addSegment(0.4f, 1000);
-		e.addSegment(0f, 100);
-		e.addSegment(0f, 1000);
+		e.addSegment(0, 1000);
 		e.addSegment(0.4f, 0);
-		e.addSegment(0.4f, 1000);
-		e.addSegment(0f, 100);
-		e.addSegment(0f, 1000);
+		e.addSegment(0.4f, 300);
+		e.addSegment(0f, 10);
+		e.addSegment(0f, 400);
 		e.addSegment(0.4f, 0);
-		e.addSegment(0.4f, 2000);
-		e.addSegment(0, 300, new KillTrigger(g));
+		e.addSegment(0.4f, 300);
+		e.addSegment(0f, 10);
+		e.addSegment(0f, 400);
+		e.addSegment(0.4f, 0);
+		e.addSegment(0.4f, 600);
+		e.addSegment(0, 10, new KillTrigger(g));
 	}
 
 	private void startListeningForCode() {

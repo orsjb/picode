@@ -22,6 +22,7 @@ public class PIRepCell extends ListCell<LocalPIRepresentation> {
 	@Override
     public void updateItem(final LocalPIRepresentation item, boolean empty) {
 //        super.updateItem(item, empty);
+		System.out.println("updateItem() " + Math.random());
               
         if (item != null) {
         	//set up main panel
@@ -59,7 +60,7 @@ public class PIRepCell extends ListCell<LocalPIRepresentation> {
 
 				@Override
 				public void changed(ObservableValue<? extends Number> obs, Number oldval, Number newval) {
-					item.send("/PI/gain", (Double)newval, 100);
+					item.send("/PI/gain", (Float)newval, 100);
 				}
 				
 			});
@@ -71,5 +72,7 @@ public class PIRepCell extends ListCell<LocalPIRepresentation> {
         	
         }
     }
+	
+	
 	
 }

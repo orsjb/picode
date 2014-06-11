@@ -83,7 +83,7 @@ public class MiniMU {
 							listener.gyroData(gyroData[0], gyroData[1], gyroData[2]);
 						}
 					} catch (IOException e) {
-						System.out.println("MiniMU not receiving data.");
+//						System.out.println("MiniMU not receiving data.");
 					}
 					try {
 						Thread.sleep(10);

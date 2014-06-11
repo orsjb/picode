@@ -31,7 +31,7 @@ public class Synchronizer {
 	int stabilityCount = 0;
 
 	boolean on = true;
-	boolean verbose = true;
+	boolean verbose = false;
 	boolean veryverbose = false;
 	boolean timedebug = false;
 	

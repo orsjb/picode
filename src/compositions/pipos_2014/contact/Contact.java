@@ -41,13 +41,13 @@ public class Contact implements PIPO {
 		setupFilteredNoise(d);
 		
 		//solo instrument...
-		setupSoloInstrument(d);
+//		setupSoloInstrument(d);
 		
 		//chord instruments - scatter, free improv bleeping... (use a couple of samples + granulation)
-		setupChords(d);
+//		setupChords(d);
 		
 		//scatter with misc samples + bleeps
-		setupImprovMadness(d);
+//		setupImprovMadness(d);
 		
 		
 		//smooth noise gentle glitch

@@ -20,6 +20,8 @@ import de.sciss.net.OSCServer;
 
 public class PIConnection {
 	
+	public static final boolean verbose = false;
+	
 	OSCServer oscServer;
 	ObservableList<LocalPIRepresentation> thePIs;
 	Map<String, LocalPIRepresentation> pisByHostname;
@@ -77,7 +79,7 @@ public class PIConnection {
 	private void incomingMessage(OSCMessage msg) {
 		if(msg.getName().equals("/PI/alive")) {
 			String piName = (String)msg.getArg(0);
-			System.out.println("PI Alive Message: " + piName);
+//			System.out.println("PI Alive Message: " + piName);
 			//see if we have this PI yet
 			LocalPIRepresentation thisPI = pisByHostname.get(piName);
 			if(thisPI == null) { //if not add it
