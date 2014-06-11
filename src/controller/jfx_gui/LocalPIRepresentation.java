@@ -1,8 +1,10 @@
-package controller.network;
+package controller.jfx_gui;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.nio.channels.UnresolvedAddressException;
 
+import javafx.scene.Node;
 import core.Config;
 import de.sciss.net.OSCMessage;
 import de.sciss.net.OSCServer;
@@ -11,12 +13,14 @@ import de.sciss.net.OSCServer;
 
 public class LocalPIRepresentation {
 
-	long lastTimeSeen;
+	public long lastTimeSeen;
 	public final String hostname;
 	public final int id;
 	private InetSocketAddress addr;
 	private final OSCServer server;
 	public final boolean[] groups;
+	
+	Node gui = null;
 	
 	public LocalPIRepresentation(String hostname, int id, OSCServer server) {
 		this.hostname = hostname;
@@ -32,8 +36,11 @@ public class LocalPIRepresentation {
 		}
 		try {
 			server.send(msg, addr);
-		} catch (IOException e) {
-			e.printStackTrace();
+		} catch (UnresolvedAddressException e) {
+			System.out.println("Unable to send to PI: " + hostname);
+			//e.printStackTrace();
+		} catch (IOException ex) {
+			ex.printStackTrace();
 		}
 	}
 	

@@ -16,8 +16,8 @@ import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 import javafx.util.Callback;
 import controller.jfx_gui.GUIBuilder;
+import controller.jfx_gui.LocalPIRepresentation;
 import controller.jfx_gui.PIRepCell;
-import controller.network.LocalPIRepresentation;
 import controller.network.PIConnection;
 import core.Synchronizer;
 
@@ -40,6 +40,7 @@ public class ControllerMain extends Application {
     	setupGUI(stage);
     	
     	//test code...
+    	piConnection.createTestPI();
     	piConnection.createTestPI();
     	
     	synchronizer = Synchronizer.get();

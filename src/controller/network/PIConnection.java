@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 
+import controller.jfx_gui.LocalPIRepresentation;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -141,7 +142,7 @@ public class PIConnection {
 		long timeNow = System.currentTimeMillis();
 		List<String> pisToRemove = new ArrayList<String>();
 		for(String piName : pisByHostname.keySet()) {
-			if(!piName.equals("Virtual Test PI")) {
+			if(!piName.startsWith("Virtual Test PI")) {
 				LocalPIRepresentation thisPI = pisByHostname.get(piName);
 				long timeSinceSeen = timeNow - thisPI.lastTimeSeen;
 				if(timeSinceSeen > Config.aliveInterval * 5) {	//config this number?
@@ -203,8 +204,10 @@ public class PIConnection {
 		sendToAllPIs("/PI/fadeout_clearsound", decay);
 	}
 
+	int virtualPICount = 1;
+	
 	public void createTestPI() {
-		String name = "Virtual Test PI";
+		String name = "Virtual Test PI #" + virtualPICount++;
 		LocalPIRepresentation virtualTestPI = new LocalPIRepresentation(name, 1, oscServer);
 		thePIs.add(virtualTestPI);
 		pisByHostname.put(name, virtualTestPI);
