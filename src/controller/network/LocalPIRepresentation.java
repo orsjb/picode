@@ -1,4 +1,4 @@
-package controller.jfx_gui;
+package controller.network;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -42,6 +42,14 @@ public class LocalPIRepresentation {
 		} catch (IOException ex) {
 			ex.printStackTrace();
 		}
+	}
+
+	public Node getGui() {
+		return gui;
+	}
+
+	public void setGui(Node gui) {
+		this.gui = gui;
 	}
 	
 }

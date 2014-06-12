@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 
-import controller.jfx_gui.LocalPIRepresentation;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;

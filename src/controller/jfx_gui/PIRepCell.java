@@ -1,5 +1,6 @@
 package controller.jfx_gui;
 
+import controller.network.LocalPIRepresentation;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
@@ -26,11 +27,11 @@ public class PIRepCell extends ListCell<LocalPIRepresentation> {
 		
 		//Issue here is that gui needs to be attached to "item", then readded
 		
-		System.out.println("updateItem() [" + this + "] " + count++ + " | (item = " + item + ")");
+//		System.out.println("updateItem() [" + this + "] " + count++ + " | (item = " + item + ")");
         
         if (item != null) {
         	
-        	if(item.gui == null) {
+        	if(item.getGui() == null) {
         	
 	        	//set up main panel
 	        	
@@ -61,7 +62,7 @@ public class PIRepCell extends ListCell<LocalPIRepresentation> {
 	        	}
 	        	
 	        	//
-	        	Slider s = new Slider(1, 0, 1);
+	        	Slider s = new Slider(0, 1, 0.5);
 	        	s.setOrientation(Orientation.HORIZONTAL);
 	        	s.valueProperty().addListener(new ChangeListener<Number>() {
 	
@@ -77,10 +78,10 @@ public class PIRepCell extends ListCell<LocalPIRepresentation> {
 	        	Text statusText = new Text("status unknown");
 	        	hbox.getChildren().add(statusText);
 	        	
-	        	item.gui = hbox;
+	        	item.setGui(hbox);
 
         	}
-        	setGraphic(item.gui);
+        	setGraphic(item.getGui());
         	
         }
 

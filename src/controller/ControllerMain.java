@@ -16,8 +16,8 @@ import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 import javafx.util.Callback;
 import controller.jfx_gui.GUIBuilder;
-import controller.jfx_gui.LocalPIRepresentation;
 import controller.jfx_gui.PIRepCell;
+import controller.network.LocalPIRepresentation;
 import controller.network.PIConnection;
 import core.Synchronizer;
 
