@@ -1,5 +1,7 @@
 package compositions.pipos_2014.contact;
 
+import compositions.pipos_2013.icmc2013.Recipients;
+import controller.network.SendToPI;
 import net.beadsproject.beads.core.Bead;
 import net.beadsproject.beads.data.Buffer;
 import net.beadsproject.beads.data.Pitch;
@@ -26,10 +28,18 @@ import de.sciss.net.OSCMessage;
 public class Contact implements PIPO {
 
 	private static final long serialVersionUID = 1L;
-	
 	public static final boolean verbose = false;
-	
 	public static final int[] scalePitches = {0, 3, 5, 6, 7, 10};	//blues scale
+	
+	public static void main(String[] args) throws Exception {
+		String fullClassName = Thread.currentThread().getStackTrace()[1].getClassName().replace(".", "/");
+		SendToPI.send(fullClassName, new String[]{
+//				"pisound-009e959c5093.local", 
+				"pisound-009e959c510a.local", 
+//				"pisound-009e959c502d.local",
+//				"pisound-009e959c50e2.local",
+				});
+	}
 
 	@Override
 	public void action(DynamoPI d) {
@@ -71,6 +81,7 @@ public class Contact implements PIPO {
 		bf.setFrequency(freqCtrl);
 		bf.setQ(0.9f);
 		final Gain g = new Gain(d.ac, 1, gainCtrl);
+		g.pause(true);
 		g.addInput(bf);
 		d.ac.out.addInput(g);		//add the sound to ac.out since we don't want it killed by PolyLimit.
 		//get listening to data

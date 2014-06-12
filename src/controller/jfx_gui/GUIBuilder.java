@@ -95,7 +95,7 @@ public abstract class GUIBuilder {
 		codeField.setMinSize(500, 50);
 		pane.getChildren().add(codeField);
 		
-		for(int i = 1; i <= 4; i++) {
+		for(int i = 0; i < 4; i++) {
 			Button b = new Button();
 			final int index = i;
 	    	b.setOnMouseClicked(new EventHandler<MouseEvent>() {
@@ -121,7 +121,7 @@ public abstract class GUIBuilder {
 					piConnection.sendToPIGroup(index, msg, args);
 				}
 			});
-	    	b.setText("Send " + i);
+	    	b.setText("Send " + (i + 1));
 	    	pane.getChildren().add(b);
 		}
 		

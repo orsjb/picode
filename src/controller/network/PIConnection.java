@@ -134,7 +134,13 @@ public class PIConnection {
 	}
 	
 	public void sendToPIGroup(int group, String msgName, Object... args) {
-		//TODO send to group
+		//send to group - group is defined by each LocalPIRep having group[i] flag
+		for(LocalPIRepresentation pi : thePIs) {
+			if(pi.groups[group]) {
+				sendToPI(pi, msgName, args);
+			}
+		}
+		
 	}
 
 	private void checkPIAliveness() {

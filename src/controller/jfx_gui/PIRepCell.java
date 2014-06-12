@@ -68,7 +68,7 @@ public class PIRepCell extends ListCell<LocalPIRepresentation> {
 	
 					@Override
 					public void changed(ObservableValue<? extends Number> obs, Number oldval, Number newval) {
-						item.send("/PI/gain", newval.floatValue(), 100);
+						item.send("/PI/gain", newval.floatValue(), 50f);
 					}
 					
 				});
