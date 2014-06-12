@@ -11,6 +11,7 @@ import javafx.scene.control.CheckBox;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.Slider;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 
 public class PIRepCell extends ListCell<LocalPIRepresentation> {
@@ -23,32 +24,35 @@ public class PIRepCell extends ListCell<LocalPIRepresentation> {
 	
 	@Override
     public void updateItem(final LocalPIRepresentation item, boolean empty) {
-//        super.updateItem(item, empty);
-		
-		//Issue here is that gui needs to be attached to "item", then readded
-		
-//		System.out.println("updateItem() [" + this + "] " + count++ + " | (item = " + item + ")");
-        
+        super.updateItem(item, empty);
+		//gui needs to be attached to "item", can't rely on PIRepCell to bind to item
         if (item != null) {
-        	
         	if(item.getGui() == null) {
-        	
-	        	//set up main panel
-	        	
+        		//set up main panel
 	        	HBox hbox = new HBox();
+	        	hbox.setSpacing(5);
 	        	//elements
+	        	VBox txtvbox = new VBox();
+	        	hbox.getChildren().add(txtvbox);
+	        	//name of the PI
 	        	Text name = new Text(item.hostname);
-	        	hbox.getChildren().add(name);
-	        	//
+	        	name.setUnderline(true);
+	        	txtvbox.getChildren().add(name);
+	        	//a status string
+	        	Text statusText = new Text("status unknown");
+	        	txtvbox.getChildren().add(statusText);
+	        	//reset button
 	        	Button b = new Button("Reset");
 	        	b.setOnAction(new EventHandler<ActionEvent>() {
 	        	    @Override public void handle(ActionEvent e) {
 	        	    	item.send("/PI/reset");
 	        	    }
 	        	});
-	        	hbox.getChildren().add(b);
-	        	//TODO 
-	        	//
+	        	txtvbox.getChildren().add(b);
+	        	//group allocations
+	        	VBox groupsVbox = new VBox();
+	        	hbox.getChildren().add(groupsVbox);
+	        	groupsVbox.getChildren().add(new Text("G#"));
 	        	for(int i = 0; i < 4; i++) {
 	        		final int index = i;
 		        	CheckBox c = new CheckBox();
@@ -58,12 +62,12 @@ public class PIRepCell extends ListCell<LocalPIRepresentation> {
 		                            item.groups[index] = newval;
 		                    }
 		                });
-		        	hbox.getChildren().add(c);
+		        	groupsVbox.getChildren().add(c);
 	        	}
 	        	
 	        	//
 	        	Slider s = new Slider(0, 1, 0.5);
-	        	s.setOrientation(Orientation.HORIZONTAL);
+	        	s.setOrientation(Orientation.VERTICAL);
 	        	s.valueProperty().addListener(new ChangeListener<Number>() {
 	
 					@Override
@@ -73,10 +77,6 @@ public class PIRepCell extends ListCell<LocalPIRepresentation> {
 					
 				});
 	        	hbox.getChildren().add(s);
-	        	
-	        	//a status string
-	        	Text statusText = new Text("status unknown");
-	        	hbox.getChildren().add(statusText);
 	        	
 	        	item.setGui(hbox);
 

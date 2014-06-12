@@ -54,7 +54,7 @@ public class Contact implements PIPO {
 //		setupSoloInstrument(d);
 		
 		//chord instruments - scatter, free improv bleeping... (use a couple of samples + granulation)
-//		setupChords(d);
+		setupChords(d);
 		
 		//scatter with misc samples + bleeps
 //		setupImprovMadness(d);
@@ -171,7 +171,7 @@ public class Contact implements PIPO {
 	
 	//////////////////////////////////////////////////////////////////////
 	private void setupChords(final DynamoPI d) {
-		Sample chord = SampleManager.sample(Config.audioDir + "/" + "chords/chord1");
+		Sample chord = SampleManager.sample(Config.audioDir + "/" + "chords/chord1.wav");
 		final GranularSamplePlayer gsp = new GranularSamplePlayer(d.ac, chord);
 		gsp.setLoopType(SamplePlayer.LoopType.LOOP_ALTERNATING);
 		gsp.getLoopStartUGen().setValue(500);
@@ -205,11 +205,11 @@ public class Contact implements PIPO {
 					genv.clear();
 					genv.addSegment(0, 1000, new PauseTrigger(g));
 				} else if(msg.getName().equals("/PI/chord/rnd")) {
-					rndGlide.setValue((float)msg.getArg(0));
+					rndGlide.setValue(((Number)msg.getArg(0)).floatValue());
 				} else if(msg.getName().equals("/PI/chord/gsize")) {
-					gsizeGlide.setValue((float)msg.getArg(0));
+					gsizeGlide.setValue(((Number)msg.getArg(0)).floatValue());
 				} else if(msg.getName().equals("/PI/chord/ginterval")) {
-					gintervalGlide.setValue((float)msg.getArg(0));
+					gintervalGlide.setValue(((Number)msg.getArg(0)).floatValue());
 				}
 			}
 		});

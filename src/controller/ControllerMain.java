@@ -7,6 +7,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
@@ -74,6 +75,7 @@ public class ControllerMain extends Application {
 		masterGroup.getChildren().add(border);
 		
 		
+		
     	//list of PIs
 		ListView<LocalPIRepresentation> list = new ListView<LocalPIRepresentation>();
     	list.setItems(piConnection.getPIs());
@@ -83,8 +85,18 @@ public class ControllerMain extends Application {
 				return new PIRepCell();
 			}
 		});
-    	list.setPrefWidth(1000);
-    	list.setPrefHeight(700);
+    	
+//    	ScrollPane scroll = new ScrollPane();
+//    	scroll.setContent(list);
+//
+//    	scroll.setMinWidth(1000);
+//    	scroll.setMaxWidth(1000);
+//    	scroll.setPrefHeight(700);
+
+//    	double innerWidth = 1000 - scroll.get;
+    	list.setMinWidth(1000);
+    	list.setMaxWidth(1000);
+    	list.setMinHeight(700);
     	
        	border.setCenter(list);
        	
@@ -101,6 +113,11 @@ public class ControllerMain extends Application {
         stage.setScene(scene); 
         stage.sizeToScene(); 
         stage.show(); 
+        
+        
+        
+        
+        
     }
 
 
