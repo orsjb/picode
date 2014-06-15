@@ -3,9 +3,12 @@ package pi.network;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 
+import pi.dynamic.DynamoPI;
 import core.Config;
 import core.Device;
 import core.Synchronizer;
@@ -22,9 +25,12 @@ public class ControllerConnection {
 	int myID;										 			//ID assigned by the controller
 	private OSCServer oscServer;					 			//The one and only OSC server
 	private InetSocketAddress controller;			 			//The network details of the controller
-	private Set<Listener> listeners = new HashSet<Listener>(); 	//Listeners to incoming OSC messages
+	private Set<Listener> listeners = Collections.synchronizedSet(new HashSet<Listener>()); 	
+																//Listeners to incoming OSC messages
+	final private DynamoPI pi;
 	
-	public ControllerConnection() throws IOException {
+	public ControllerConnection(DynamoPI _pi) throws IOException {
+		this.pi = _pi;
 		//init the OSCServer
 		try {
 			oscServer = OSCServer.newUsing(OSCServer.UDP, Config.controlToPIPort);
@@ -40,10 +46,45 @@ public class ControllerConnection {
 				if(msg.getName().equals("/PI/set_id")) {
 					myID = (Integer)msg.getArg(0);
 				} else {
+				
+					//master commands...
+					if(msg.getName().equals("/PI/sync")) {
+						pi.sync((Long)msg.getArg(0));
+					} else if(msg.getName().equals("/PI/reboot")) {
+						DynamoPI.rebootPI();
+					} else if(msg.getName().equals("/PI/shutdown")) {
+						DynamoPI.shutdownPI();
+					} else if(msg.getName().equals("/PI/gain")) {
+						pi.masterGainEnv.addSegment((Float)msg.getArg(0), (Float)msg.getArg(1));
+					} else if(msg.getName().equals("/PI/reset")) {
+						pi.reset();
+					} else if(msg.getName().equals("/PI/reset_sounding")) {
+						pi.resetLeaveSounding();
+					} else if(msg.getName().equals("/PI/clearsound")) {
+						pi.clearSound();
+					} else if(msg.getName().equals("/PI/fadeout_reset")) {
+						pi.fadeOutReset((Float)msg.getArg(0));
+					} else if(msg.getName().equals("/PI/fadeout_clearsound")) {
+						pi.fadeOutClearSound((Float)msg.getArg(0));
+					} 
+					
+					
+					
+					
+					
 					//all other messages get forwarded to delegate listeners
-					for(Listener l : listeners) {
-						l.msg(msg);
+					synchronized(listeners) {
+						Iterator<Listener> i = listeners.iterator();
+						while(i.hasNext()) {
+							i.next().msg(msg);
+						}
 					}
+					
+					
+					
+					
+					
+					
 				}
 			}
 		});

@@ -27,8 +27,8 @@ cd ${DIR}/..
 # Run the main app
 # args are bufSize (8192), sample rate (22050), input channels (0), output channels (1)
 
-BUF=512
-SR=11000
+BUF=8192
+SR=22050
 INS=0
 OUTS=1
 AUTOSTART=true

@@ -25,6 +25,7 @@ public class PIRepCell extends ListCell<LocalPIRepresentation> {
 	@Override
     public void updateItem(final LocalPIRepresentation item, boolean empty) {
         super.updateItem(item, empty);
+        setGraphic(null);
 		//gui needs to be attached to "item", can't rely on PIRepCell to bind to item
         if (item != null) {
         	if(item.getGui() == null) {
@@ -66,7 +67,7 @@ public class PIRepCell extends ListCell<LocalPIRepresentation> {
 	        	}
 	        	
 	        	//
-	        	Slider s = new Slider(0, 1, 0.5);
+	        	Slider s = new Slider(0, 2, 1);
 	        	s.setOrientation(Orientation.VERTICAL);
 	        	s.valueProperty().addListener(new ChangeListener<Number>() {
 	

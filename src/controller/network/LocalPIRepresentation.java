@@ -16,7 +16,7 @@ public class LocalPIRepresentation {
 	public long lastTimeSeen;
 	public final String hostname;
 	public final int id;
-	private InetSocketAddress addr;
+	private InetSocketAddress addr = null;
 	private final OSCServer server;
 	public final boolean[] groups;
 	
@@ -30,6 +30,9 @@ public class LocalPIRepresentation {
 	}
 
 	public synchronized void send(String msgName, Object... args) {
+		if(hostname.startsWith("Virtual Test PI")) {
+			return;
+		}
 		OSCMessage msg = new OSCMessage(msgName, args);
 		if(addr == null) {
 			addr = new InetSocketAddress(hostname, Config.controlToPIPort);

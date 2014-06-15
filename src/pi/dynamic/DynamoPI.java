@@ -24,7 +24,6 @@ import core.AudioSetup;
 import core.Config;
 import core.PIPO;
 import core.Synchronizer;
-import de.sciss.net.OSCMessage;
 
 public class DynamoPI {
 	
@@ -80,45 +79,13 @@ public class DynamoPI {
 		mu = new MiniMU();
 		mu.start();
 		// start the connection
-		controller = new ControllerConnection();
+		controller = new ControllerConnection(this);
 		synch = Synchronizer.get();
-		//start various other listeners
-		startCommandListener();
 		// start listening for code
 		startListeningForCode();
 	}
 	
-	private void startCommandListener() {
-		ControllerConnection.Listener commandListener = new ControllerConnection.Listener() {
-			@Override
-			public void msg(OSCMessage msg) {
-				//master commands...
-				if(msg.getName().equals("/PI/sync")) {
-					sync((Long)msg.getArg(0));
-				} else if(msg.getName().equals("/PI/reboot")) {
-					rebootPI();
-				} else if(msg.getName().equals("/PI/shutdown")) {
-					shutdownPI();
-				} else if(msg.getName().equals("/PI/gain")) {
-					masterGainEnv.addSegment((Float)msg.getArg(0), (Float)msg.getArg(1));
-				} else if(msg.getName().equals("/PI/reset")) {
-					reset();
-				} else if(msg.getName().equals("/PI/reset_sounding")) {
-					resetLeaveSounding();
-				} else if(msg.getName().equals("/PI/clearsound")) {
-					clearSound();
-				} else if(msg.getName().equals("/PI/fadeout_reset")) {
-					fadeOutReset((Float)msg.getArg(0));
-				} else if(msg.getName().equals("/PI/fadeout_clearsound")) {
-					fadeOutClearSound((Float)msg.getArg(0));
-				} 
-				
-			}
-		};
-		controller.addListener(commandListener);
-	}
-	
-	private void sync(long time) {
+	public void sync(long time) {
 		synch.doAtTime(new Runnable() {
 			public void run() {
 				startAudio();
@@ -290,8 +257,6 @@ public class DynamoPI {
 		mu.clearListeners();
 		//clear osc listeners
 		controller.clearListeners();
-		//re-connect the main command listener
-		startCommandListener();
 	}
 
 	public void fadeOutClearSound(float fadeTime) {
