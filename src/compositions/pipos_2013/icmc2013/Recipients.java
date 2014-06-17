@@ -17,8 +17,8 @@ public class Recipients {
 //	public static final String[] list = {"pi3", "pi7"};
 	
 	//THIS ONE>>>>>>>>
-	public static final String[] list = {"pi1", "pi2", "pi3", "pi4", "pi5",  "pi8", "pi9", "pi10"};
-	
+//	public static final String[] list = {"pi1", "pi2", "pi3", "pi4", "pi5",  "pi8", "pi9", "pi10"};
+	public static final String[] list = {"pisound-009e959c47ef.local"};
 	
 	
 	

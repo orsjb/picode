@@ -23,7 +23,7 @@ public class RegBleepPIPO implements PIPO {
 	@Override
 	public void action(final DynamoPI d) {
 		kill(d);
-		create(d);
+//		create(d);
 //		kill(d);
 	}
 	

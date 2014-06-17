@@ -13,6 +13,7 @@ import net.beadsproject.beads.ugens.Function;
 import net.beadsproject.beads.ugens.Gain;
 import net.beadsproject.beads.ugens.Glide;
 import net.beadsproject.beads.ugens.GranularSamplePlayer;
+import net.beadsproject.beads.ugens.Mult;
 import net.beadsproject.beads.ugens.Noise;
 import net.beadsproject.beads.ugens.SamplePlayer;
 import net.beadsproject.beads.ugens.WavePlayer;
@@ -29,13 +30,13 @@ public class Contact implements PIPO {
 	private static final long serialVersionUID = 1L;
 	public static final boolean verbose = false;
 	public static final int[] scalePitches = {0, 3, 5, 6, 7, 10};	//blues scale
-	private Sample chord;
 	
 	public static void main(String[] args) throws Exception {
 		String fullClassName = Thread.currentThread().getStackTrace()[1].getClassName().replace(".", "/");
 		SendToPI.send(fullClassName, new String[]{
 //				"pisound-009e959c5093.local", 
-				"pisound-009e959c510a.local", 
+//				"pisound-009e959c510a.local", 
+				"pisound-009e959c47ef.local", 
 //				"pisound-009e959c502d.local",
 //				"pisound-009e959c50e2.local",
 				});
@@ -46,8 +47,6 @@ public class Contact implements PIPO {
 		
 		d.reset();
 		
-		//load audio first
-		chord = SampleManager.sample(Config.audioDir + "/" + "chords/chord1.wav");
 		
 		//set responsive behaviours
 		////////////////////////////////////////
@@ -189,7 +188,7 @@ public class Contact implements PIPO {
 	
 	//////////////////////////////////////////////////////////////////////
 	private void setupChords(final DynamoPI d) {
-//		Sample chord = SampleManager.sample(Config.audioDir + "/" + "chords/chord1.wav");
+		Sample chord = SampleManager.sample(Config.audioDir + "/" + "chords/chord1.wav");
 		final GranularSamplePlayer gsp = new GranularSamplePlayer(d.ac, chord);
 		gsp.setLoopType(SamplePlayer.LoopType.LOOP_ALTERNATING);
 		gsp.getLoopStartUGen().setValue(500);
@@ -237,11 +236,39 @@ public class Contact implements PIPO {
 	boolean improvMadnessOn = false;
 	//////////////////////////////////////////////////////////////////////
 	private void setupImprovMadness(final DynamoPI d) {
-		SampleManager.group("improv", Config.audioDir + "/" + "improv");
+//		SampleManager.group("improv", Config.audioDir + "/" + "improv");
+		final Sample squeal = SampleManager.sample(Config.audioDir + "/bjsqueal/bjsqueal.wav");
 		final Envelope genv = new Envelope(d.ac, 0);
 		final Gain g = new Gain(d.ac, 1, genv);
 		d.ac.out.addInput(g);							//fixed audio added
 		g.pause(true);
+		
+		//create a sound
+		final GranularSamplePlayer sp = new GranularSamplePlayer(d.ac, squeal);
+		//audio rate controllers
+		float initFreq = 1f;
+		
+		sp.setLoopType(SamplePlayer.LoopType.LOOP_ALTERNATING);
+		
+		final Envelope freqEnv = new Envelope(d.ac, initFreq);
+		final Envelope rateEnv = new Envelope(d.ac, 0.001f);
+		final Envelope grainIntervalEnv = new Envelope(d.ac, 40);
+		final Envelope grainSizeRatio = new Envelope(d.ac, 3);
+		final Envelope randomEnv = new Envelope(d.ac, 0.1f);
+		sp.setPitch(freqEnv);
+		sp.setRate(rateEnv);
+		
+		Mult grainSizeEnv = new Mult(d.ac, 1, grainSizeRatio);
+		grainSizeEnv.addInput(grainIntervalEnv);
+		
+		sp.setGrainSize(grainSizeEnv);
+		sp.setGrainInterval(grainIntervalEnv);
+		sp.setRandomness(randomEnv);
+		
+		//gain envelope
+		g.addInput(sp);
+		//sound action
+		
 		//set up OSC responder
 		d.controller.addListener(new ControllerConnection.Listener() {
 			@Override
@@ -250,7 +277,7 @@ public class Contact implements PIPO {
 					g.pause(false);
 					improvMadnessOn = true;
 					genv.clear();
-					genv.addSegment(1, 1000);
+					genv.addSegment(0.5f, 1000);
 				} else if(msg.getName().equals("/PI/madness/off")) {
 					genv.clear();
 					genv.addSegment(0, 10000, new Bead() {
@@ -259,6 +286,21 @@ public class Contact implements PIPO {
 							improvMadnessOn = false;
 						}
 					});
+				} else if(msg.getName().equals("/PI/madness/rate")) {
+					rateEnv.clear();
+					rateEnv.addSegment(((Number)msg.getArg(0)).floatValue(), ((Number)msg.getArg(1)).floatValue());
+				} else if(msg.getName().equals("/PI/madness/interval")) {
+					grainIntervalEnv.clear();
+					grainIntervalEnv.addSegment(((Number)msg.getArg(0)).floatValue(), ((Number)msg.getArg(1)).floatValue());
+				} else if(msg.getName().equals("/PI/madness/ratio")) {
+					grainSizeRatio.clear();
+					grainSizeRatio.addSegment(((Number)msg.getArg(0)).floatValue(), ((Number)msg.getArg(1)).floatValue());
+				} else if(msg.getName().equals("/PI/madness/rnd")) {
+					randomEnv.clear();
+					randomEnv.addSegment(((Number)msg.getArg(0)).floatValue(), ((Number)msg.getArg(1)).floatValue());
+				} else if(msg.getName().equals("/PI/madness/pitch")) {
+					freqEnv.clear();
+					freqEnv.addSegment(((Number)msg.getArg(0)).floatValue(), ((Number)msg.getArg(1)).floatValue());
 				}
 			}
 		});
@@ -273,7 +315,9 @@ public class Contact implements PIPO {
 				double xdiff = x - prevX, ydiff = y - prevY, zdiff = z - prevZ;
 				accum += xdiff+ydiff+zdiff;
 				if(accum > thresh) {
-					improvSoundEvent(d);
+					
+					//TODO - something with the position
+					
 					accum = 0;
 				}
 			}
@@ -283,73 +327,52 @@ public class Contact implements PIPO {
 		Bead pattern = new Bead() {
 			public void messageReceived(Bead b) {
 				if(improvMadnessOn) {
-					if(d.clock.getCount() % 8 == 0) {
-						improvSoundEvent(d);
+					if(d.clock.getCount() % 100 == 0) {
+						//TODO
 					}
 				}
 			}
 		};
-//		pattern.pause(true);
 		d.pattern(pattern);
 	}
-	
 
-	private void improvSoundEvent(DynamoPI d) {
-		//create a sound
-		SamplePlayer sp = new SamplePlayer(d.ac, SampleManager.randomFromGroup("improv"));
-		//audio rate controllers
-		Envelope freqEnv = new Envelope(d.ac, (float)Math.pow(2, d.rng.nextInt(4) - 1));
-		Envelope rateEnv = new Envelope(d.ac, 1);
-		Envelope grainSizeEnv = new Envelope(d.ac, 40);
-		Envelope grainIntervalEnv = new Envelope(d.ac, 20);
-		sp.setPitch(freqEnv);
-		sp.setRate(rateEnv);
-		if(sp instanceof GranularSamplePlayer) {
-			GranularSamplePlayer gsp = (GranularSamplePlayer)sp;
-			gsp.setGrainSize(grainSizeEnv);
-			gsp.setGrainInterval(grainIntervalEnv);
-			gsp.getRandomnessUGen().setValue(0.1f);
-		}
-		//gain envelope
-		Envelope env = new Envelope(d.ac, 1);
-		Gain g = new Gain(d.ac, 1, env);
-		g.addInput(sp);
-		//sound action
-		if(d.rng.nextFloat() < 0.2f) freqEnv.addSegment(2, 10000);
-		rateEnv.addSegment(0, 5000);
-		grainSizeEnv.addSegment(40, 6000);
-		grainIntervalEnv.addSegment(100, 10000);
-		//end of the sound
-		env.addSegment(1, 3000);
-		env.addSegment(0, 7000, new KillTrigger(g));
-		//okay, play it
-		d.sound(g);
-	}
 
 	/////////////////////////////////////////////////////////////
 	private boolean playArpeggios = false;
+	private int intervalLeap = 20;
 	/////////////////////////////////////////////////////////////
 	public void setupApreggiatedPatterns(final DynamoPI d) {
 		//create the pattern
 		Bead b = new Bead() {
-			int nextInterval = 100 * d.myIndex() + 5;
+			int nextInterval = intervalLeap * d.myIndex() + 5;
+			int nextPitch = 0;
 			public void messageReceived(Bead m) {
 				if(!playArpeggios) {
 					return;
 				}
 				if(d.clock.getCount() % nextInterval == 0) {
 					int[] pitches = {62, 60, 67, 74, 81, 88, 95, 102, 109, 106};
-					int pitch = pitches[d.myIndex() % pitches.length];
+					
+					//int pitch = pitches[d.myIndex() % pitches.length];
+					
+					int pitch = pitches[((d.myIndex() / 2) * nextPitch++) % pitches.length];
+					
 //					Noise n = new Noise(d.ac);
-					WavePlayer wp = new WavePlayer(d.ac, Pitch.mtof(pitch - 24), d.rng.nextBoolean() ? Buffer.SINE : Buffer.SINE);
-					Envelope genv = new Envelope(d.ac, 0);
+					WavePlayer wp = new WavePlayer(d.ac, Pitch.mtof(pitch - 24), d.rng.nextFloat() < 0.9f ? Buffer.SINE : Buffer.SINE);
+					float gainMax = d.rng.nextFloat() * 0.5f + 0.5f;
+					Envelope genv = null;
+					if(d.rng.nextFloat() < 0.3f) {
+						genv = new Envelope(d.ac, 0);
+						genv.addSegment(gainMax, 10);
+					} else {
+						genv = new Envelope(d.ac, 0);
+					}
 					final Gain g = new Gain(d.ac, 1, genv);
 					g.addInput(wp);
-					genv.addSegment(d.rng.nextFloat() * 1.5f + 0.5f, d.rng.nextFloat() * d.rng.nextFloat() * d.rng.nextFloat() * 5000);
+					genv.addSegment(gainMax, d.rng.nextFloat() * d.rng.nextFloat() * d.rng.nextFloat() * 5000);
 					genv.addSegment(0, 3000, new KillTrigger(g));
 					d.sound(g);
 				}
-				
 			}
 		};
 		//add it
@@ -361,6 +384,8 @@ public class Contact implements PIPO {
 					playArpeggios = true;
 				} else if(msg.getName().equals("/PI/arpeggio/off")) {
 					playArpeggios = false;
+				} else if(msg.getName().equals("/PI/arpeggio/interval")) {
+					intervalLeap = ((Number)msg.getArg(0)).intValue();
 				}
 			}
 		});

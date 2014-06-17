@@ -24,9 +24,9 @@ public class WavePatterningPIPO implements PIPO {
 	@Override
 	public void action(final DynamoPI d) {
 		kill(d);
-		create(d);
-		etc(d);
-		kill(d);
+//		create(d);
+//		etc(d);
+//		kill(d);
 	}
 	
 	public void etc(final DynamoPI d) {
