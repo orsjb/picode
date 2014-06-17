@@ -41,36 +41,49 @@ public class Contact implements PIPO {
 //				"pisound-009e959c50e2.local",
 				});
 	}
+	
+	Glide xFactor, yFactor, zFactor;
 
 	@Override
 	public void action(DynamoPI d) {
-		
 		d.reset();
 		
+		//set Mu responder
+		xFactor = new Glide(d.ac, 0, 500);
+		yFactor = new Glide(d.ac, 0, 500);
+		zFactor = new Glide(d.ac, 0, 500);
+		//mu
+		d.mu.addListener(new MiniMUListener() {
+			@Override
+			public void accelData(double x, double y, double z) {
+				float scaledX = scaleMU((float)x);
+				xFactor.setValue(scaledX);
+				float scaledY = scaleMU((float)y);
+				yFactor.setValue(scaledY);
+				float scaledZ = scaleMU((float)z);
+				zFactor.setValue(scaledZ);
+			}
+		});
 		
 		//set responsive behaviours
 		////////////////////////////////////////
-		
 		//filtered white noise going to sparkle...
 		setupFilteredNoise(d);
-		
 		//solo instrument...
 		setupSoloInstrument(d);
-		
 		//chord instruments - scatter, free improv bleeping... (use a couple of samples + granulation)
 		setupChords(d);
-		
 		//scatter with misc samples + bleeps
 		setupImprovMadness(d);
-		
-		
-		//smooth noise gentle glitch
-		
-		
 		//arpeggiated patterns
 		setupApreggiatedPatterns(d);
-		
-		
+		//tinkle
+		setupTinkle(d);
+	}
+	
+	private float scaleMU(float x) {
+		//TODO
+		return x;
 	}
 
 	//////////////////////////////////////////////////////////////
@@ -91,13 +104,7 @@ public class Contact implements PIPO {
 		//get listening to data
 		MiniMUListener myListener = new MiniMUListener() {
 			public void accelData(double x, double y, double z) {
-				String AccString = String.format("MiniMu Acc X/Y/Z = %05.2f %05.2f %05.2f", x,y,z);
-				System.out.println(AccString);
 				freqCtrl.setValue(((float)Math.abs(x) * 15f) % 5000f + 100f);
-			}
-			public void gyroData(double x, double y, double z) {
-				String GyrString = String.format("MiniMu Gyr X/Y/Z = %05.2f %05.2f %05.2f", x,y,z);
-				System.out.println(GyrString);
 			}
 		};
 		d.mu.addListener(myListener);
@@ -117,6 +124,8 @@ public class Contact implements PIPO {
 		});
 	}
 	
+
+	//TODO set up MU mappings
 	private int intervalRange = 100;
 	/////////////////////////////////////////////////////////////////
 	private void setupSoloInstrument(final DynamoPI d) {
@@ -186,6 +195,8 @@ public class Contact implements PIPO {
 		});
 	}
 	
+
+	//TODO set up MU mappings
 	//////////////////////////////////////////////////////////////////////
 	private void setupChords(final DynamoPI d) {
 		Sample chord = SampleManager.sample(Config.audioDir + "/" + "chords/chord1.wav");
@@ -194,12 +205,14 @@ public class Contact implements PIPO {
 		gsp.getLoopStartUGen().setValue(500);
 		gsp.getLoopEndUGen().setValue((float)chord.getLength() - 500);
 		//controls
-		final Glide rndGlide = new Glide(d.ac, 0, 500);
-		final Glide gsizeGlide = new Glide(d.ac, 50, 500);
-		final Glide gintervalGlide = new Glide(d.ac, 100, 500);
+		final Glide rndGlide = new Glide(d.ac, 0, 5000);
+		final Glide gsizeGlide = new Glide(d.ac, 50, 5000);
+		final Glide gintervalGlide = new Glide(d.ac, 100, 5000);
+		final Glide grateGlide = new Glide(d.ac, 1, 5000);
 		gsp.setRandomness(rndGlide);
 		gsp.setGrainSize(gsizeGlide);
 		gsp.setGrainInterval(gintervalGlide);
+		gsp.setRate(grateGlide);
 		//Choose my chord note based on myID
 		int id = d.myIndex();
 		int pitch = scalePitches[id % scalePitches.length];
@@ -217,7 +230,7 @@ public class Contact implements PIPO {
 				if(msg.getName().equals("/PI/chord/on")) {
 					g.pause(false);
 					genv.clear();
-					genv.addSegment(2, 3000);
+					genv.addSegment(4, 3000);
 				} else if(msg.getName().equals("/PI/chord/off")) {
 					genv.clear();
 					genv.addSegment(0, 7000, new PauseTrigger(g));
@@ -227,6 +240,8 @@ public class Contact implements PIPO {
 					gsizeGlide.setValue(((Number)msg.getArg(0)).floatValue());
 				} else if(msg.getName().equals("/PI/chord/ginterval")) {
 					gintervalGlide.setValue(((Number)msg.getArg(0)).floatValue());
+				} else if(msg.getName().equals("/PI/chord/grate")) {
+					grateGlide.setValue(((Number)msg.getArg(0)).floatValue());
 				}
 			}
 		});
@@ -242,14 +257,11 @@ public class Contact implements PIPO {
 		final Gain g = new Gain(d.ac, 1, genv);
 		d.ac.out.addInput(g);							//fixed audio added
 		g.pause(true);
-		
 		//create a sound
 		final GranularSamplePlayer sp = new GranularSamplePlayer(d.ac, squeal);
 		//audio rate controllers
 		float initFreq = 1f;
-		
 		sp.setLoopType(SamplePlayer.LoopType.LOOP_ALTERNATING);
-		
 		final Envelope freqEnv = new Envelope(d.ac, initFreq);
 		final Envelope rateEnv = new Envelope(d.ac, 0.001f);
 		final Envelope grainIntervalEnv = new Envelope(d.ac, 40);
@@ -257,18 +269,14 @@ public class Contact implements PIPO {
 		final Envelope randomEnv = new Envelope(d.ac, 0.1f);
 		sp.setPitch(freqEnv);
 		sp.setRate(rateEnv);
-		
 		Mult grainSizeEnv = new Mult(d.ac, 1, grainSizeRatio);
 		grainSizeEnv.addInput(grainIntervalEnv);
-		
 		sp.setGrainSize(grainSizeEnv);
 		sp.setGrainInterval(grainIntervalEnv);
 		sp.setRandomness(randomEnv);
-		
 		//gain envelope
 		g.addInput(sp);
 		//sound action
-		
 		//set up OSC responder
 		d.controller.addListener(new ControllerConnection.Listener() {
 			@Override
@@ -277,7 +285,7 @@ public class Contact implements PIPO {
 					g.pause(false);
 					improvMadnessOn = true;
 					genv.clear();
-					genv.addSegment(0.5f, 1000);
+					genv.addSegment(0.2f, 1000);
 				} else if(msg.getName().equals("/PI/madness/off")) {
 					genv.clear();
 					genv.addSegment(0, 10000, new Bead() {
@@ -316,27 +324,18 @@ public class Contact implements PIPO {
 				accum += xdiff+ydiff+zdiff;
 				if(accum > thresh) {
 					
-					//TODO - something with the position
+					//TODO - madness sound miniMu response
 					
 					accum = 0;
 				}
 			}
 		};
 		d.mu.addListener(myListener);
-		//also run a clock
-		Bead pattern = new Bead() {
-			public void messageReceived(Bead b) {
-				if(improvMadnessOn) {
-					if(d.clock.getCount() % 100 == 0) {
-						//TODO
-					}
-				}
-			}
-		};
-		d.pattern(pattern);
 	}
 
 
+	
+	//TODO set up MU mappings
 	/////////////////////////////////////////////////////////////
 	private boolean playArpeggios = false;
 	private int intervalLeap = 20;
@@ -352,11 +351,8 @@ public class Contact implements PIPO {
 				}
 				if(d.clock.getCount() % nextInterval == 0) {
 					int[] pitches = {62, 60, 67, 74, 81, 88, 95, 102, 109, 106};
-					
 					//int pitch = pitches[d.myIndex() % pitches.length];
-					
 					int pitch = pitches[((d.myIndex() / 2) * nextPitch++) % pitches.length];
-					
 //					Noise n = new Noise(d.ac);
 					WavePlayer wp = new WavePlayer(d.ac, Pitch.mtof(pitch - 24), d.rng.nextFloat() < 0.9f ? Buffer.SINE : Buffer.SINE);
 					float gainMax = d.rng.nextFloat() * 0.5f + 0.5f;
@@ -386,6 +382,58 @@ public class Contact implements PIPO {
 					playArpeggios = false;
 				} else if(msg.getName().equals("/PI/arpeggio/interval")) {
 					intervalLeap = ((Number)msg.getArg(0)).intValue();
+				}
+			}
+		});
+	}
+	
+	/////////////////////////////////////////////////////////////////////////
+	boolean tinkleOn = false;
+	/////////////////////////////////////////////////////////////////////////
+	private void setupTinkle(final DynamoPI d) {
+		//controllers
+		final Glide freqCtrl = new Glide(d.ac, 500);
+		final Glide rateCtrl = new Glide(d.ac, 500f);
+		//set up signal chain
+		d.clock.addMessageListener(new Bead() {
+			public void messageReceived(Bead msg) {
+				if(!tinkleOn) {
+					return;
+				}
+				if(d.clock.isBeat()) {
+					final float baseF = Pitch.mtof(Pitch.forceToScale(d.rng.nextInt(40) + 20, Pitch.pentatonic));
+					Function f = new Function(freqCtrl) {
+						@Override
+						public float calculate() {
+							return  baseF + x[0];
+						}
+					};
+					WavePlayer wp = new WavePlayer(d.ac, f, Buffer.SQUARE);
+					Envelope e = new Envelope(d.ac, 0.f);
+					Gain g = new Gain(d.ac, 1, e);
+					e.addSegment(0.05f, 1);
+					e.addSegment(0, 200, new KillTrigger(g));
+					g.addInput(wp);
+					d.sound(g);
+				}
+			}
+		});
+		d.clock.setIntervalEnvelope(rateCtrl);
+		//get listening to data
+		MiniMUListener myListener = new MiniMUListener() {
+			public void accelData(double x, double y, double z) {
+				freqCtrl.setValue(((float)Math.abs(x) * 1f));
+				rateCtrl.setValue(4000f * (((float)Math.abs(y) * 3f) % 400f / 1600f + 0.01f));
+			}
+		};
+		d.mu.addListener(myListener);
+		d.controller.addListener(new ControllerConnection.Listener() {
+			@Override
+			public void msg(OSCMessage msg) {
+				if(msg.getName().equals("/PI/tinkle/on")) {
+					tinkleOn = true;
+				} else if(msg.getName().equals("/PI/tinkle/off")) {
+					tinkleOn = false;
 				}
 			}
 		});
