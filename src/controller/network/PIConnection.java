@@ -105,7 +105,8 @@ public class PIConnection {
 				final LocalPIRepresentation piID = thisPI;
 				new Thread() {
 					public void run() {
-						sendToPI(piID, "/PI/set_id", piID.id);					
+						sendToPI(piID, "/PI/set_id", piID.id);		
+						System.out.println("Assigning id " + piID.id + " to " + piID.hostname);
 					}
 				}.start();
 			}

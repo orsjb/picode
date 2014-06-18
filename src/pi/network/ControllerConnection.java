@@ -45,6 +45,7 @@ public class ControllerConnection {
 				//include default listener behaviour that listens for the ID assigned to this PI
 				if(msg.getName().equals("/PI/set_id")) {
 					myID = (Integer)msg.getArg(0);
+					System.out.println("I have been given an ID by the controller: " + myID);
 				} else {
 				
 					//master commands...

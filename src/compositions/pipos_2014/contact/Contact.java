@@ -35,11 +35,19 @@ public class Contact implements PIPO {
 	public static void main(String[] args) throws Exception {
 		String fullClassName = Thread.currentThread().getStackTrace()[1].getClassName().replace(".", "/");
 		SendToPI.send(fullClassName, new String[]{
-//				"pisound-009e959c5093.local", 
-//				"pisound-009e959c510a.local", 
-				"pisound-009e959c47ef.local", 
-//				"pisound-009e959c502d.local",
+				
+				
+				"pisound-009e959c5093.local", 
+//				"pisound-009e959c47ef.local", 
+//				"pisound-009e959c4dbc.local", 
+//				"pisound-009e959c3fb2.local",
 //				"pisound-009e959c50e2.local",
+				"pisound-009e959c47e8.local",
+				"pisound-009e959c510a.local",
+				
+				
+				
+				
 				});
 	}
 	
@@ -48,20 +56,28 @@ public class Contact implements PIPO {
 	@Override
 	public void action(DynamoPI d) {
 		d.reset();
+		
+		//settings
+//		d.pl.setSteal(false);
+//		d.pl.setMaxInputs(5);
+		
+		
 		//set up Mu responder
-		xFactor = new Glide(d.ac, 0, 500);
-		yFactor = new Glide(d.ac, 0, 500);
-		zFactor = new Glide(d.ac, 0, 500);
+		xFactor = new Glide(d.ac, 0, 1000);
+		yFactor = new Glide(d.ac, 0, 1000);
+		zFactor = new Glide(d.ac, 0, 1000);
 		//mu
 		d.mu.addListener(new MiniMUListener() {
 			@Override
 			public void accelData(double x, double y, double z) {
+//				System.out.println(x + " " + y + " " + z);
 				float scaledX = scaleMU((float)x);
 				xFactor.setValue(scaledX);
 				float scaledY = scaleMU((float)y);
 				yFactor.setValue(scaledY);
 				float scaledZ = scaleMU((float)z);
 				zFactor.setValue(scaledZ);
+//				System.out.println(scaledX + " " + scaledY + " " + scaledZ);
 			}
 		});
 		//set responsive behaviours
@@ -82,13 +98,13 @@ public class Contact implements PIPO {
 	
 	private float scaleMU(float x) {
 		//TODO	 - output between -1 and 1 (using tanh?)
-		return 0;
+		return (float)Math.tanh(x / 250);
 	}
 
 	//////////////////////////////////////////////////////////////
 	private void setupFilteredNoise(final DynamoPI d) {
 		//controllers
-		final Glide freqCtrl = new Glide(d.ac, 500);
+		final Glide freqCtrl = new Glide(d.ac, 2000);
 		final Envelope gainCtrl = new Envelope(d.ac, 0);
 		//set up signal chain
 		Noise n = new Noise(d.ac);
@@ -218,8 +234,14 @@ public class Contact implements PIPO {
 		gsp.setGrainSize(gsizeGlide);
 		gsp.setGrainInterval(gintervalGlide);
 		gsp.setRate(grateGlide);
+		gsp.setPitch(new Function(grateGlide) {
+			@Override
+			public float calculate() {
+				return x[0] * 2;
+			}
+		});
 		//Choose my chord note based on myID
-		int id = d.myIndex();
+		int id = getID(d);
 		int pitch = scalePitches[id % scalePitches.length];
 		gsp.getPitchUGen().setValue(Pitch.mtof(pitch + 60) / Pitch.mtof(60));
 		//gain control
@@ -268,8 +290,13 @@ public class Contact implements PIPO {
 		float initFreq = 1f;
 		sp.setLoopType(SamplePlayer.LoopType.LOOP_ALTERNATING);
 		final Envelope freqEnv = new Envelope(d.ac, initFreq);
-//		final Envelope rateEnv = new Envelope(d.ac, 0.001f);
-		final UGen rateEnv = xFactor;	//TEST
+		final Envelope rateEnvMult = new Envelope(d.ac, 1f);
+		final UGen rateEnv = new Function(xFactor, rateEnvMult) {
+			@Override
+			public float calculate() {
+				return x[0] * x[1] * 0.3f;
+			}
+		};	//TEST
 		final Envelope grainIntervalEnv = new Envelope(d.ac, 40);
 		final Envelope grainSizeRatio = new Envelope(d.ac, 3);
 		final Envelope randomEnv = new Envelope(d.ac, 0.1f);
@@ -300,9 +327,9 @@ public class Contact implements PIPO {
 							improvMadnessOn = false;
 						}
 					});
-//				} else if(msg.getName().equals("/PI/madness/rate")) {
-//					rateEnv.clear();
-//					rateEnv.addSegment(((Number)msg.getArg(0)).floatValue(), ((Number)msg.getArg(1)).floatValue());
+				} else if(msg.getName().equals("/PI/madness/rate")) {
+					rateEnvMult.clear();
+					rateEnvMult.addSegment(((Number)msg.getArg(0)).floatValue(), ((Number)msg.getArg(1)).floatValue());
 				} else if(msg.getName().equals("/PI/madness/interval")) {
 					grainIntervalEnv.clear();
 					grainIntervalEnv.addSegment(((Number)msg.getArg(0)).floatValue(), ((Number)msg.getArg(1)).floatValue());
@@ -344,43 +371,48 @@ public class Contact implements PIPO {
 	//TODO set up MU mappings
 	/////////////////////////////////////////////////////////////
 	private boolean playArpeggios = false;
-	private int intervalLeap = 20;
+	private int intervalLeap = 1;
 	/////////////////////////////////////////////////////////////
 	public void setupApreggiatedPatterns(final DynamoPI d) {
 		//create the pattern
 		Bead b = new Bead() {
-			int nextInterval = intervalLeap * d.myIndex() + 5;
+			int nextInterval = intervalLeap * getID(d) + 7;
 			int nextPitch = 0;
 			public void messageReceived(Bead m) {
 				if(!playArpeggios) {
 					return;
 				}
-				if(d.clock.getCount() % nextInterval == 0) {
+				if(d.clock.isBeat() && d.clock.getBeatCount() % nextInterval == 0 && d.rng.nextBoolean()) {
+					
+					
 					int[] pitches = {62, 60, 67, 74, 81, 88, 95, 102, 109, 106};
 					//int pitch = pitches[d.myIndex() % pitches.length];
-					int pitch = pitches[((d.myIndex() / 2) * nextPitch++) % pitches.length];
+					int pitch = pitches[((getID(d) / 2 + 1) * nextPitch++) % pitches.length];
 //					Noise n = new Noise(d.ac);
-					final float ptch = Pitch.mtof(pitch - 24);
+					final float ptch = Pitch.mtof(pitch - 12);
 					Function pitchMod = new Function(yFactor) {
 						@Override
 						public float calculate() {
-							return ptch + x[0] * 100;			//TEST
+							return ptch + x[0] * 50;			//TEST
 						}
 					};
 					WavePlayer wp = new WavePlayer(d.ac, pitchMod, d.rng.nextFloat() < 0.9f ? Buffer.SINE : Buffer.SINE);
-					float gainMax = d.rng.nextFloat() * 0.5f + 0.5f;
+					float gainMax = d.rng.nextFloat() * 0.05f;
 					Envelope genv = null;
-					if(d.rng.nextFloat() < 0.3f) {
+//					if(d.rng.nextFloat() < 0.3f) {
 						genv = new Envelope(d.ac, 0);
-						genv.addSegment(gainMax, 10);
-					} else {
-						genv = new Envelope(d.ac, 0);
-					}
+						genv.addSegment(gainMax, 100);
+//					} else {
+//						genv = new Envelope(d.ac, 0);
+//					}
 					final Gain g = new Gain(d.ac, 1, genv);
 					g.addInput(wp);
-					genv.addSegment(gainMax, d.rng.nextFloat() * d.rng.nextFloat() * d.rng.nextFloat() * 5000);
-					genv.addSegment(0, 3000, new KillTrigger(g));
-					d.sound(g);
+					genv.addSegment(gainMax, d.rng.nextFloat() * d.rng.nextFloat() * d.rng.nextFloat() * 2000);
+					genv.addSegment(0, 2000, new KillTrigger(g));
+					
+					//TODO something dodgy - does PolyLimit not work?
+					d.pl.addInput(g);
+//					System.out.println("My ID: " + getID(d) + ", interval: " + nextInterval + ", pitch: " + pitch);
 				}
 			}
 		};
@@ -431,7 +463,7 @@ public class Contact implements PIPO {
 					e.addSegment(0.05f, 1);
 					e.addSegment(0, 200, new KillTrigger(g));
 					g.addInput(wp);
-					d.sound(g);
+					d.pl.addInput(g);
 				}
 			}
 		});
@@ -454,6 +486,12 @@ public class Contact implements PIPO {
 				}
 			}
 		});
+	}
+	
+	private int getID(DynamoPI d) {
+		int i = d.myIndex();
+		if(i < 0) i = 0;
+		return i;
 	}
 
 }
