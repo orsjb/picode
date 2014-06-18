@@ -35,6 +35,8 @@ public class DynamoPI {
 	public final PolyLimit pl;
 	public final Envelope masterGainEnv;
 	boolean audioOn = false;
+	
+	String status = "No ID set";
 
 	// sensor stuffs
 	public final MiniMU mu;
@@ -293,6 +295,14 @@ public class DynamoPI {
 			try {
 				Runtime.getRuntime().exec(new String[]{"/bin/bash","-c","sudo shutdown now"}).waitFor();
 			} catch (Exception e) {}
+		}
+		
+		public void setStatus(String s) {
+			status = s;
+		}
+		
+		public String getStatus() {
+			return status;
 		}
 
 }

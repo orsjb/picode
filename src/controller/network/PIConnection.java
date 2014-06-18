@@ -112,7 +112,10 @@ public class PIConnection {
 			}
 			//keep up to date
 			thisPI.lastTimeSeen = System.currentTimeMillis();	//Ultimately this should be "corrected time"
-			
+			//TODO update the status in the GUI, not sure how to bind this
+			if(msg.getArgCount() > 2) {
+				thisPI.status = (String)msg.getArg(2);
+			}
 			
 			
 		}

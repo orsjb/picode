@@ -20,6 +20,8 @@ public class LocalPIRepresentation {
 	private final OSCServer server;
 	public final boolean[] groups;
 	
+	public String status = "Status unknown";
+	
 	Node gui = null;
 	
 	public LocalPIRepresentation(String hostname, int id, OSCServer server) {

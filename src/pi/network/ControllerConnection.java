@@ -46,6 +46,7 @@ public class ControllerConnection {
 				if(msg.getName().equals("/PI/set_id")) {
 					myID = (Integer)msg.getArg(0);
 					System.out.println("I have been given an ID by the controller: " + myID);
+					pi.setStatus("ID " + myID);
 				} else {
 				
 					//master commands...
@@ -95,7 +96,7 @@ public class ControllerConnection {
 		new Thread() {
 			public void run() {
 				while(true) {
-					sendToController("/PI/alive", new Object[] {Device.myHostname, Synchronizer.time()});
+					sendToController("/PI/alive", new Object[] {Device.myHostname, Synchronizer.time(), pi.getStatus()});
 					try {
 						Thread.sleep(Config.aliveInterval);
 					} catch (InterruptedException e) {

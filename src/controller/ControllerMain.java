@@ -41,8 +41,8 @@ public class ControllerMain extends Application {
     	setupGUI(stage);
     	
     	//test code...
-    	piConnection.createTestPI();
-    	piConnection.createTestPI();
+//    	piConnection.createTestPI();
+//    	piConnection.createTestPI();
     	
     	synchronizer = Synchronizer.get();
     	//get normal desktop application behaviour - closing the stage terminates the app
