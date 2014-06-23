@@ -4,7 +4,10 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.channels.UnresolvedAddressException;
 
+import javafx.application.Platform;
 import javafx.scene.Node;
+import javafx.scene.layout.Pane;
+import javafx.scene.text.Text;
 import core.Config;
 import de.sciss.net.OSCMessage;
 import de.sciss.net.OSCServer;
@@ -22,7 +25,7 @@ public class LocalPIRepresentation {
 	
 	private String status = "Status unknown";
 	
-	Node gui = null;
+	Pane gui = null;
 	
 	public LocalPIRepresentation(String hostname, int id, OSCServer server) {
 		this.hostname = hostname;
@@ -53,7 +56,7 @@ public class LocalPIRepresentation {
 		return gui;
 	}
 
-	public void setGui(Node gui) {
+	public void setGui(Pane gui) {
 		this.gui = gui;
 	}
 
@@ -61,7 +64,14 @@ public class LocalPIRepresentation {
 		status = arg;
 		//modify gui
 		if(gui != null) {
-			
+			Platform.runLater(new Runnable() {
+				public void run() {
+					//do on other thread
+					//the last element is the status text box
+					Text statusText = (Text)gui.getChildren().get(gui.getChildren().size() - 1);
+					statusText.setText(status);
+				}
+			});
 		}
 	}
 	

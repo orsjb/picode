@@ -91,7 +91,8 @@ public class ControllerConnection {
 					try {
 						Thread.sleep(Config.aliveInterval);
 					} catch (InterruptedException e) {
-						e.printStackTrace();
+//						e.printStackTrace();
+						System.out.println("/PI/alive message did not get through to controller.");
 					}
 				}
  				

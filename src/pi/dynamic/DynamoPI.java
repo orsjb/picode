@@ -171,6 +171,7 @@ public class DynamoPI {
 								// recreate
 								// the classloader to avoid duplicate errors
 								loader = new DynamoClassLoader(ClassLoader.getSystemClassLoader());
+								status = "Last PIPO: " + pipoClass.getCanonicalName();
 							}
 						} catch (Exception e) {/* snub it? */
 							System.out.println("Exception Caught trying to read Object from Socket");

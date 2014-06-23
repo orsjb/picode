@@ -51,9 +51,9 @@ public class ControllerMain extends Application {
 	private void setupGUI(Stage stage) {
 		Group masterGroup = new Group();
 		BorderPane border = new BorderPane();
-		HBox hbox = new HBox();
-		hbox.setMinHeight(100);
-		border.setTop(hbox);
+		VBox topBox = new VBox();
+		topBox.setMinHeight(100);
+		border.setTop(topBox);
 		VBox vbox = new VBox();
 		vbox.setMinWidth(50);
 		border.setLeft(vbox);
@@ -72,7 +72,7 @@ public class ControllerMain extends Application {
     	list.setMaxWidth(1000);
     	list.setMinHeight(700);
        	border.setCenter(list);
-       	GUIBuilder.createButtons((Pane)border.getTop(), piConnection);
+       	GUIBuilder.createButtons(topBox, piConnection);
         Scene scene = new Scene(masterGroup); 
         stage.setTitle("--PI Controller--"); 
         stage.setScene(scene); 

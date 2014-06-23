@@ -42,13 +42,21 @@ public class PIRepCell extends ListCell<LocalPIRepresentation> {
 	        	txthbox.getChildren().add(name);
 	        	txthbox.setSpacing(5);
 	        	//reset button
-	        	Button b = new Button("Reset");
-	        	b.setOnAction(new EventHandler<ActionEvent>() {
+	        	Button resetButton = new Button("Reset");
+	        	resetButton.setOnAction(new EventHandler<ActionEvent>() {
 	        	    @Override public void handle(ActionEvent e) {
 	        	    	item.send("/PI/reset");
 	        	    }
 	        	});
-	        	txthbox.getChildren().add(b);
+	        	hbox.getChildren().add(resetButton);
+	        	//bleep button
+	        	Button bleepButton = new Button("Bleep");
+	        	bleepButton.setOnAction(new EventHandler<ActionEvent>() {
+	        	    @Override public void handle(ActionEvent e) {
+	        	    	item.send("/PI/bleep");
+	        	    }
+	        	});
+	        	hbox.getChildren().add(bleepButton);
 	        	//group allocations
 	        	HBox groupsHbox = new HBox();
 	        	hbox.getChildren().add(groupsHbox);
@@ -65,27 +73,16 @@ public class PIRepCell extends ListCell<LocalPIRepresentation> {
 		                });
 		        	groupsHbox.getChildren().add(c);
 	        	}
-	        	
 	        	//
 	        	Slider s = new Slider(0, 2, 1);
 	        	s.setOrientation(Orientation.HORIZONTAL);
 	        	s.valueProperty().addListener(new ChangeListener<Number>() {
-	
 					@Override
 					public void changed(ObservableValue<? extends Number> obs, Number oldval, Number newval) {
 						item.send("/PI/gain", newval.floatValue(), 50f);
 					}
-					
 				});
 	        	hbox.getChildren().add(s);
-	        	//bleep button
-	        	Button bleepButton = new Button("Bleep");
-	        	bleepButton.setOnAction(new EventHandler<ActionEvent>() {
-	        	    @Override public void handle(ActionEvent e) {
-	        	    	item.send("/PI/bleep");
-	        	    }
-	        	});
-
 	        	//a status string
 	        	Text statusText = new Text("status unknown");
 	        	hbox.getChildren().add(statusText);

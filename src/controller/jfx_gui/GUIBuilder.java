@@ -1,11 +1,11 @@
 package controller.jfx_gui;
 
-import javafx.beans.value.ChangeListener;
 import javafx.event.EventHandler;
 import javafx.scene.control.Button;
+import javafx.scene.control.Separator;
 import javafx.scene.control.TextField;
-import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import controller.network.PIConnection;
 
@@ -15,6 +15,8 @@ public abstract class GUIBuilder {
     	
 		
 		//master buttons
+		HBox row1 = new HBox();
+		pane.getChildren().add(row1);
     	
 		{
 			Button b = new Button();
@@ -25,7 +27,7 @@ public abstract class GUIBuilder {
 				}
 			});
 	    	b.setText("Reboot");
-	    	pane.getChildren().add(b);
+	    	row1.getChildren().add(b);
 		}
 		
 
@@ -38,7 +40,7 @@ public abstract class GUIBuilder {
 				}
 			});
 	    	b.setText("Shutdown");
-	    	pane.getChildren().add(b);
+	    	row1.getChildren().add(b);
 		}
     	
 
@@ -51,7 +53,7 @@ public abstract class GUIBuilder {
 				}
 			});
 	    	b.setText("Sync");
-	    	pane.getChildren().add(b);
+	    	row1.getChildren().add(b);
 		}
 
 		{
@@ -63,7 +65,7 @@ public abstract class GUIBuilder {
 				}
 			});
 	    	b.setText("Reset");
-	    	pane.getChildren().add(b);
+	    	row1.getChildren().add(b);
 		}
 
 		{
@@ -75,7 +77,7 @@ public abstract class GUIBuilder {
 				}
 			});
 	    	b.setText("Reset Sounding");
-	    	pane.getChildren().add(b);
+	    	row1.getChildren().add(b);
 		}
 
 		{
@@ -87,14 +89,47 @@ public abstract class GUIBuilder {
 				}
 			});
 	    	b.setText("Clear Sound");
-	    	pane.getChildren().add(b);
+	    	row1.getChildren().add(b);
 		}
 		
 		//text sender
 		final TextField codeField = new TextField();
 		codeField.setMinSize(500, 50);
 		pane.getChildren().add(codeField);
+//		
+//		HBox row2 = new HBox();
+//		pane.getChildren().add(row2);
+
+		row1.getChildren().add(new Separator());
 		
+		Button sendAllButton = new Button("Send All");
+		sendAllButton.setOnMouseClicked(new EventHandler<MouseEvent>() {
+			@Override
+			public void handle(MouseEvent e) {
+				String codeText = codeField.getText();
+				//need to parse the code text
+				String[] elements = codeText.split("[ ]");
+				String msg = elements[0];
+				Object[] args = new Object[elements.length - 1];
+				for(int i = 0; i < args.length; i++) {
+					String s = elements[i + 1];
+					try {
+						args[i] = Integer.parseInt(s);
+					} catch(Exception ex) {
+						try {
+							args[i] = Double.parseDouble(s);
+						} catch(Exception exx) {
+							args[i] = s;
+						}
+					}
+				}
+				piConnection.sendToAllPIs(msg, args);
+			}
+		});
+		row1.getChildren().add(sendAllButton);
+		
+		
+		row1.getChildren().add(new Separator());
 		for(int i = 0; i < 4; i++) {
 			Button b = new Button();
 			final int index = i;
@@ -122,7 +157,7 @@ public abstract class GUIBuilder {
 				}
 			});
 	    	b.setText("Send " + (i + 1));
-	    	pane.getChildren().add(b);
+	    	row1.getChildren().add(b);
 		}
 		
 	
