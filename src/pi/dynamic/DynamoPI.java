@@ -98,10 +98,22 @@ public class DynamoPI {
 	public void startAudio() {
 		ac.start();
 		audioOn = true;
-		testBleep();
+		testBleep3();
 	}
 	
 	public void testBleep() {
+		Envelope e = new Envelope(ac, 0);
+		Gain g = new Gain(ac, 1, e);
+		WavePlayer wp = new WavePlayer(ac, 500, Buffer.SINE);
+		g.addInput(wp);
+		pl.addInput(g);
+		e.addSegment(0, 100);
+		e.addSegment(0.4f, 0);
+		e.addSegment(0.4f, 300);
+		e.addSegment(0, 10, new KillTrigger(g));
+	}
+	
+	public void testBleep3() {
 		Envelope e = new Envelope(ac, 0);
 		Gain g = new Gain(ac, 1, e);
 		WavePlayer wp = new WavePlayer(ac, 500, Buffer.SINE);

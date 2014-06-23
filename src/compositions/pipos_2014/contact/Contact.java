@@ -229,8 +229,8 @@ public class Contact implements PIPO {
 		};
 		final Glide gsizeGlide = new Glide(d.ac, 50, 5000);
 		final Glide gintervalGlide = new Glide(d.ac, 100, 5000);
-//		final Glide grateGlide = new Glide(d.ac, 1, 5000);
-		final UGen grateGlide = xFactor;
+		final Glide grateGlideMult = new Glide(d.ac, 1, 5000);
+		final UGen grateGlide = new Mult(d.ac, xFactor, grateGlideMult);
 		gsp.setRandomness(rndGlide);
 		gsp.setGrainSize(gsizeGlide);
 		gsp.setGrainInterval(gintervalGlide);
@@ -258,7 +258,7 @@ public class Contact implements PIPO {
 				if(msg.getName().equals("/PI/chord/on")) {
 					g.pause(false);
 					genv.clear();
-					genv.addSegment(4, 3000);
+					genv.addSegment(6, 3000);
 				} else if(msg.getName().equals("/PI/chord/off")) {
 					genv.clear();
 					genv.addSegment(0, 7000, new PauseTrigger(g));
@@ -268,8 +268,8 @@ public class Contact implements PIPO {
 					gsizeGlide.setValue(((Number)msg.getArg(0)).floatValue());
 				} else if(msg.getName().equals("/PI/chord/ginterval")) {
 					gintervalGlide.setValue(((Number)msg.getArg(0)).floatValue());
-//				} else if(msg.getName().equals("/PI/chord/grate")) {
-//					grateGlide.setValue(((Number)msg.getArg(0)).floatValue());
+				} else if(msg.getName().equals("/PI/chord/rateMult")) {
+					grateGlideMult.setValue(((Number)msg.getArg(0)).floatValue());
 				}
 			}
 		});
@@ -319,7 +319,7 @@ public class Contact implements PIPO {
 					g.pause(false);
 					improvMadnessOn = true;
 					genv.clear();
-					genv.addSegment(0.2f, 1000);
+					genv.addSegment(0.2f, 6000);
 				} else if(msg.getName().equals("/PI/madness/off")) {
 					genv.clear();
 					genv.addSegment(0, 10000, new Bead() {
@@ -384,13 +384,14 @@ public class Contact implements PIPO {
 					return;
 				}
 				if(d.clock.isBeat() && d.clock.getBeatCount() % nextInterval == 0 && d.rng.nextBoolean()) {
-					
-					
 					int[] pitches = {62, 60, 67, 74, 81, 88, 95, 102, 109, 106};
 					//int pitch = pitches[d.myIndex() % pitches.length];
-					int pitch = pitches[((getID(d) / 2 + 1) * nextPitch++) % pitches.length];
-//					Noise n = new Noise(d.ac);
-					final float ptch = Pitch.mtof(pitch - 12);
+					int note = pitches[((getID(d) / 2 + 1) * nextPitch++) % pitches.length];
+					while(note < 42) {
+						note += 12;
+					}
+ //					Noise n = new Noise(d.ac);
+					final float ptch = Pitch.mtof(note);
 					Function pitchMod = new Function(yFactor) {
 						@Override
 						public float calculate() {
@@ -398,22 +399,15 @@ public class Contact implements PIPO {
 						}
 					};
 					WavePlayer wp = new WavePlayer(d.ac, pitchMod, d.rng.nextFloat() < 0.9f ? Buffer.SINE : Buffer.SINE);
-					float gainMax = d.rng.nextFloat() * 0.05f;
+					float gainMax = d.rng.nextFloat() * 0.05f + 0.1f;
 					Envelope genv = null;
-//					if(d.rng.nextFloat() < 0.3f) {
-						genv = new Envelope(d.ac, 0);
-						genv.addSegment(gainMax, 100);
-//					} else {
-//						genv = new Envelope(d.ac, 0);
-//					}
+					genv = new Envelope(d.ac, 0);
+					genv.addSegment(gainMax, 100);
 					final Gain g = new Gain(d.ac, 1, genv);
 					g.addInput(wp);
 					genv.addSegment(gainMax, d.rng.nextFloat() * d.rng.nextFloat() * d.rng.nextFloat() * 2000);
 					genv.addSegment(0, 2000, new KillTrigger(g));
-					
-					//TODO something dodgy - does PolyLimit not work?
 					d.pl.addInput(g);
-//					System.out.println("My ID: " + getID(d) + ", interval: " + nextInterval + ", pitch: " + pitch);
 				}
 			}
 		};

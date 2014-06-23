@@ -4,11 +4,8 @@ import javafx.application.Application;
 import javafx.event.EventHandler;
 import javafx.scene.Group;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
@@ -30,7 +27,6 @@ import core.Synchronizer;
  */
 
 public class ControllerMain extends Application {
-	
 
 	PIConnection piConnection;
 	Synchronizer synchronizer;
@@ -39,11 +35,9 @@ public class ControllerMain extends Application {
     public void start(Stage stage) {
     	piConnection = new PIConnection();
     	setupGUI(stage);
-    	
     	//test code...
 //    	piConnection.createTestPI();
 //    	piConnection.createTestPI();
-    	
     	synchronizer = Synchronizer.get();
     	//get normal desktop application behaviour - closing the stage terminates the app
     	stage.setOnCloseRequest(new EventHandler<WindowEvent>() {
@@ -56,26 +50,15 @@ public class ControllerMain extends Application {
     
 	private void setupGUI(Stage stage) {
 		Group masterGroup = new Group();
-		
-		
 		BorderPane border = new BorderPane();
-		
 		HBox hbox = new HBox();
 		hbox.setMinHeight(100);
-//		hbox.setMargin(arg0, arg1);
-		
 		border.setTop(hbox);
-		
 		VBox vbox = new VBox();
 		vbox.setMinWidth(50);
 		border.setLeft(vbox);
-
 		border.setRight(new VBox());
-		
 		masterGroup.getChildren().add(border);
-		
-		
-		
     	//list of PIs
 		ListView<LocalPIRepresentation> list = new ListView<LocalPIRepresentation>();
     	list.setItems(piConnection.getPIs());
@@ -85,41 +68,17 @@ public class ControllerMain extends Application {
 				return new PIRepCell();
 			}
 		});
-    	
-//    	ScrollPane scroll = new ScrollPane();
-//    	scroll.setContent(list);
-//
-//    	scroll.setMinWidth(1000);
-//    	scroll.setMaxWidth(1000);
-//    	scroll.setPrefHeight(700);
-
-//    	double innerWidth = 1000 - scroll.get;
     	list.setMinWidth(1000);
     	list.setMaxWidth(1000);
     	list.setMinHeight(700);
-    	
        	border.setCenter(list);
-       	
        	GUIBuilder.createButtons((Pane)border.getTop(), piConnection);
-    	
-
-       	
-    	
-    	//code view
-    	
-    	
         Scene scene = new Scene(masterGroup); 
         stage.setTitle("--PI Controller--"); 
         stage.setScene(scene); 
         stage.sizeToScene(); 
         stage.show(); 
-        
-        
-        
-        
-        
     }
-
 
     public static void main(String[] args) {
         Application.launch(args);

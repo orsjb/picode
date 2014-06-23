@@ -20,7 +20,7 @@ public class LocalPIRepresentation {
 	private final OSCServer server;
 	public final boolean[] groups;
 	
-	public String status = "Status unknown";
+	private String status = "Status unknown";
 	
 	Node gui = null;
 	
@@ -55,6 +55,14 @@ public class LocalPIRepresentation {
 
 	public void setGui(Node gui) {
 		this.gui = gui;
+	}
+
+	public void setStatus(String arg) {
+		status = arg;
+		//modify gui
+		if(gui != null) {
+			
+		}
 	}
 	
 }

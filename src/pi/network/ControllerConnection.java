@@ -68,12 +68,9 @@ public class ControllerConnection {
 						pi.fadeOutReset((Float)msg.getArg(0));
 					} else if(msg.getName().equals("/PI/fadeout_clearsound")) {
 						pi.fadeOutClearSound((Float)msg.getArg(0));
+					} else if(msg.getName().equals("/PI/bleep")) {
+						pi.testBleep();
 					} 
-					
-					
-					
-					
-					
 					//all other messages get forwarded to delegate listeners
 					synchronized(listeners) {
 						Iterator<Listener> i = listeners.iterator();
@@ -81,12 +78,6 @@ public class ControllerConnection {
 							i.next().msg(msg);
 						}
 					}
-					
-					
-					
-					
-					
-					
 				}
 			}
 		});

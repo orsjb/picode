@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.net.UnknownHostException;
 
 import core.Config;
 
@@ -39,9 +40,13 @@ public class SendToPI {
         fis.close();
         byte[] bytes = buffer.toByteArray();
         for(String hostname : hostnames) {
-			Socket s = new Socket(hostname, Config.codeToPIPort);
-			s.getOutputStream().write(bytes);
-			s.close();
+        	try {
+				Socket s = new Socket(hostname, Config.codeToPIPort);
+				s.getOutputStream().write(bytes);
+				s.close();
+        	} catch(UnknownHostException e) {
+        		System.out.println("Was not able to send file " + fullClassFileName + " to " + hostname);
+        	}
         }
 	}
 	

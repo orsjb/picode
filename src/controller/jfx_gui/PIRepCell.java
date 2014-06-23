@@ -19,7 +19,7 @@ public class PIRepCell extends ListCell<LocalPIRepresentation> {
 	int count = 0;
 	
 	public PIRepCell() {
-		setMinHeight(80);
+//		setMinHeight(80);
 	}
 	
 	@Override
@@ -32,16 +32,15 @@ public class PIRepCell extends ListCell<LocalPIRepresentation> {
         		//set up main panel
 	        	HBox hbox = new HBox();
 	        	hbox.setSpacing(5);
+	        	hbox.setMaxHeight(30);
 	        	//elements
-	        	VBox txtvbox = new VBox();
-	        	hbox.getChildren().add(txtvbox);
+	        	HBox txthbox = new HBox();
+	        	hbox.getChildren().add(txthbox);
 	        	//name of the PI
 	        	Text name = new Text(item.hostname);
 	        	name.setUnderline(true);
-	        	txtvbox.getChildren().add(name);
-	        	//a status string
-	        	Text statusText = new Text("status unknown");
-	        	txtvbox.getChildren().add(statusText);
+	        	txthbox.getChildren().add(name);
+	        	txthbox.setSpacing(5);
 	        	//reset button
 	        	Button b = new Button("Reset");
 	        	b.setOnAction(new EventHandler<ActionEvent>() {
@@ -49,11 +48,12 @@ public class PIRepCell extends ListCell<LocalPIRepresentation> {
 	        	    	item.send("/PI/reset");
 	        	    }
 	        	});
-	        	txtvbox.getChildren().add(b);
+	        	txthbox.getChildren().add(b);
 	        	//group allocations
-	        	VBox groupsVbox = new VBox();
-	        	hbox.getChildren().add(groupsVbox);
-	        	groupsVbox.getChildren().add(new Text("G#"));
+	        	HBox groupsHbox = new HBox();
+	        	hbox.getChildren().add(groupsHbox);
+	        	groupsHbox.setSpacing(5);
+	        	groupsHbox.getChildren().add(new Text("G#"));
 	        	for(int i = 0; i < 4; i++) {
 	        		final int index = i;
 		        	CheckBox c = new CheckBox();
@@ -63,12 +63,12 @@ public class PIRepCell extends ListCell<LocalPIRepresentation> {
 		                            item.groups[index] = newval;
 		                    }
 		                });
-		        	groupsVbox.getChildren().add(c);
+		        	groupsHbox.getChildren().add(c);
 	        	}
 	        	
 	        	//
 	        	Slider s = new Slider(0, 2, 1);
-	        	s.setOrientation(Orientation.VERTICAL);
+	        	s.setOrientation(Orientation.HORIZONTAL);
 	        	s.valueProperty().addListener(new ChangeListener<Number>() {
 	
 					@Override
@@ -78,13 +78,24 @@ public class PIRepCell extends ListCell<LocalPIRepresentation> {
 					
 				});
 	        	hbox.getChildren().add(s);
+	        	//bleep button
+	        	Button bleepButton = new Button("Bleep");
+	        	bleepButton.setOnAction(new EventHandler<ActionEvent>() {
+	        	    @Override public void handle(ActionEvent e) {
+	        	    	item.send("/PI/bleep");
+	        	    }
+	        	});
+
+	        	//a status string
+	        	Text statusText = new Text("status unknown");
+	        	hbox.getChildren().add(statusText);
 	        	
 	        	item.setGui(hbox);
 
         	}
+
         	setGraphic(item.getGui());
-        	
-        }
+        }	
 
     }
 	
