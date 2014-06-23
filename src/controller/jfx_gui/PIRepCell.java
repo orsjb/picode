@@ -41,6 +41,7 @@ public class PIRepCell extends ListCell<LocalPIRepresentation> {
 	        	name.setUnderline(true);
 	        	txthbox.getChildren().add(name);
 	        	txthbox.setSpacing(5);
+	        	txthbox.setMinWidth(300);
 	        	//reset button
 	        	Button resetButton = new Button("Reset");
 	        	resetButton.setOnAction(new EventHandler<ActionEvent>() {
