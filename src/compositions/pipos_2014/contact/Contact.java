@@ -37,14 +37,14 @@ public class Contact implements PIPO {
 		SendToPI.send(fullClassName, new String[]{
 				
 				
-//				"pisound-009e959c5093.local", 
-//				"pisound-009e959c47ef.local", 
-//				"pisound-009e959c4dbc.local", 
-//				"pisound-009e959c3fb2.local",
-//				"pisound-009e959c50e2.local",
+				"pisound-009e959c5093.local", 
+				"pisound-009e959c47ef.local", 
+				"pisound-009e959c4dbc.local", 
+				"pisound-009e959c3fb2.local",
+				"pisound-009e959c50e2.local",
 				"pisound-009e959c47e8.local",
-//				"pisound-009e959c510a.local",
-//				"pisound-009e959c502d.local",
+				"pisound-009e959c510a.local",
+				"pisound-009e959c502d.local",
 				
 				
 				
