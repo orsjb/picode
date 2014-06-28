@@ -75,7 +75,11 @@ public class ControllerConnection {
 					synchronized(listeners) {
 						Iterator<Listener> i = listeners.iterator();
 						while(i.hasNext()) {
-							i.next().msg(msg);
+							try {
+								i.next().msg(msg);	
+							} catch(Exception e) {
+								e.printStackTrace();
+							}
 						}
 					}
 				}
