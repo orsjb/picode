@@ -16,6 +16,7 @@ import net.beadsproject.beads.ugens.Glide;
 import net.beadsproject.beads.ugens.GranularSamplePlayer;
 import net.beadsproject.beads.ugens.Mult;
 import net.beadsproject.beads.ugens.Noise;
+import net.beadsproject.beads.ugens.PolyLimit;
 import net.beadsproject.beads.ugens.SamplePlayer;
 import net.beadsproject.beads.ugens.WavePlayer;
 import pi.dynamic.DynamoPI;
@@ -38,12 +39,12 @@ public class Contact implements PIPO {
 				
 				"pisound-009e959c5093.local", 
 				"pisound-009e959c47ef.local", 
-				"pisound-009e959c4dbc.local", 
-				"pisound-009e959c3fb2.local",
-				"pisound-009e959c50e2.local",
-				"pisound-009e959c47e8.local",
-				"pisound-009e959c510a.local",
-				"pisound-009e959c502d.local",
+//				"pisound-009e959c4dbc.local", 
+//				"pisound-009e959c3fb2.local",
+//				"pisound-009e959c50e2.local",
+//				"pisound-009e959c47e8.local",
+//				"pisound-009e959c510a.local",
+//				"pisound-009e959c502d.local",
 				
 				});
 	}
@@ -53,6 +54,8 @@ public class Contact implements PIPO {
 	@Override
 	public void action(DynamoPI d) {
 		d.reset();
+		
+		d.ac.out.getGainUGen().setValue(2f);
 		
 		//settings
 //		d.pl.setSteal(false);
@@ -144,11 +147,18 @@ public class Contact implements PIPO {
 		final Envelope fenv = new Envelope(d.ac, 500);
 		final Envelope modFreq = new Envelope(d.ac, 700f);	
 		modFreq.addSegment(100f, 30500);
-		WavePlayer mod = new WavePlayer(d.ac, modFreq, Buffer.SINE);
+		Function modFreqqer = new Function(modFreq, xFactor) {
+			@Override
+			public float calculate() {
+				return Math.max(0.1f, x[0] + (x[1] + 1f) * 50);
+			}
+		};
+		WavePlayer mod = new WavePlayer(d.ac, modFreqqer, Buffer.SINE);
 		Function freqmod = new Function(fenv, mod, xFactor) {
 			@Override
 			public float calculate() {
-				return x[0] + (x[1] * x[2] * 1000f); 
+//				return x[0] + (x[1] * x[2] * 1000f); 
+				return x[0] + (x[1] * 1000f); 
 			}
 		};
 		WavePlayer wp = new WavePlayer(d.ac, freqmod, Buffer.SINE);
@@ -164,7 +174,7 @@ public class Contact implements PIPO {
 				if(d.clock.getCount() % nextInterval == 0) {
 					float intervalScale = yFactor.getValue() + 2;
 					nextInterval = (int)(d.rng.nextInt(intervalRange) * intervalScale * d.rng.nextInt(5) + 1);
-					genv.addSegment(0.1f + 0.3f * d.rng.nextFloat(), 100);
+					genv.addSegment(0.1f + 0.1f * d.rng.nextFloat(), 600);
 					int midi = 64 + d.rng.nextInt(5);
 					midi = Pitch.forceToScale(midi, Pitch.dorian);	
 					fenv.addSegment(Pitch.mtof(midi) + 1 * d.rng.nextFloat(),  d.rng.nextFloat() * 500);
@@ -177,37 +187,36 @@ public class Contact implements PIPO {
 		d.controller.addListener(new ControllerConnection.Listener() {
 			@Override
 			public void msg(OSCMessage msg) {
-				if(msg.getName().equals("/PI/solo/on")) {
-					pattern.pause(false);
-					g.pause(false);
-					genv.lock(false);
-					genv.clear();
-					genv.addSegment(0.1f, 5000);
-				} else if(msg.getName().equals("/PI/solo/off")) {
-					genv.clear();
-					genv.addSegment(0, 10000, new Bead() {
-						public void messageReceived(Bead message) {
-							g.pause(true);
-							pattern.pause(true);
-						}
-					});
-					genv.lock(true);
-				} else if(msg.getName().equals("/PI/solo/modFreq")) {
-					try {
-						float val = ((Number)msg.getArg(0)).floatValue();
+				try {
+					if(msg.getName().equals("/PI/solo/on")) {
+						pattern.pause(false);
+						g.pause(false);
+						genv.lock(false);
+						genv.clear();
+						genv.addSegment(0.1f, 5000);
+					} else if(msg.getName().equals("/PI/solo/off")) {
+						genv.clear();
+						genv.addSegment(0, 10000, new Bead() {
+							public void messageReceived(Bead message) {
+								g.pause(true);
+								pattern.pause(true);
+							}
+						});
+						genv.lock(true);
+					} else if(msg.getName().equals("/PI/solo/modFreq")) {
 						modFreq.clear();
-						modFreq.addSegment(val, 600);
-					} catch(Exception e) {
-						//do nothing
+						modFreq.addSegment(((Number)msg.getArg(0)).floatValue(), 6000);
+//					} else if(msg.getName().equals("/PI/solo/modAmount")) {
+//						modAmount.clear();
+//						modAmount.addSegment(((Number)msg.getArg(0)).floatValue(), 600);
+//					} else if(msg.getName().equals("/PI/solo/interval")) {
+//						intervalRange = ((Number)msg.getArg(0)).intValue();
 					}
-//				} else if(msg.getName().equals("/PI/solo/modAmount")) {
-//					modAmount.clear();
-//					modAmount.addSegment(((Number)msg.getArg(0)).floatValue(), 600);
-//				} else if(msg.getName().equals("/PI/solo/interval")) {
-//					intervalRange = ((Number)msg.getArg(0)).intValue();
+				} catch(Exception e) {
+					//do nothing
 				}
 			}
-		});
+		});		
 	}
 	
 
@@ -255,36 +264,25 @@ public class Contact implements PIPO {
 		d.controller.addListener(new ControllerConnection.Listener() {
 			@Override
 			public void msg(OSCMessage msg) {
-				if(msg.getName().equals("/PI/chord/on")) {
-					g.pause(false);
-					genv.clear();
-					genv.addSegment(6, 3000);
-				} else if(msg.getName().equals("/PI/chord/off")) {
-					genv.clear();
-					genv.addSegment(0, 7000, new PauseTrigger(g));
-//				} else if(msg.getName().equals("/PI/chord/rnd")) {
-//					rndGlide.setValue(((Number)msg.getArg(0)).floatValue());
-				} else if(msg.getName().equals("/PI/chord/gsize")) {
-					try {
-						float val = ((Number)msg.getArg(0)).floatValue();
-						gsizeGlide.setValue(val);
-					} catch(Exception e) {
-						//do nothing
+				try {
+					if(msg.getName().equals("/PI/chord/on")) {
+						g.pause(false);
+						genv.clear();
+						genv.addSegment(6, 3000);
+					} else if(msg.getName().equals("/PI/chord/off")) {
+						genv.clear();
+						genv.addSegment(0, 7000, new PauseTrigger(g));
+//					} else if(msg.getName().equals("/PI/chord/rnd")) {
+//						rndGlide.setValue(((Number)msg.getArg(0)).floatValue());
+					} else if(msg.getName().equals("/PI/chord/gsize")) {
+						gsizeGlide.setValue(((Number)msg.getArg(0)).floatValue());
+					} else if(msg.getName().equals("/PI/chord/ginterval")) {
+						gintervalGlide.setValue(((Number)msg.getArg(0)).floatValue());
+					} else if(msg.getName().equals("/PI/chord/rateMult")) {
+						grateGlideMult.setValue(((Number)msg.getArg(0)).floatValue());
 					}
-				} else if(msg.getName().equals("/PI/chord/ginterval")) {
-					try {
-						float val = ((Number)msg.getArg(0)).floatValue();
-						gintervalGlide.setValue(val);
-					} catch(Exception e) {
-						//do nothing
-					}
-				} else if(msg.getName().equals("/PI/chord/rateMult")) {
-					try {
-						float val = ((Number)msg.getArg(0)).floatValue();
-						grateGlideMult.setValue(val);
-					} catch(Exception e) {
-						//do nothing
-					}
+				} catch(Exception e) {
+					//do nothing
 				}
 			}
 		});
@@ -345,30 +343,20 @@ public class Contact implements PIPO {
 							}
 						});
 					} else if(msg.getName().equals("/PI/madness/rate")) {
-						float val = ((Number)msg.getArg(0)).floatValue();
-						float time = ((Number)msg.getArg(1)).floatValue();
 						rateEnvMult.clear();
-						rateEnvMult.addSegment(val, time);
+						rateEnvMult.addSegment(((Number)msg.getArg(0)).floatValue(), ((Number)msg.getArg(1)).floatValue());
 					} else if(msg.getName().equals("/PI/madness/interval")) {
-						float val = ((Number)msg.getArg(0)).floatValue();
-						float time = ((Number)msg.getArg(1)).floatValue();
 						grainIntervalEnv.clear();
-						grainIntervalEnv.addSegment(val, time);
+						grainIntervalEnv.addSegment(((Number)msg.getArg(0)).floatValue(), ((Number)msg.getArg(1)).floatValue());
 					} else if(msg.getName().equals("/PI/madness/ratio")) {
-						float val = ((Number)msg.getArg(0)).floatValue();
-						float time = ((Number)msg.getArg(1)).floatValue();
 						grainSizeRatio.clear();
-						grainSizeRatio.addSegment(val, time);
+						grainSizeRatio.addSegment(((Number)msg.getArg(0)).floatValue(), ((Number)msg.getArg(1)).floatValue());
 					} else if(msg.getName().equals("/PI/madness/rnd")) {
-						float val = ((Number)msg.getArg(0)).floatValue();
-						float time = ((Number)msg.getArg(1)).floatValue();
 						randomEnv.clear();
-						randomEnv.addSegment(val, time);
+						randomEnv.addSegment(((Number)msg.getArg(0)).floatValue(), ((Number)msg.getArg(1)).floatValue());
 					} else if(msg.getName().equals("/PI/madness/pitch")) {
-						float val = ((Number)msg.getArg(0)).floatValue();
-						float time = ((Number)msg.getArg(1)).floatValue();
 						freqEnv.clear();
-						freqEnv.addSegment(val, time);
+						freqEnv.addSegment(((Number)msg.getArg(0)).floatValue(), ((Number)msg.getArg(1)).floatValue());
 					}
 				} catch(Exception e) {
 					//do nothing
@@ -401,22 +389,36 @@ public class Contact implements PIPO {
 	//TODO set up MU mappings
 	/////////////////////////////////////////////////////////////
 	private boolean playArpeggios = false;
-	private int intervalLeap = 1;
+	private int intervalLeap = 100;
+	private int nextInterval;
 	/////////////////////////////////////////////////////////////
 	public void setupApreggiatedPatterns(final DynamoPI d) {
+		final Sample guitar = SampleManager.sample(Config.audioDir + "/" + "guit.wav");
+		int idMod = getID(d) % 4 + 4;
+		nextInterval = (intervalLeap * idMod) + 2;
+		final PolyLimit pla = new PolyLimit(d.ac, 1, 5);
+		pla.setSteal(false);
+		d.ac.out.addInput(pla);
 		//create the pattern
 		Bead b = new Bead() {
-			int nextInterval = (intervalLeap * getID(d)) / 2 + 6;
 			int nextPitch = 0;
 			public void messageReceived(Bead m) {
 				if(!playArpeggios) {
 					return;
 				}
-				if(d.clock.isBeat() && d.clock.getBeatCount() % nextInterval == 0 && d.rng.nextFloat() < 0.6f) {
+//				if(d.clock.isBeat() && d.clock.getBeatCount() % nextInterval == 0 && d.rng.nextBoolean()) {
+//				if(d.clock.isBeat() && d.clock.getBeatCount() % nextInterval == 0) {
+				if(d.clock.getCount() % nextInterval == 0) {
+					boolean sn = d.rng.nextFloat() < 0.9f;
 					int[] pitches = {62, 60, 67, 74, 81, 88, 95};
 					//int pitch = pitches[d.myIndex() % pitches.length];
 					int note = pitches[((getID(d) / 2 + 1) * nextPitch++) % pitches.length];
  //					Noise n = new Noise(d.ac);
+					if(!sn) note -= 12;
+					
+					
+
+					//sine
 					final float ptch = Pitch.mtof(note);
 					Function pitchMod = new Function(yFactor) {
 						@Override
@@ -424,16 +426,32 @@ public class Contact implements PIPO {
 							return ptch + x[0] * 50;			//TEST
 						}
 					};
-					WavePlayer wp = new WavePlayer(d.ac, pitchMod, d.rng.nextFloat() < 0.9f ? Buffer.SINE : Buffer.SINE);
-					float gainMax = d.rng.nextFloat() * 0.05f + 0.1f;
+					WavePlayer wp = new WavePlayer(d.ac, pitchMod, sn ? Buffer.SINE : Buffer.TRIANGLE);
+					float gainMax = sn ? d.rng.nextFloat() * 0.05f + 0.03f : d.rng.nextFloat() * 0.03f + 0.02f;
 					Envelope genv = null;
 					genv = new Envelope(d.ac, 0);
 					genv.addSegment(gainMax, 100);
 					final Gain g = new Gain(d.ac, 1, genv);
 					g.addInput(wp);
-					genv.addSegment(gainMax, d.rng.nextFloat() * d.rng.nextFloat() * d.rng.nextFloat() * 2000);
+					genv.addSegment(gainMax, d.rng.nextFloat() * d.rng.nextFloat() * d.rng.nextFloat() * 200);
 					genv.addSegment(0, 2000, new KillTrigger(g));
-					d.pl.addInput(g);
+					
+					
+					
+					//guit...
+					Mult gpitchMod = new Mult(d.ac, 1, 1/440f);
+					gpitchMod.addInput(pitchMod);
+					SamplePlayer sp = new SamplePlayer(d.ac, guitar);
+					sp.setRate(gpitchMod);
+					Envelope esp = new Envelope(d.ac, 0.08f);
+					Gain gn = new Gain(d.ac, 1, esp);
+//					sp.setEndListener(new KillTrigger(gn));
+					esp.addSegment(0, 500f, new KillTrigger(gn));
+					gn.addInput(sp);
+					
+					
+					pla.addInput(gn);
+					pla.addInput(g);
 				}
 			}
 		};
@@ -442,16 +460,18 @@ public class Contact implements PIPO {
 		d.controller.addListener(new ControllerConnection.Listener() {
 			@Override
 			public void msg(OSCMessage msg) {
-				if(msg.getName().equals("/PI/arpeggio/on")) {
-					playArpeggios = true;
-				} else if(msg.getName().equals("/PI/arpeggio/off")) {
-					playArpeggios = false;
-				} else if(msg.getName().equals("/PI/arpeggio/interval")) {
-					try {	
+				try {
+					if(msg.getName().equals("/PI/arpeggio/on")) {
+						playArpeggios = true;
+					} else if(msg.getName().equals("/PI/arpeggio/off")) {
+						playArpeggios = false;
+					} else if(msg.getName().equals("/PI/arpeggio/interval")) {
 						intervalLeap = ((Number)msg.getArg(0)).intValue();
-					} catch(Exception e) {
-						//do nothing
+						int idMod = getID(d) % 4 + 4;
+						nextInterval = (intervalLeap * idMod) * 4 + 8;
 					}
+				} catch(Exception e) {
+					//do nothing
 				}
 			}
 		});
