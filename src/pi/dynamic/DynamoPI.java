@@ -53,6 +53,9 @@ public class DynamoPI {
 	public Synchronizer synch;
 
 	public static void main(String[] args) throws IOException {
+		
+		System.out.println("Args are: " + args[0] + " " + args[1] + " " + args[2] + " " + args[3] + " " + args[4] + " " + args[5]);
+		
 		DynamoPI pi = new DynamoPI(AudioSetup.getAudioContext(args));
 		if(args.length > 5) {
 			boolean autostart = Boolean.parseBoolean(args[5]);
