@@ -43,7 +43,7 @@ public class NetworkCommunication {
 			@Override
 			public void messageReceived(OSCMessage msg, SocketAddress src, long time) {
 				//include default listener behaviour that listens for the ID assigned to this PI
-				//note technically messages can be sent from anyone, so ignore messages being sent from self...
+				//note technically messages can be sent from anyone, so ignore messages being sent from self... (TODO could pass this issue on to the implementer)
 //				System.out.println("Received from host: " + ((InetSocketAddress)src).getHostName());
 				if(src instanceof InetSocketAddress && 
 						(((InetSocketAddress)src).getHostName().contains(Device.myHostname.split("[.]")[0]) || ((InetSocketAddress)src).getHostName().contains("192.168.1.2"))) {	

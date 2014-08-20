@@ -38,10 +38,8 @@ public class ContactShake implements PIPO {
 		String fullClassName = Thread.currentThread().getStackTrace()[1].getClassName().replace(".", "/");
 		System.out.println("The path will be run: " + fullClassName);
 		SendToPI.send(fullClassName, new String[]{
-				
 				"pisound-009e959c47ef.local", 
 				"pisound-009e959c4dbc.local", 
-				
 				});
 	}
 	
@@ -51,6 +49,9 @@ public class ContactShake implements PIPO {
 	public void action(DynamoPI d) {
 		d.reset();
 		d.ac.out.getGainUGen().setValue(2f);
+		//settings
+//		d.pl.setSteal(true);
+//		d.pl.setMaxInputs(5);
 		//set up Mu responder
 		xFactor = new Glide(d.ac, 0, 100);
 		yFactor = new Glide(d.ac, 0, 100);
@@ -69,32 +70,10 @@ public class ContactShake implements PIPO {
 		});
 		//set responsive behaviours
 		////////////////////////////////////////
-		//arpeggiated patterns
+		//sound elements
+		setupFilteredNoise(d);
 		setupApreggiatedPatterns(d);
-		
-//		sendReceiveTest(d);
 	}
-
-//	private void sendReceiveTest(final DynamoPI d) {
-//		d.communication.addListener(new NetworkCommunication.Listener() {
-//			@Override
-//			public void msg(OSCMessage msg) {
-//				System.out.println("Got message: " + msg.getName());
-//			}
-//		});
-//		new Thread() {
-//			public void run() {
-//				while(true) {
-//					try {
-//						d.communication.sendEveryone("Hi!, I'm " + Device.myHostname, new Object[] {});	
-//						Thread.sleep(1000);
-//					} catch(Exception e) {
-//						e.printStackTrace();
-//					}
-//				}
-//			}
-//		}.start();
-//	}
 	
 	private float scaleMU(float x) {
 		return (float)Math.tanh(x / 250);
@@ -104,7 +83,7 @@ public class ContactShake implements PIPO {
 	private void setupFilteredNoise(final DynamoPI d) {
 		//controllers
 		final Glide freqCtrl = new Glide(d.ac, 2000);
-		final Envelope gainCtrl = new Envelope(d.ac, 0);
+		final Envelope gainCtrl = new Envelope(d.ac, 0);  //gainCtrl.addSegment(0.1f, 1000);
 		//set up signal chain
 		Noise n = new Noise(d.ac);
 		BiquadFilter bf = new BiquadFilter(d.ac, 1);
@@ -112,7 +91,7 @@ public class ContactShake implements PIPO {
 		bf.setFrequency(freqCtrl);
 		bf.setQ(0.9f);
 		final Gain g = new Gain(d.ac, 1, gainCtrl);
-		g.pause(true);
+//		g.pause(true);
 		g.addInput(bf);
 		d.ac.out.addInput(g);		//add the sound to ac.out since we don't want it killed by PolyLimit.
 		//get listening to data
@@ -127,10 +106,11 @@ public class ContactShake implements PIPO {
 			@Override
 			public void msg(OSCMessage msg) {
 				if(msg.getName().equals("/PI/noise/on")) {
-					g.pause(false);
+//					g.pause(false);
 					gainCtrl.clear();
-					gainCtrl.addSegment(0.1f, 500);
-					gainCtrl.addSegment(0, 2000, new PauseTrigger(g));
+					gainCtrl.addSegment(0.05f, 1000);
+					gainCtrl.addSegment(0, 6000);
+//					gainCtrl.addSegment(0, 6000, new PauseTrigger(g));
 				} 
 			}
 		});
@@ -140,11 +120,11 @@ public class ContactShake implements PIPO {
 	public void setupApreggiatedPatterns(final DynamoPI d) {
 		final Sample guitar = SampleManager.sample(Config.audioDir + "/" + "guit.wav");
 		final PolyLimit pla = new PolyLimit(d.ac, 1, 5);
-		pla.setSteal(false);
+		pla.setSteal(true);
 		d.ac.out.addInput(pla);		
 		//minimu input
 		MiniMUListener myListener = new MiniMUListener() {
-			double prevX = 0, prevY = 0, prevZ = 0, thresh = 80; 
+			double prevX = 0, prevY = 0, prevZ = 0, thresh = 90; 
 			int timeout = 0, count = 0;
 			int nextPitch = 0;
 			public void accelData(double x, double y, double z) {
@@ -153,7 +133,7 @@ public class ContactShake implements PIPO {
 				//single combined event
 				double accum = Math.abs(xdiff) + Math.abs(ydiff) + Math.abs(zdiff);
 
-				//6 different directions
+				//6 different directions TODO oooooo
 				if(axd > ayd && axd > azd) {
 					if(axd < 0) {
 						//option 1
@@ -208,10 +188,10 @@ public class ContactShake implements PIPO {
 		Function pitchMod = new Function(yFactor) {
 			@Override
 			public float calculate() {
-				return ptch + x[0] * 100;			//TEST
+				return ptch + x[0] * 100;	
 			}
 		};
-		WavePlayer wp = new WavePlayer(d.ac, pitchMod, sn ? Buffer.SINE : Buffer.TRIANGLE);
+		WavePlayer wp = new WavePlayer(d.ac, pitchMod, sn ? Buffer.SINE : Buffer.SINE);
 		float gainMax = sn ? d.rng.nextFloat() * 0.05f + 0.03f : d.rng.nextFloat() * 0.03f + 0.02f;
 		Envelope genv = null;
 		genv = new Envelope(d.ac, 0);
