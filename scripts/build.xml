@@ -18,7 +18,7 @@
 	<!-- Bin directory -->
 	<property name="bin" value="${work}/bin" />  
     
-	<target name="main" description="makejar and copy compositions" depends="makejar,copy_compositions">
+	<target name="main" description="makejar and copy compositions" depends="makejar,copy_compositions"> 
 	</target>
 	
 	<!-- 
