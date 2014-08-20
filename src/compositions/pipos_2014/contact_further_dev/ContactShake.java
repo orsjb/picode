@@ -205,7 +205,7 @@ public class ContactShake implements PIPO {
 		if(!sn) note -= 12;
 		
 		//sine
-		final float ptch = Pitch.mtof(note); 
+		final float ptch = Pitch.mtof(note);  
 		Function pitchMod = new Function(yFactor) {
 			@Override
 			public float calculate() {
