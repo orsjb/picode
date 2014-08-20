@@ -142,10 +142,10 @@ public class NetworkCommunication {
 	
 	static {														// TEMPPPP!!
 		knownPIs.add("pisound-009e959c4dbc.local");
-		knownPIs.add("pisound-009e959c502d.local");
+		knownPIs.add("pisound-009e959c47ef.local");
 	}
 	
-	public void sendEveryone(String msg, Object[] args) {		//TODO would be nice to multicast, or to know which PIs are around, else this will take ages.
+	public void sendEveryone(final String msg, Object[] args) {		//TODO would be nice to multicast, or to know which PIs are around, else this will take ages.
 		final OSCMessage oscmsg = new OSCMessage(msg, args);
 		for(final String host : knownPIs) {
 			new Thread() {
@@ -153,7 +153,8 @@ public class NetworkCommunication {
 					try {
 						oscServer.send(oscmsg, new InetSocketAddress(host, Config.controlToPIPort));
 					} catch (IOException e) {
-						e.printStackTrace();
+//						e.printStackTrace();
+						System.out.println("Problem: Couldn't send message to: " + host + "(message was: " + msg + ")");
 					}
 				}
 			}.start();

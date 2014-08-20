@@ -24,6 +24,7 @@ import pi.network.NetworkCommunication;
 import pi.sensors.MiniMU.MiniMUListener;
 import controller.network.SendToPI;
 import core.Config;
+import core.Device;
 import core.PIPO;
 import de.sciss.net.OSCMessage;
 
@@ -37,13 +38,13 @@ public class ContactShake implements PIPO {
 		String fullClassName = Thread.currentThread().getStackTrace()[1].getClassName().replace(".", "/");
 		SendToPI.send(fullClassName, new String[]{
 				
-				"pisound-009e959c5093.local", 
+//				"pisound-009e959c5093.local", 
 				"pisound-009e959c47ef.local", 
 				"pisound-009e959c4dbc.local", 
-				"pisound-009e959c3fb2.local",
-				"pisound-009e959c50e2.local",
-				"pisound-009e959c47e8.local",
-				"pisound-009e959c510a.local",
+//				"pisound-009e959c3fb2.local",
+//				"pisound-009e959c50e2.local",
+//				"pisound-009e959c47e8.local",
+//				"pisound-009e959c510a.local",
 //				"pisound-009e959c502d.local",
 				
 				});
@@ -74,7 +75,30 @@ public class ContactShake implements PIPO {
 		//set responsive behaviours
 		////////////////////////////////////////
 		//arpeggiated patterns
-		setupApreggiatedPatterns(d);
+		//setupApreggiatedPatterns(d);
+		
+		sendReceiveTest(d);
+	}
+
+	private void sendReceiveTest(final DynamoPI d) {
+		d.communication.addListener(new NetworkCommunication.Listener() {
+			@Override
+			public void msg(OSCMessage msg) {
+				System.out.println("Got message: " + msg.getName());
+			}
+		});
+		new Thread() {
+			public void run() {
+				while(true) {
+					try {
+						d.communication.sendEveryone("Hi!, I'm " + Device.myHostname, new Object[] {});	
+						Thread.sleep(1000);
+					} catch(Exception e) {
+						e.printStackTrace();
+					}
+				}
+			}
+		}.start();
 	}
 	
 	private float scaleMU(float x) {
