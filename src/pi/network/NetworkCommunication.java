@@ -153,7 +153,7 @@ public class NetworkCommunication {
 				public void run() {
 					try {
 						oscServer.send(oscmsg, new InetSocketAddress(host, Config.controlToPIPort));
-					} catch (IOException e) {
+					} catch (Exception e) {
 //						e.printStackTrace();
 						System.out.println("Problem: Couldn't send message to: " + host + "(message was: " + msg + ")");
 					}

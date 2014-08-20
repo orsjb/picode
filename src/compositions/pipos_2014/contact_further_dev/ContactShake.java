@@ -39,14 +39,8 @@ public class ContactShake implements PIPO {
 		System.out.println("The path will be run: " + fullClassName);
 		SendToPI.send(fullClassName, new String[]{
 				
-//				"pisound-009e959c5093.local", 
 				"pisound-009e959c47ef.local", 
 				"pisound-009e959c4dbc.local", 
-//				"pisound-009e959c3fb2.local",
-//				"pisound-009e959c50e2.local",
-//				"pisound-009e959c47e8.local",
-//				"pisound-009e959c510a.local",
-//				"pisound-009e959c502d.local",
 				
 				});
 	}
@@ -109,7 +103,6 @@ public class ContactShake implements PIPO {
 	/////////////////////////////////////////////////////////////
 	public void setupApreggiatedPatterns(final DynamoPI d) {
 		final Sample guitar = SampleManager.sample(Config.audioDir + "/" + "guit.wav");
-		int idMod = getID(d) % 4 + 4;
 		final PolyLimit pla = new PolyLimit(d.ac, 1, 5);
 		pla.setSteal(false);
 		d.ac.out.addInput(pla);		
