@@ -119,7 +119,7 @@ public class ContactShake implements PIPO {
 	/////////////////////////////////////////////////////////////
 	public void setupApreggiatedPatterns(final DynamoPI d) {
 		final Sample guitar = SampleManager.sample(Config.audioDir + "/" + "guit.wav");
-		final PolyLimit pla = new PolyLimit(d.ac, 1, 5);
+		final PolyLimit pla = new PolyLimit(d.ac, 1, 3);
 		pla.setSteal(true);
 		d.ac.out.addInput(pla);		
 		//minimu input
