@@ -44,7 +44,7 @@ public class NetworkCommunication {
 			public void messageReceived(OSCMessage msg, SocketAddress src, long time) {
 				//include default listener behaviour that listens for the ID assigned to this PI
 				//note technically messages can be sent from anyone, so ignore messages being sent from self...
-				if(src instanceof InetSocketAddress && ((InetSocketAddress)src).getHostName().contains(Device.myHostname.split("[ ]")[0])) {			//TODO test me
+				if(src instanceof InetSocketAddress && ((InetSocketAddress)src).getHostName().contains(Device.myHostname.split("[.]")[0])) {			//TODO test me
 					System.out.println("Ignoring message sent from self: " + msg.getName());
 					return;
 				}
