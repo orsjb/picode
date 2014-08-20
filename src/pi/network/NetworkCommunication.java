@@ -147,6 +147,7 @@ public class NetworkCommunication {
 	}
 	
 	public void sendEveryone(final String msg, Object[] args) {		//TODO would be nice to multicast, or to know which PIs are around, else this will take ages.
+		if(args == null) args = new Object[] {};
 		final OSCMessage oscmsg = new OSCMessage(msg, args);
 		for(final String host : knownPIs) {
 			new Thread() {
@@ -155,7 +156,7 @@ public class NetworkCommunication {
 						oscServer.send(oscmsg, new InetSocketAddress(host, Config.controlToPIPort));
 					} catch (Exception e) {
 //						e.printStackTrace();
-						System.out.println("Problem: Couldn't send message to: " + host + "(message was: " + msg + ")");
+//						System.out.println("Problem: Couldn't send message to: " + host + "(message was: " + msg + ")");
 					}
 				}
 			}.start();

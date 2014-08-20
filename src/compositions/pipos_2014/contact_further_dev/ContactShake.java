@@ -70,34 +70,70 @@ public class ContactShake implements PIPO {
 		//set responsive behaviours
 		////////////////////////////////////////
 		//arpeggiated patterns
-		//setupApreggiatedPatterns(d);
+		setupApreggiatedPatterns(d);
 		
-		sendReceiveTest(d);
+//		sendReceiveTest(d);
 	}
 
-	private void sendReceiveTest(final DynamoPI d) {
-		d.communication.addListener(new NetworkCommunication.Listener() {
-			@Override
-			public void msg(OSCMessage msg) {
-				System.out.println("Got message: " + msg.getName());
-			}
-		});
-		new Thread() {
-			public void run() {
-				while(true) {
-					try {
-						d.communication.sendEveryone("Hi!, I'm " + Device.myHostname, new Object[] {});	
-						Thread.sleep(1000);
-					} catch(Exception e) {
-						e.printStackTrace();
-					}
-				}
-			}
-		}.start();
-	}
+//	private void sendReceiveTest(final DynamoPI d) {
+//		d.communication.addListener(new NetworkCommunication.Listener() {
+//			@Override
+//			public void msg(OSCMessage msg) {
+//				System.out.println("Got message: " + msg.getName());
+//			}
+//		});
+//		new Thread() {
+//			public void run() {
+//				while(true) {
+//					try {
+//						d.communication.sendEveryone("Hi!, I'm " + Device.myHostname, new Object[] {});	
+//						Thread.sleep(1000);
+//					} catch(Exception e) {
+//						e.printStackTrace();
+//					}
+//				}
+//			}
+//		}.start();
+//	}
 	
 	private float scaleMU(float x) {
 		return (float)Math.tanh(x / 250);
+	}
+	
+	//////////////////////////////////////////////////////////////
+	private void setupFilteredNoise(final DynamoPI d) {
+		//controllers
+		final Glide freqCtrl = new Glide(d.ac, 2000);
+		final Envelope gainCtrl = new Envelope(d.ac, 0);
+		//set up signal chain
+		Noise n = new Noise(d.ac);
+		BiquadFilter bf = new BiquadFilter(d.ac, 1);
+		bf.addInput(n);
+		bf.setFrequency(freqCtrl);
+		bf.setQ(0.9f);
+		final Gain g = new Gain(d.ac, 1, gainCtrl);
+		g.pause(true);
+		g.addInput(bf);
+		d.ac.out.addInput(g);		//add the sound to ac.out since we don't want it killed by PolyLimit.
+		//get listening to data
+		MiniMUListener myListener = new MiniMUListener() {
+			public void accelData(double x, double y, double z) {
+				freqCtrl.setValue(((float)Math.abs(x) * 15f) % 5000f + 100f);
+			}
+		};
+		d.mu.addListener(myListener);
+		//set this whole thing to fade in and out on messages
+		d.communication.addListener(new NetworkCommunication.Listener() {
+			@Override
+			public void msg(OSCMessage msg) {
+				if(msg.getName().equals("/PI/noise/on")) {
+					g.pause(false);
+					gainCtrl.clear();
+					gainCtrl.addSegment(0.1f, 500);
+					gainCtrl.addSegment(0, 2000, new PauseTrigger(g));
+				} 
+			}
+		});
 	}
 	
 	/////////////////////////////////////////////////////////////
@@ -145,8 +181,8 @@ public class ContactShake implements PIPO {
 					if(count > timeout) {
 						//TODO - madness sound miniMu response
 						playPluckSound(d, nextPitch++, guitar, pla);
-						
 						count = 0;
+						d.communication.sendEveryone("/PI/noise/on", null);
 					}
 				}
 				count++;
