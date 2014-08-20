@@ -18,7 +18,7 @@
 	<!-- Bin directory -->
 	<property name="bin" value="${work}/bin" />  
     
-	<target name="main" description="makejar and copy compositions" depends="makejar,copy_compositions"> 
+	<target name="main" description="create the pi stuff" depends="makejar"> 
 	</target>
 	
 	<!-- 
@@ -30,15 +30,6 @@
 		    <fileset dir="${bin}" includes="**/*.class" />
 		    <zipgroupfileset dir="${libs}" includes="**/*.jar" />
 		</jar>
-	</target>
-	
-	<!-- 
-	Copy the compositions to the compositions folder.
-	 -->
-	<target name="copy_compositions" description="Move the composition binaries to the compositions folder">
-	    <copy todir="${work}/compositions/bin/compositions">
-    		<fileset dir="${bin}/compositions"/>
-  		</copy>
 	</target>
   
 </project>
