@@ -55,7 +55,7 @@ public class DynamoPI {
 	public static void main(String[] args) throws IOException {
 		DynamoPI pi = new DynamoPI(AudioSetup.getAudioContext(args));
 		if(args.length > 5) {
-			boolean autostart = Boolean.parseBoolean(args[4]);
+			boolean autostart = Boolean.parseBoolean(args[5]);
 			if(autostart) {
 				System.out.println("Detected autostart. Starting audio right away.");
 				pi.startAudio();
