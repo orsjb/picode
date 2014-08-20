@@ -118,17 +118,17 @@ public class ContactShake implements PIPO {
 		final Gain g = new Gain(d.ac, 1, genv);
 		g.addInput(gsp);
 		d.ac.out.addInput(g);
-		g.pause(true);
+//		g.pause(true);
 		//set up controller
 		d.communication.addListener(new NetworkCommunication.Listener() {
 			@Override
 			public void msg(OSCMessage msg) {
 				try {
 					if(msg.getName().equals("/PI/chord/on")) {
-						g.pause(false);
+//						g.pause(false);
 						genv.clear();
-						genv.addSegment(6, 3000);
-						genv.addSegment(0, 7000, new PauseTrigger(g));
+						genv.addSegment(6, 1000);
+						genv.addSegment(0, 5000);//, new PauseTrigger(g));
 					}
 				} catch(Exception e) {
 					//do nothing
