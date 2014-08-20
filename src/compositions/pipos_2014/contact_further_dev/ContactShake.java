@@ -36,6 +36,7 @@ public class ContactShake implements PIPO {
 	
 	public static void main(String[] args) throws Exception {
 		String fullClassName = Thread.currentThread().getStackTrace()[1].getClassName().replace(".", "/");
+		System.out.println("The path will be run: " + fullClassName);
 		SendToPI.send(fullClassName, new String[]{
 				
 //				"pisound-009e959c5093.local", 
