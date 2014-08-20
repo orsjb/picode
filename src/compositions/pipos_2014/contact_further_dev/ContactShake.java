@@ -176,9 +176,9 @@ public class ContactShake implements PIPO {
 				}
 				
 				
-//				System.out.println(accum);
+				System.out.println(accum);
 				if(accum > thresh) {
-//					System.out.println("Improv Madness EVENT!");
+					System.out.println("Improv Madness EVENT!");
 					if(count > timeout) {
 						//TODO - madness sound miniMu response
 						playPluckSound(d, nextPitch++, guitar, pla);
