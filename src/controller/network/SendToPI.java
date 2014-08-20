@@ -40,7 +40,7 @@ public class SendToPI {
 					s.getOutputStream().write(bytes);
 					s.close();
 				}
-        	} catch(UnknownHostException e) {
+        	} catch(Exception e) {
         		System.out.println("SendToPI: unable to send to " + hostname);
         	}
         } 
