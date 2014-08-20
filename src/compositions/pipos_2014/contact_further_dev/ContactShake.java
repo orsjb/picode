@@ -48,7 +48,7 @@ public class ContactShake implements PIPO {
 	@Override
 	public void action(DynamoPI d) {
 		d.reset();
-		d.ac.out.getGainUGen().setValue(2f);
+		d.ac.out.getGainUGen().setValue(1.3f);
 		//settings
 //		d.pl.setSteal(true);
 //		d.pl.setMaxInputs(5);
@@ -95,8 +95,8 @@ public class ContactShake implements PIPO {
 				return Math.abs(x[0]);
 			}
 		};
-		final Glide gsizeGlide = new Glide(d.ac, 50, 5000);
-		final Glide gintervalGlide = new Glide(d.ac, 100, 5000);
+		final Glide gsizeGlide = new Glide(d.ac, 30, 5000);
+		final Glide gintervalGlide = new Glide(d.ac, 30, 5000);
 		final Glide grateGlideMult = new Glide(d.ac, 1, 5000);
 		final UGen grateGlide = new Mult(d.ac, xFactor, grateGlideMult);
 		gsp.setRandomness(rndGlide);
@@ -127,7 +127,7 @@ public class ContactShake implements PIPO {
 					if(msg.getName().equals("/PI/chord/on")) {
 //						g.pause(false);
 						genv.clear();
-						genv.addSegment(6, 1000);
+						genv.addSegment(1, 1000);
 						genv.addSegment(0, 5000);//, new PauseTrigger(g));
 					}
 				} catch(Exception e) {
@@ -176,9 +176,9 @@ public class ContactShake implements PIPO {
 				}
 				
 				
-				System.out.println(accum);
+//				System.out.println(accum);
 				if(accum > thresh) {
-					System.out.println("Improv Madness EVENT!");
+//					System.out.println("Improv Madness EVENT!");
 					if(count > timeout) {
 						//TODO - madness sound miniMu response
 						playPluckSound(d, nextPitch++, guitar, pla);
@@ -212,29 +212,32 @@ public class ContactShake implements PIPO {
 				return ptch + x[0] * 100;	
 			}
 		};
-		WavePlayer wp = new WavePlayer(d.ac, pitchMod, sn ? Buffer.SINE : Buffer.SINE);
-		float gainMax = sn ? d.rng.nextFloat() * 0.05f + 0.03f : d.rng.nextFloat() * 0.03f + 0.02f;
-		Envelope genv = null;
-		genv = new Envelope(d.ac, 0);
-		genv.addSegment(gainMax, 100);
-		final Gain g = new Gain(d.ac, 1, genv);
-		g.addInput(wp);
-		genv.addSegment(gainMax, d.rng.nextFloat() * d.rng.nextFloat() * d.rng.nextFloat() * 200);
-		genv.addSegment(0, 2000, new KillTrigger(g));
-		
-		//guit...
-		Mult gpitchMod = new Mult(d.ac, 1, 1/440f);
-		gpitchMod.addInput(pitchMod);
-		SamplePlayer sp = new SamplePlayer(d.ac, guitar);
-		sp.setRate(gpitchMod);
-		Envelope esp = new Envelope(d.ac, 0.08f);
-		Gain gn = new Gain(d.ac, 1, esp);
+		if(d.rng.nextBoolean()) {
+			//sine
+			WavePlayer wp = new WavePlayer(d.ac, pitchMod, sn ? Buffer.SINE : Buffer.SINE);
+			float gainMax = sn ? d.rng.nextFloat() * 0.05f + 0.03f : d.rng.nextFloat() * 0.03f + 0.02f;
+			Envelope genv = null;
+			genv = new Envelope(d.ac, 0);
+			genv.addSegment(gainMax, 100);
+			final Gain g = new Gain(d.ac, 1, genv);
+			g.addInput(wp);
+			genv.addSegment(gainMax, d.rng.nextFloat() * d.rng.nextFloat() * d.rng.nextFloat() * 200);
+			genv.addSegment(0, 2000, new KillTrigger(g));
+			output.addInput(g);
+		} else {
+			//guit...
+			Mult gpitchMod = new Mult(d.ac, 1, 1/440f);
+			gpitchMod.addInput(pitchMod);
+			SamplePlayer sp = new SamplePlayer(d.ac, guitar);
+			sp.setRate(gpitchMod);
+			Envelope esp = new Envelope(d.ac, 0.08f);
+			Gain gn = new Gain(d.ac, 1, esp);
 //			sp.setEndListener(new KillTrigger(gn));
-		esp.addSegment(0, 500f, new KillTrigger(gn));
-		gn.addInput(sp);
+			esp.addSegment(0, 500f, new KillTrigger(gn));
+			gn.addInput(sp);
+			output.addInput(gn);
+		}
 		
-		output.addInput(gn);
-		output.addInput(g);
 	}
 	
 	
