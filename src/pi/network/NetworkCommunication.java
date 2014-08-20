@@ -16,7 +16,7 @@ import de.sciss.net.OSCListener;
 import de.sciss.net.OSCMessage;
 import de.sciss.net.OSCServer;
 
-public class ControllerConnection {
+public class NetworkCommunication {
 
 	public static interface Listener {
 		public void msg(OSCMessage msg);
@@ -29,7 +29,7 @@ public class ControllerConnection {
 																//Listeners to incoming OSC messages
 	final private DynamoPI pi;
 	
-	public ControllerConnection(DynamoPI _pi) throws IOException {
+	public NetworkCommunication(DynamoPI _pi) throws IOException {
 		this.pi = _pi;
 		//init the OSCServer
 		try {
@@ -43,6 +43,11 @@ public class ControllerConnection {
 			@Override
 			public void messageReceived(OSCMessage msg, SocketAddress src, long time) {
 				//include default listener behaviour that listens for the ID assigned to this PI
+				//note technically messages can be sent from anyone, so ignore messages being sent from self...
+				if(src instanceof InetSocketAddress && ((InetSocketAddress)src).getHostName().equals(Device.myHostname)) {			//TODO test me
+					System.out.println("Ignoring message sent from self: " + msg.getName());
+					return;
+				}
 				if(msg.getName().equals("/PI/set_id")) {
 					myID = (Integer)msg.getArg(0);
 					System.out.println("I have been given an ID by the controller: " + myID);
@@ -127,5 +132,36 @@ public class ControllerConnection {
 	public int getID() {
 		return myID;
 	}
+	
+	//////////////////////////////////////////////////////////
+	// WARNING: hacky code below here, quick fix  ////////////
+	//////////////////////////////////////////////////////////
+	
+
+	static HashSet<String> knownPIs = new HashSet<String>();		//list of the known pis hostnames
+	
+	static {														// TEMPPPP!!
+		knownPIs.add("pisound-009e959c4dbc.local");
+		knownPIs.add("pisound-009e959c502d.local");
+	}
+	
+	public void sendEveryone(String msg, Object[] args) {		//TODO would be nice to multicast, or to know which PIs are around, else this will take ages.
+		final OSCMessage oscmsg = new OSCMessage(msg, args);
+		for(final String host : knownPIs) {
+			new Thread() {
+				public void run() {
+					try {
+						oscServer.send(oscmsg, new InetSocketAddress(host, Config.controlToPIPort));
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				}
+			}.start();
+		}
+	}
+	
+	
+	
+	
 
 }

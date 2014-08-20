@@ -1,5 +1,8 @@
 package core;
 
+import java.util.HashSet;
+import java.util.Set;
+
 
 public abstract class Config {
 
@@ -11,7 +14,7 @@ public abstract class Config {
 	public final static int codeToPIPort			= 2225;
 	public final static int controlToPIPort			= 2226;
 	
-	//How often the PI sends an alive message to the server
+	//how often the PI sends an alive message to the server
 	public static final int aliveInterval = 1000;   		
 	
 	//places

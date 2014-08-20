@@ -11,7 +11,7 @@ import net.beadsproject.beads.ugens.Gain;
 import net.beadsproject.beads.ugens.GranularSamplePlayer;
 import net.beadsproject.beads.ugens.SamplePlayer;
 import pi.dynamic.DynamoPI;
-import pi.network.ControllerConnection;
+import pi.network.NetworkCommunication;
 import core.PIPO;
 import de.sciss.net.OSCListener;
 import de.sciss.net.OSCMessage;
@@ -40,7 +40,7 @@ public class PIPOAll implements PIPO {
 		double[] distribution = {0.5, 1, 1.5, 2, 3, 2.5, 1.25};
 		d.put("dist", distribution);
 		//create the osc listener
-		ControllerConnection.Listener listener = new ControllerConnection.Listener() {
+		NetworkCommunication.Listener listener = new NetworkCommunication.Listener() {
 			@Override
 			public void msg(OSCMessage msg) {
 				//TODO
@@ -84,7 +84,7 @@ public class PIPOAll implements PIPO {
 			}
 		};
 		//set up
-		d.controller.addListener(listener);
+		d.communication.addListener(listener);
 		d.pattern(pattern);
 		//store 
 		d.put("oscctrl", listener);

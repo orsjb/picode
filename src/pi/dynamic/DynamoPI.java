@@ -18,7 +18,7 @@ import net.beadsproject.beads.ugens.Envelope;
 import net.beadsproject.beads.ugens.Gain;
 import net.beadsproject.beads.ugens.PolyLimit;
 import net.beadsproject.beads.ugens.WavePlayer;
-import pi.network.ControllerConnection;
+import pi.network.NetworkCommunication;
 import pi.sensors.MiniMU;
 import core.AudioSetup;
 import core.Config;
@@ -49,7 +49,7 @@ public class DynamoPI {
 	public final Random rng = new Random();
 
 	// network stuff
-	public ControllerConnection controller;
+	public NetworkCommunication communication;
 	public Synchronizer synch;
 
 	public static void main(String[] args) throws IOException {
@@ -81,7 +81,7 @@ public class DynamoPI {
 		mu = new MiniMU();
 		mu.start();
 		// start the connection
-		controller = new ControllerConnection(this);
+		communication = new NetworkCommunication(this);
 		synch = Synchronizer.get();
 		// start listening for code
 		startListeningForCode();
@@ -271,7 +271,7 @@ public class DynamoPI {
 		//clear mu listeners
 		mu.clearListeners();
 		//clear osc listeners
-		controller.clearListeners();
+		communication.clearListeners();
 	}
 
 	public void fadeOutClearSound(float fadeTime) {
@@ -293,7 +293,7 @@ public class DynamoPI {
 	}
 	
 	public int myIndex() {
-		return controller.getID();
+		return communication.getID();
 	}
 	
 	//reboots the PI

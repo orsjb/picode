@@ -6,7 +6,7 @@ import net.beadsproject.beads.ugens.Envelope;
 import net.beadsproject.beads.ugens.Gain;
 import net.beadsproject.beads.ugens.GranularSamplePlayer;
 import pi.dynamic.DynamoPI;
-import pi.network.ControllerConnection;
+import pi.network.NetworkCommunication;
 import core.PIPO;
 
 public class PIPOKillBreak implements PIPO {
@@ -22,11 +22,11 @@ public class PIPOKillBreak implements PIPO {
 	public void action(final DynamoPI d) {
 
 		//store
-		ControllerConnection.Listener listener = (ControllerConnection.Listener)d.get("amenctrl");
+		NetworkCommunication.Listener listener = (NetworkCommunication.Listener)d.get("amenctrl");
 		GranularSamplePlayer gsp = (GranularSamplePlayer)d.get("amen");
 		Gain g = (Gain)d.get("amengain");
 		
-		d.controller.removeListener(listener);
+		d.communication.removeListener(listener);
 		
 		float pitch = gsp.getPitchUGen().getValue();
 		Envelope e = new Envelope(d.ac, pitch);

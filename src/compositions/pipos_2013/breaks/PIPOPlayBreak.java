@@ -7,7 +7,7 @@ import net.beadsproject.beads.ugens.Gain;
 import net.beadsproject.beads.ugens.GranularSamplePlayer;
 import net.beadsproject.beads.ugens.SamplePlayer;
 import pi.dynamic.DynamoPI;
-import pi.network.ControllerConnection;
+import pi.network.NetworkCommunication;
 import core.PIPO;
 import de.sciss.net.OSCMessage;
 
@@ -31,7 +31,7 @@ public class PIPOPlayBreak implements PIPO {
 		g.addInput(gsp);
 		d.sound(g);
 		
-		ControllerConnection.Listener listener = new ControllerConnection.Listener() {
+		NetworkCommunication.Listener listener = new NetworkCommunication.Listener() {
 			@Override
 			public void msg(OSCMessage msg) {
 				if(msg.getName().equals("rate")) {
@@ -50,7 +50,7 @@ public class PIPOPlayBreak implements PIPO {
 				}
 			}
 		};
-		d.controller.addListener(listener);
+		d.communication.addListener(listener);
 		
 		//store
 		d.put("amenctrl", listener);

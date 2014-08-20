@@ -20,7 +20,7 @@ import net.beadsproject.beads.ugens.PolyLimit;
 import net.beadsproject.beads.ugens.SamplePlayer;
 import net.beadsproject.beads.ugens.WavePlayer;
 import pi.dynamic.DynamoPI;
-import pi.network.ControllerConnection;
+import pi.network.NetworkCommunication;
 import pi.sensors.MiniMU.MiniMUListener;
 import controller.network.SendToPI;
 import core.Config;
@@ -39,12 +39,12 @@ public class Contact implements PIPO {
 				
 				"pisound-009e959c5093.local", 
 				"pisound-009e959c47ef.local", 
-//				"pisound-009e959c4dbc.local", 
-//				"pisound-009e959c3fb2.local",
+				"pisound-009e959c4dbc.local", 
+				"pisound-009e959c3fb2.local",
 //				"pisound-009e959c50e2.local",
-//				"pisound-009e959c47e8.local",
-//				"pisound-009e959c510a.local",
-//				"pisound-009e959c502d.local",
+				"pisound-009e959c47e8.local",
+				"pisound-009e959c510a.local",
+				"pisound-009e959c502d.local",
 				
 				});
 	}
@@ -62,9 +62,9 @@ public class Contact implements PIPO {
 //		d.pl.setMaxInputs(5);
 		
 		//set up Mu responder
-		xFactor = new Glide(d.ac, 0, 1000);
-		yFactor = new Glide(d.ac, 0, 1000);
-		zFactor = new Glide(d.ac, 0, 1000);
+		xFactor = new Glide(d.ac, 0, 100);
+		yFactor = new Glide(d.ac, 0, 100);
+		zFactor = new Glide(d.ac, 0, 100);
 		//mu
 		d.mu.addListener(new MiniMUListener() {
 			@Override
@@ -123,7 +123,7 @@ public class Contact implements PIPO {
 		};
 		d.mu.addListener(myListener);
 		//set this whole thing to fade in and out on messages
-		d.controller.addListener(new ControllerConnection.Listener() {
+		d.communication.addListener(new NetworkCommunication.Listener() {
 			@Override
 			public void msg(OSCMessage msg) {
 				if(msg.getName().equals("/PI/noise/on")) {
@@ -184,7 +184,7 @@ public class Contact implements PIPO {
 		pattern.pause(true);
 		d.pattern(pattern);
 		//set up the OSC listeners
-		d.controller.addListener(new ControllerConnection.Listener() {
+		d.communication.addListener(new NetworkCommunication.Listener() {
 			@Override
 			public void msg(OSCMessage msg) {
 				try {
@@ -261,7 +261,7 @@ public class Contact implements PIPO {
 		d.ac.out.addInput(g);
 		g.pause(true);
 		//set up controller
-		d.controller.addListener(new ControllerConnection.Listener() {
+		d.communication.addListener(new NetworkCommunication.Listener() {
 			@Override
 			public void msg(OSCMessage msg) {
 				try {
@@ -325,7 +325,7 @@ public class Contact implements PIPO {
 		g.addInput(sp);
 		//sound action
 		//set up OSC responder
-		d.controller.addListener(new ControllerConnection.Listener() {
+		d.communication.addListener(new NetworkCommunication.Listener() {
 			@Override
 			public void msg(OSCMessage msg) {
 				try {
@@ -457,7 +457,7 @@ public class Contact implements PIPO {
 		};
 		//add it
 		d.pattern(b);
-		d.controller.addListener(new ControllerConnection.Listener() {
+		d.communication.addListener(new NetworkCommunication.Listener() {
 			@Override
 			public void msg(OSCMessage msg) {
 				try {
@@ -521,7 +521,7 @@ public class Contact implements PIPO {
 			}
 		};
 		d.mu.addListener(myListener);
-		d.controller.addListener(new ControllerConnection.Listener() {
+		d.communication.addListener(new NetworkCommunication.Listener() {
 			@Override
 			public void msg(OSCMessage msg) {
 				if(msg.getName().equals("/PI/tinkle/on")) {

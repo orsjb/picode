@@ -6,7 +6,7 @@ import net.beadsproject.beads.data.Buffer;
 import net.beadsproject.beads.ugens.Envelope;
 import net.beadsproject.beads.ugens.WavePlayer;
 import pi.dynamic.DynamoPI;
-import pi.network.ControllerConnection;
+import pi.network.NetworkCommunication;
 import core.PIPO;
 import de.sciss.net.OSCMessage;
 
@@ -78,7 +78,7 @@ public class InstallationPIPO implements PIPO {
 //		masterGain.clear();
 //		masterGain.addSegment(sampleGain, 1000f);
 		
-		d.controller.addListener(new ControllerConnection.Listener() {
+		d.communication.addListener(new NetworkCommunication.Listener() {
 			public void msg(OSCMessage m) {
 				System.out.println("OSC Message");
 				if (m.getName().equals("/PI/sensor/density") && m.getArgCount() == 1) {
