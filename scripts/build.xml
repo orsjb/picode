@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<project name="PICode Makejar" default="makejar" basedir=".">
+<project name="PICode Makejar" default="main" basedir=".">
     
 	<description>
 		PI Code, a bunch of stuff for running audio on raspberry PIs.
@@ -18,6 +18,9 @@
 	<!-- Bin directory -->
 	<property name="bin" value="${work}/bin" />  
     
+	<target name="main" description="makejar and copy compositions" depends="makejar,copy_compositions">
+	</target>
+	
 	<!-- 
 	Compile everything down to one jar.
 	 -->
@@ -27,6 +30,15 @@
 		    <fileset dir="${bin}" includes="**/*.class" />
 		    <zipgroupfileset dir="${libs}" includes="**/*.jar" />
 		</jar>
+	</target>
+	
+	<!-- 
+	Copy the compositions to the compositions folder.
+	 -->
+	<target name="copy_compositions" description="Move the composition binaries to the compositions folder">
+	    <copy todir="${work}/compositions/bin/compositions">
+    		<fileset dir="${bin}/compositions"/>
+  		</copy>
 	</target>
   
 </project>
