@@ -25,7 +25,7 @@ DIR=`dirname $0`
 cd ${DIR}/..
 
 # Run the main app
-# args are bufSize (8192), sample rate (22050), input channels (0), output channels (1)
+# args are bufSize (8192), sample rate (22050), bits (16), input channels (0), output channels (1), autostart (true)
 
 BUF=2048
 SR=22050
