@@ -52,20 +52,6 @@ public class DynamoPI {
 	public NetworkCommunication communication;
 	public Synchronizer synch;
 
-	public static void main(String[] args) throws IOException {
-		
-		System.out.println("Args are: " + args[0] + " " + args[1] + " " + args[2] + " " + args[3] + " " + args[4] + " " + args[5]);
-		
-		DynamoPI pi = new DynamoPI(AudioSetup.getAudioContext(args));
-		if(args.length > 5) {
-			boolean autostart = Boolean.parseBoolean(args[5]);
-			if(autostart) {
-				System.out.println("Detected autostart. Starting audio right away.");
-				pi.startAudio();
-			}
-		}
-	}
-
 	public DynamoPI(AudioContext _ac) throws IOException {
 		ac = _ac;
 		// default audio setup (note we don't start the audio context yet)
