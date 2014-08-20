@@ -71,7 +71,7 @@ public class ContactShake implements PIPO {
 		//set responsive behaviours
 		////////////////////////////////////////
 		//sound elements
-		setupFilteredNoise(d);
+		setupChords(d);
 		setupApreggiatedPatterns(d);
 	}
 	
@@ -80,38 +80,59 @@ public class ContactShake implements PIPO {
 	}
 	
 	//////////////////////////////////////////////////////////////
-	private void setupFilteredNoise(final DynamoPI d) {
-		//controllers
-		final Glide freqCtrl = new Glide(d.ac, 2000);
-		final Envelope gainCtrl = new Envelope(d.ac, 0);  //gainCtrl.addSegment(0.1f, 1000);
-		//set up signal chain
-		Noise n = new Noise(d.ac);
-		BiquadFilter bf = new BiquadFilter(d.ac, 1);
-		bf.addInput(n);
-		bf.setFrequency(freqCtrl);
-		bf.setQ(0.9f);
-		final Gain g = new Gain(d.ac, 1, gainCtrl);
-//		g.pause(true);
-		g.addInput(bf);
-		d.ac.out.addInput(g);		//add the sound to ac.out since we don't want it killed by PolyLimit.
-		//get listening to data
-		MiniMUListener myListener = new MiniMUListener() {
-			public void accelData(double x, double y, double z) {
-				freqCtrl.setValue(((float)Math.abs(x) * 15f) % 5000f + 100f);
+	//////////////////////////////////////////////////////////////////////
+	private void setupChords(final DynamoPI d) {
+		Sample chord = SampleManager.sample(Config.audioDir + "/" + "chords/chord1.wav");
+		final GranularSamplePlayer gsp = new GranularSamplePlayer(d.ac, chord);
+		gsp.setLoopType(SamplePlayer.LoopType.LOOP_ALTERNATING);
+		gsp.getLoopStartUGen().setValue(500);
+		gsp.getLoopEndUGen().setValue((float)chord.getLength() - 500);
+		//controls
+//		final Glide rndGlide = new Glide(d.ac, 0, 5000);
+		final Function rndGlide = new Function(yFactor) {
+			@Override
+			public float calculate() {
+				return Math.abs(x[0]);
 			}
 		};
-		d.mu.addListener(myListener);
-		//set this whole thing to fade in and out on messages
+		final Glide gsizeGlide = new Glide(d.ac, 50, 5000);
+		final Glide gintervalGlide = new Glide(d.ac, 100, 5000);
+		final Glide grateGlideMult = new Glide(d.ac, 1, 5000);
+		final UGen grateGlide = new Mult(d.ac, xFactor, grateGlideMult);
+		gsp.setRandomness(rndGlide);
+		gsp.setGrainSize(gsizeGlide);
+		gsp.setGrainInterval(gintervalGlide);
+		gsp.setRate(grateGlide);
+		gsp.setPitch(new Function(grateGlide) {
+			@Override
+			public float calculate() {
+				return x[0] * 2;
+			}
+		});
+		//Choose my chord note based on myID
+		int id = getID(d);
+		int pitch = scalePitches[id % scalePitches.length];
+		gsp.getPitchUGen().setValue(Pitch.mtof(pitch + 60) / Pitch.mtof(60));
+		//gain control
+		final Envelope genv = new Envelope(d.ac, 0);
+		final Gain g = new Gain(d.ac, 1, genv);
+		g.addInput(gsp);
+		d.ac.out.addInput(g);
+		g.pause(true);
+		//set up controller
 		d.communication.addListener(new NetworkCommunication.Listener() {
 			@Override
 			public void msg(OSCMessage msg) {
-				if(msg.getName().equals("/PI/noise/on")) {
-//					g.pause(false);
-					gainCtrl.clear();
-					gainCtrl.addSegment(0.05f, 1000);
-					gainCtrl.addSegment(0, 6000);
-//					gainCtrl.addSegment(0, 6000, new PauseTrigger(g));
-				} 
+				try {
+					if(msg.getName().equals("/PI/chord/on")) {
+						g.pause(false);
+						genv.clear();
+						genv.addSegment(6, 3000);
+						genv.addSegment(0, 7000, new PauseTrigger(g));
+					}
+				} catch(Exception e) {
+					//do nothing
+				}
 			}
 		});
 	}
@@ -162,7 +183,7 @@ public class ContactShake implements PIPO {
 						//TODO - madness sound miniMu response
 						playPluckSound(d, nextPitch++, guitar, pla);
 						count = 0;
-						d.communication.sendEveryone("/PI/noise/on", null);
+						d.communication.sendEveryone("/PI/chord/on", null);
 					}
 				}
 				count++;
