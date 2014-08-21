@@ -24,6 +24,7 @@ public class SendToPI {
 		File[] contents = packageDir.listFiles();
 		ArrayList<byte[]> allFilesAsBytes = new ArrayList<byte[]>();
 		for(File f : contents) {
+			System.out.println("Sending " + f);
 			String fname = f.getName();
 			if(fname.startsWith(className + "$") && fname.endsWith(".class")) {
 				allFilesAsBytes.add(getClassFileAsByteArray(packagePath + "/" + fname));
