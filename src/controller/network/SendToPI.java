@@ -23,8 +23,9 @@ public class SendToPI {
 		File packageDir = new File("bin/" + packagePath);
 		File[] contents = packageDir.listFiles();
 		ArrayList<byte[]> allFilesAsBytes = new ArrayList<byte[]>();
+		System.out.println("The following files are being sent:");
 		for(File f : contents) {
-			System.out.println("Sending " + f);
+			System.out.println("    " + f);
 			String fname = f.getName();
 			if(fname.startsWith(className + "$") && fname.endsWith(".class")) {
 				allFilesAsBytes.add(getClassFileAsByteArray(packagePath + "/" + fname));
@@ -41,6 +42,7 @@ public class SendToPI {
 					s.getOutputStream().write(bytes);
 					s.close();
 				}
+				System.out.println("SendToPI: sent to " + hostname);
         	} catch(Exception e) {
         		System.out.println("SendToPI: unable to send to " + hostname);
         	}

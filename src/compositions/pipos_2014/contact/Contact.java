@@ -34,19 +34,18 @@ public class Contact implements PIPO {
 	public static final int[] scalePitches = {0, 3, 5, 6, 7, 10};	//blues scale
 	
 	public static void main(String[] args) throws Exception {
-		System.out.println("x");
 		
 		String fullClassName = Thread.currentThread().getStackTrace()[1].getClassName().replace(".", "/");
 		SendToPI.send(fullClassName, new String[]{
 				
-//				"pisound-009e959c5093.local", 
+				"pisound-009e959c5093.local", 
 				"pisound-009e959c47ef.local", 
-//				"pisound-009e959c4dbc.local", 
-//				"pisound-009e959c3fb2.local",
-//				"pisound-009e959c50e2.local",
-//				"pisound-009e959c47e8.local",
-//				"pisound-009e959c510a.local",
-//				"pisound-009e959c502d.local",
+				"pisound-009e959c4dbc.local", 
+				"pisound-009e959c3fb2.local",
+				"pisound-009e959c50e2.local",
+				"pisound-009e959c47e8.local",
+				"pisound-009e959c510a.local",
+				"pisound-009e959c502d.local",
 				
 				});
 	}
