@@ -37,9 +37,9 @@ AUTOSTART=true
 /usr/bin/sudo /usr/bin/java -cp build/picode.jar pi.PIMain $BUF $SR $BITS $INS $OUTS $AUTOSTART  > stdout &
 
 ############## BONUS FEATURE #################
-# Also run the code app (but wait a bit first)
-sleep 10
-/usr/bin/sudo /usr/bin/java -cp build/picode.jar compositions.pipos_2014.contact_further_dev.ContactShake &
+## Also run the code app (but wait a bit first)
+## sleep 10
+## /usr/bin/sudo /usr/bin/java -cp build/picode.jar compositions.pipos_2014.contact_further_dev.ContactShake &
 ############## ------------- #################
 
 ### Various old or test scripts ###
