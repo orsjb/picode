@@ -7,7 +7,7 @@ NEWHOST=`cat /sys/class/net/wlan0/address | sed s/://g`
 OLDHOST=`cat /etc/hostname`
 
 # correct format of hostname (pisound-<MAC>)
-
+ 
 NEWHOST=pisound-${NEWHOST}
 
 # reboot with correct hostname if required
