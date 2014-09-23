@@ -1,5 +1,6 @@
 #!/bin/bash
 
+# Script to autorun on pi
 # get the MAC address to use as hostname
 
 NEWHOST=`cat /sys/class/net/wlan0/address | sed s/://g`
