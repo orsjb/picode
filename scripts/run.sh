@@ -32,7 +32,7 @@ SR=22050
 BITS=16
 INS=0
 OUTS=1
-AUTOSTART=true
+AUTOSTART=true 
 
 /usr/bin/sudo /usr/bin/java -cp build/picode.jar pi.PIMain $BUF $SR $BITS $INS $OUTS $AUTOSTART  > stdout &
 
