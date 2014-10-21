@@ -186,7 +186,8 @@ public class PIConnection {
 	public void piSync() {
 		long timeNow = System.currentTimeMillis();
 		long timeToSync = timeNow + 5000;
-		sendToAllPIs("/PI/sync", timeToSync);
+		String timeAsString = "" + timeToSync;
+		sendToAllPIs("/PI/sync", timeAsString);
 	}
 	
 	public void piGain(float dest, float timeMS) {

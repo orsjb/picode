@@ -57,7 +57,14 @@ public class NetworkCommunication {
 				
 					//master commands...
 					if(msg.getName().equals("/PI/sync")) {
-						pi.sync((Long)msg.getArg(0));
+						
+						
+						long timeToAct = Long.parseLong((String)msg.getArg(0));
+						System.out.println(msg.getArg(0).getClass() + " " + msg.getArg(0));
+						pi.sync(timeToAct);
+						
+						
+						
 					} else if(msg.getName().equals("/PI/reboot")) {
 						DynamoPI.rebootPI();
 					} else if(msg.getName().equals("/PI/shutdown")) {

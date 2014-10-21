@@ -39,7 +39,7 @@ public class Synchronizer {
 	
 	static Synchronizer singletonSynchronizer;
 	
-	public static Synchronizer get() {
+	public synchronized static Synchronizer get() {
 		if(singletonSynchronizer == null) {
 			singletonSynchronizer = new Synchronizer();
 		}
@@ -128,7 +128,29 @@ public class Synchronizer {
 	}
 	
 	public void doAtTime(final Runnable r, long time) {
-		final long waitTime = correctedTimeNow() - time;
+		final long waitTime = time - correctedTimeNow();
+		if(waitTime <= 0) {				//either run immediately
+			r.run();
+		} else {						//or wait the required time
+			//create a new thread just in order to run this incoming thread
+			new Thread() {
+				public void run() {
+					try {
+						Thread.sleep(waitTime);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+					r.run();
+				}
+			}.start();
+			
+		}
+	}
+	
+	public void doAtNextStep(final Runnable r, long timeMultiplier) {
+		long timeNow = correctedTimeNow();
+		long time = ((timeNow / timeMultiplier) + 1) * timeMultiplier;
+		final long waitTime = time - correctedTimeNow();
 		if(waitTime <= 0) {				//either run immediately
 			r.run();
 		} else {						//or wait the required time

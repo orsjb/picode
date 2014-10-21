@@ -95,9 +95,9 @@ public class DynamoPI {
 		WavePlayer wp = new WavePlayer(ac, 500, Buffer.SINE);
 		g.addInput(wp);
 		pl.addInput(g);
-		e.addSegment(0, 100);
-		e.addSegment(0.4f, 0);
-		e.addSegment(0.4f, 300);
+		e.addSegment(0, 10);
+		e.addSegment(0.1f, 0);
+		e.addSegment(0.1f, 50);
 		e.addSegment(0, 10, new KillTrigger(g));
 	}
 	
