@@ -159,9 +159,6 @@ public abstract class GUIBuilder {
 	    	b.setText("Send " + (i + 1));
 	    	row1.getChildren().add(b);
 		}
-		
-	
-		
     	
 	}
 	

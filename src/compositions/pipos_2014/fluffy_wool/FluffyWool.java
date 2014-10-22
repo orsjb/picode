@@ -41,19 +41,11 @@ public class FluffyWool implements PIPO {
 		
 		//make a DIAD respond to incoming messages
 		d.communication.addListener(new Listener() {
-			
 			@Override
 			public void msg(OSCMessage msg) {
-				
 				if(msg.getName().equals("/sinewave")) {
 					
-					//play a simple sine wave
-					WavePlayer wp = new WavePlayer(d.ac, 500f, Buffer.SINE);
-					Gain g = new Gain(d.ac, 1, 0.1f);
-					g.addInput(wp);
-					masterGain.addInput(g);
 				}
-				
 			}
 		});
 		
