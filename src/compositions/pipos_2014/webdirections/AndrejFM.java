@@ -11,11 +11,29 @@ import net.beadsproject.beads.ugens.TapIn;
 import net.beadsproject.beads.ugens.TapOut;
 import net.beadsproject.beads.ugens.WavePlayer;
 import pi.dynamic.DynamoPI;
+import pi.network.NetworkCommunication.Listener;
 import pi.sensors.MiniMU.MiniMUListener;
 import controller.network.SendToPI;
 import core.PIPO;
+import de.sciss.net.OSCMessage;
 
 public class AndrejFM extends MiniMUListener implements PIPO {
+
+	
+	final float[][] MASTER_PRESET = {{0.7f,  50},{0.2f, 100},{0.6f, 200},{0.0f, 300}, //Gain
+			{600, 100},{250, 300},{800, 100},{0.0f,  50}, //CF
+			{50,  200},{50, 50},{50,   50},{0.0f, 300}, //MF
+			{80f,  50},{80f, 400},{20f,  50},{0.0f, 300}}; //MD
+	
+	final float[][] SECOND_PRESET = {{0.7f,  50},{0.2f, 100},{0.6f, 200},{0.0f, 300}, //Gain
+			{600, 100},{250, 300},{800, 100},{0.0f,  50}, //CF
+			{50,  200},{50, 50},{50,   50},{0.0f, 300}, //MF
+			{80f,  50},{80f, 400},{20f,  50},{0.0f, 300}}; //MD
+
+	final float[][] THIRD_PRESET = {{0.7f,  50},{0.2f, 100},{0.6f, 200},{0.0f, 300}, //Gain
+			{600, 100},{250, 300},{800, 100},{0.0f,  50}, //CF
+			{50,  200},{50, 50},{50,   50},{0.0f, 300}, //MF
+			{80f,  50},{80f, 400},{20f,  50},{0.0f, 300}}; //MD
 
 	
 	private static final long serialVersionUID = 1L;
@@ -28,11 +46,8 @@ public class AndrejFM extends MiniMUListener implements PIPO {
 	List<Long> events;		//a history of recent event times, used to match other PIs
 	
 	DynamoPI d;
-
-	float[][] cellID = {{0.7f,  50},{0.2f, 100},{0.6f, 200},{0.0f, 300}, //Gain
-			{600, 100},{250, 300},{800, 100},{0.0f,  50}, //CF
-			{50,  200},{50, 50},{50,   50},{0.0f, 300}, //MF
-			{80f,  50},{80f, 400},{20f,  50},{0.0f, 300}}; //MD
+	
+	boolean[] activeAgents = new boolean[20];
 
 	float[][] mutate(float[][] original) {
 		float[][] newArray = new float[16][2];
@@ -54,14 +69,14 @@ public class AndrejFM extends MiniMUListener implements PIPO {
 	public static void main(String[] args) throws Exception {
 		String fullClassName = Thread.currentThread().getStackTrace()[1].getClassName().replace(".", "/");
 		SendToPI.send(fullClassName, new String[]{
-				"pisound-009e959c5093.local", 
-				"pisound-009e959c47ef.local", 
-				"pisound-009e959c4dbc.local", 
-				"pisound-009e959c3fb2.local",
-				"pisound-009e959c50e2.local",
+//				"pisound-009e959c5093.local", 
+//				"pisound-009e959c47ef.local", 
+//				"pisound-009e959c4dbc.local", 
+//				"pisound-009e959c3fb2.local",
+//				"pisound-009e959c50e2.local",
 				"pisound-009e959c47e8.local",
-				"pisound-009e959c510a.local",
-				"pisound-009e959c502d.local",
+//				"pisound-009e959c510a.local",
+//				"pisound-009e959c502d.local",
 		});
 	}
 
@@ -69,6 +84,9 @@ public class AndrejFM extends MiniMUListener implements PIPO {
 	public void action(final DynamoPI d) {
 		this.d = d;
 		d.reset();
+		
+		d.ac.out.getGainUGen().setValue(0.5f);
+		
 		modulatorFreqEnvelope = new Envelope(d.ac, 0.0f);
 		WavePlayer freqModulator = new WavePlayer(d.ac, modulatorFreqEnvelope, Buffer.SINE);
 		modDepthEnvelope = new Envelope(d.ac, 0.0f);
@@ -94,29 +112,44 @@ public class AndrejFM extends MiniMUListener implements PIPO {
 		d.ac.out.addInput(delayGain); //connect delay output to audio context
 
 
+		//set up sensor response
+		d.mu.addListener(this);
+		
+		//listen for other's messages
+		
+		d.communication.addListener(new Listener() {
+			@Override
+			public void msg(OSCMessage msg) {
+				if(msg.getName().equals("/shaken")) {
+					int id = (Integer)msg.getArg(0);
+					activeAgents[id] = true;
+					
+
+					//TODO WHAT HAPPENS HERE?
+					
+					
+				} else if(msg.getName().equals("/inactive")) {
+					int id = (Integer)msg.getArg(0);
+					activeAgents[id] = false;
+				}
+			}
+		});
+	}
+	
+	void setupBeat() {
 		//set up how to trigger the sound
 		Bead b = new Bead() {
 			public void messageReceived(Bead m) {
-				if(d.clock.isBeat()) {
-					trigger();
+				if(d.clock.isBeat() && d.clock.getBeatCount() % 4 == 0) {
+					trigger(MASTER_PRESET);
 				}
 			}
 		};
-
 		//add it
 		d.pattern(b);
-
-
-		//set up sensor response
-		d.mu.addListener(this);
-
-		//set up when to make the sound mutate
-
-		//set up when to synch the sounds together
-
 	}
 
-	void trigger() {
+	void trigger(float[][] cellID) {
 		//Gain
 		gainEnvelope.clear();
 		gainEnvelope.addSegment(cellID[0][0], cellID[0][1]); // over 50 ms rise to 0.8
@@ -143,41 +176,55 @@ public class AndrejFM extends MiniMUListener implements PIPO {
 		modDepthEnvelope.addSegment(cellID[15][0], cellID[15][1]);
 	}
 
+	double prevX = 0, prevY = 0, prevZ = 0;
+	
 	@Override
 	public void accelData(double x, double y, double z) {
-		//TODO - make a ring-buffer?
-		// - detect when there is a shake
-		// - detect when there is no movement
-	}
-	
-	private void shakeEvent() {
-		//get the time of the event and add to recent list
-		long time = d.synch.correctedTimeNow();
-	}
-	
-	private void stopMoving() {
 		
 	}
 	
-	private void startMoving() {
+	int count;
+	
+	@Override
+	public void gyroData(double x, double y, double z) {
+		double mx = scaleMU(x);
+		double my = scaleMU(y);
+		double mz = scaleMU(z);
+		double dx = mx - prevX;
+		double dy = my - prevY;
+		double dz = mz - prevZ;
+		double v = Math.sqrt(dx * dx + dy * dy + dz * dz);
+		if(v > 0.5) {
+			shake();
+			count = 0;
+		}
+		count++;
+		if(count > 2000) {			//TODO check if this is a good time out
+			inactive();
+		}
+		prevX = mx; prevY = my; prevZ = mz;
+	}
+	
+	public void shake() {
+		d.communication.sendEveryone("/shaken", new Object[] {d.myIndex()});
 		
+		
+		//TODO WHAT HAPPENS HERE?
+		
+		trigger(MASTER_PRESET);
+		
+		
+	}
+	
+	public void inactive() {
+		d.communication.sendEveryone("/inactive", new Object[] {d.myIndex()});
 	}
 
-	private void broadcastShakeData() {
-		
+	private double scaleMU(double x) {
+		return Math.tanh(x / 2500.);
 	}
 	
-	private void checkForShakeMatch() {
-		
-	}
-	
-	private void gotMatch() {
-		
-	}
-	
-	private void noMatch() {
-		
-	}
+
 	
 	
 	
