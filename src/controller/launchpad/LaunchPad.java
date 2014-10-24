@@ -72,7 +72,7 @@ public class LaunchPad {
 						Receiver rec = new Receiver() {
 							@Override
 							public void send(MidiMessage message, long timeStamp) {
-								System.out.println("LaunchPad MIDI reciever has received a message");
+//								System.out.println("LaunchPad MIDI reciever has received a message");
 								ShortMessage myMessage = (ShortMessage)message;
 								boolean push = (myMessage.getData2() > 0);
 								int butID = myMessage.getData1();
