@@ -63,8 +63,6 @@ public class NetworkCommunication {
 						System.out.println(msg.getArg(0).getClass() + " " + msg.getArg(0));
 						pi.sync(timeToAct);
 						
-						
-						
 					} else if(msg.getName().equals("/PI/reboot")) {
 						DynamoPI.rebootPI();
 					} else if(msg.getName().equals("/PI/shutdown")) {
@@ -140,39 +138,6 @@ public class NetworkCommunication {
 	public int getID() {
 		return myID;
 	}
-	
-	//////////////////////////////////////////////////////////
-	// WARNING: hacky code below here, quick fix  ////////////
-	// But only needed if you want to send PI to PI //////////
-	//////////////////////////////////////////////////////////
-	
-
-	static HashSet<String> knownPIs = new HashSet<String>();		//list of the known pis hostnames
-	
-	static {														// TEMPPPP!!
-		knownPIs.add("pisound-009e959c4dbc.local");
-		knownPIs.add("pisound-009e959c47ef.local");
-	}
-	
-	public void sendEveryone(final String msg, Object[] args) {		//TODO would be nice to multicast, or to know which PIs are around, else this will take ages.
-		if(args == null) args = new Object[] {};
-		final OSCMessage oscmsg = new OSCMessage(msg, args);
-		for(final String host : knownPIs) {
-			new Thread() {
-				public void run() {
-					try {
-						oscServer.send(oscmsg, new InetSocketAddress(host, Config.controlToPIPort));
-					} catch (Exception e) {
-//						e.printStackTrace();
-//						System.out.println("Problem: Couldn't send message to: " + host + "(message was: " + msg + ")");
-					}
-				}
-			}.start();
-		}
-	}
-	
-	
-	
 	
 
 }

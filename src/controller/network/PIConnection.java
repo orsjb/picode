@@ -75,6 +75,14 @@ public class PIConnection {
 	public ObservableList<LocalPIRepresentation> getPIs() {
 		return thePIs;
 	}
+
+	public String[] getPIHostnames() {
+		String[] hostnames = new String[thePIs.size()];
+		for(int i = 0; i < hostnames.length; i++) {
+			hostnames[i] = thePIs.get(i).hostname;
+		}
+		return hostnames;
+	}
 	
 	private void incomingMessage(OSCMessage msg) {
 		if(msg.getName().equals("/PI/alive")) {
@@ -222,5 +230,6 @@ public class PIConnection {
 		thePIs.add(virtualTestPI);
 		pisByHostname.put(name, virtualTestPI);
 	}
+
 	
 }

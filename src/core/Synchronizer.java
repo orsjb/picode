@@ -6,8 +6,10 @@ import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.Map;
 
 public class Synchronizer {
@@ -23,6 +25,10 @@ public class Synchronizer {
 	 * r <MAC1> <timeMS> <MAC2> <timeMS>
 	 */
 	
+	public interface BroadcastListener {
+		public void messageReceived(String s);				//TODO this should not be here. Separate the Synchronizer code from the broadcast code.
+	}
+	
 	String myMAC; //how to uniquely identify this machine
 	MulticastSocket broadcastSocket;
 	long timeCorrection = 0;			//add this to current time to get the REAL current time
@@ -36,6 +42,8 @@ public class Synchronizer {
 	boolean timedebug = false;
 	
 	Map<Long, Map<String, long[]>> log;		//first referenced by message send time, then by respodent's name, with the time the respondent replied and the current time
+	
+	List<BroadcastListener> listeners = new ArrayList<Synchronizer.BroadcastListener>();
 	
 	static Synchronizer singletonSynchronizer;
 	
@@ -273,10 +281,26 @@ public class Synchronizer {
 					System.out.println("This machine (" + myMAC + ") is " + (timeAheadOfOther > 0 ? "ahead of" : "behind") + " " + otherMAC + " by " + Math.abs(timeAheadOfOther) + "ms");
 				}
 			}
+		} else {
+			//Listeners
+			for(BroadcastListener bl : listeners) {
+				bl.messageReceived(msg);
+			}
 		}
 	}
 
 
+	public void addBroadcastListener(BroadcastListener bl) {
+		listeners.add(bl);
+	}
+	
+	public void removeBroadcastListener(BroadcastListener bl) {
+		listeners.remove(bl);
+	}
+	
+	public void clearBroadcastListeners() {
+		listeners.clear();
+	}
 
 	/**
 	 * 
@@ -297,7 +321,7 @@ public class Synchronizer {
 	 * 
 	 * @param s the message to send.
 	 */
-	private void broadcast(String s) {
+	public void broadcast(String s) {	
 		byte buf[] = null;
 		try {
 			buf = s.getBytes("US-ASCII");

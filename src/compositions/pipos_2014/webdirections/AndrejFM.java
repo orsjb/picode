@@ -11,11 +11,9 @@ import net.beadsproject.beads.ugens.TapIn;
 import net.beadsproject.beads.ugens.TapOut;
 import net.beadsproject.beads.ugens.WavePlayer;
 import pi.dynamic.DynamoPI;
-import pi.network.NetworkCommunication.Listener;
 import pi.sensors.MiniMU.MiniMUListener;
-import controller.network.SendToPI;
 import core.PIPO;
-import de.sciss.net.OSCMessage;
+import core.Synchronizer.BroadcastListener;
 
 public class AndrejFM extends MiniMUListener implements PIPO {
 
@@ -34,6 +32,8 @@ public class AndrejFM extends MiniMUListener implements PIPO {
 			{600, 100},{250, 300},{800, 100},{0.0f,  50}, //CF
 			{50,  200},{50, 50},{50,   50},{0.0f, 300}, //MF
 			{80f,  50},{80f, 400},{20f,  50},{0.0f, 300}}; //MD
+	
+	//etc....
 
 	
 	private static final long serialVersionUID = 1L;
@@ -49,36 +49,6 @@ public class AndrejFM extends MiniMUListener implements PIPO {
 	
 	boolean[] activeAgents = new boolean[20];
 
-	float[][] mutate(float[][] original) {
-		float[][] newArray = new float[16][2];
-
-		//TODO
-
-		return newArray;
-	}
-
-	float[][] crossover(float[][] source1, float[][] source2) {
-		float[][] newArray = new float[16][2];
-
-		//TODO
-
-		return newArray;
-	}
-
-
-	public static void main(String[] args) throws Exception {
-		String fullClassName = Thread.currentThread().getStackTrace()[1].getClassName().replace(".", "/");
-		SendToPI.send(fullClassName, new String[]{
-//				"pisound-009e959c5093.local", 
-//				"pisound-009e959c47ef.local", 
-//				"pisound-009e959c4dbc.local", 
-//				"pisound-009e959c3fb2.local",
-//				"pisound-009e959c50e2.local",
-				"pisound-009e959c47e8.local",
-//				"pisound-009e959c510a.local",
-//				"pisound-009e959c502d.local",
-		});
-	}
 
 	@Override
 	public void action(final DynamoPI d) {
@@ -111,26 +81,26 @@ public class AndrejFM extends MiniMUListener implements PIPO {
 		d.ac.out.addInput(carrierGain);
 		d.ac.out.addInput(delayGain); //connect delay output to audio context
 
-
 		//set up sensor response
 		d.mu.addListener(this);
 		
 		//listen for other's messages
 		
-		d.communication.addListener(new Listener() {
+		d.synch.addBroadcastListener(new BroadcastListener() {
 			@Override
-			public void msg(OSCMessage msg) {
-				if(msg.getName().equals("/shaken")) {
-					int id = (Integer)msg.getArg(0);
+			public void messageReceived(String msg) {
+				String[] msgParts = msg.split("[ ]");
+				if(msgParts[0].equals("/shaken")) {
+					int id = Integer.parseInt(msgParts[1]);
 					activeAgents[id] = true;
-					
-
-					//TODO WHAT HAPPENS HERE?
-					
-					
-				} else if(msg.getName().equals("/inactive")) {
-					int id = (Integer)msg.getArg(0);
+					System.out.println("Received /shaken message from " + id);
+					if(id != d.myIndex()) {
+						respond();
+					}
+				} else if(msgParts[0].equals("/inactive")) {
+					int id = Integer.parseInt(msgParts[1]);
 					activeAgents[id] = false;
+					System.out.println("Received /inactive message from " + id);
 				}
 			}
 		});
@@ -184,6 +154,7 @@ public class AndrejFM extends MiniMUListener implements PIPO {
 	}
 	
 	int count;
+	boolean active = false;
 	
 	@Override
 	public void gyroData(double x, double y, double z) {
@@ -196,41 +167,59 @@ public class AndrejFM extends MiniMUListener implements PIPO {
 		double v = Math.sqrt(dx * dx + dy * dy + dz * dz);
 		if(v > 0.5) {
 			shake();
+			active = true;
 			count = 0;
 		}
 		count++;
-		if(count > 2000) {			//TODO check if this is a good time out
+		if(count > 1000 && active == true) {
+			active = false;
 			inactive();
 		}
 		prevX = mx; prevY = my; prevZ = mz;
 	}
 	
 	public void shake() {
-		d.communication.sendEveryone("/shaken", new Object[] {d.myIndex()});
-		
-		
-		//TODO WHAT HAPPENS HERE?
-		
-		trigger(MASTER_PRESET);
-		
-		
+		d.synch.broadcast("/shaken " + d.myIndex() + " ");
+		System.out.println("Sending /shaken message.");
+		act();
 	}
 	
 	public void inactive() {
-		d.communication.sendEveryone("/inactive", new Object[] {d.myIndex()});
+		d.synch.broadcast("/inactive " + d.myIndex() + " ");
+		System.out.println("Sending /inactive message.");
 	}
 
 	private double scaleMU(double x) {
 		return Math.tanh(x / 2500.);
 	}
 	
-
+	public int numActiveAgents() {
+		int count = 0;
+		for(int i = 0; i < activeAgents.length; i++) {
+			if(activeAgents[i]) count++;
+		}
+		return count;
+	}
 	
+	void respond() {
+		//TODO
+		if(activeAgents[d.myIndex()]) {
+			//this means that I am active
+		}
+		if(numActiveAgents() >= 2) {
+			//this means there are 2 active agents
+		}
+		if(activeAgents[3]) {
+			//this refers to a specific unit. Do you want to know if it is active?
+		}
+		
+	}
 	
+	void act() {
+		//TODO
+		trigger(MASTER_PRESET);
+	}
 	
-	
-
-
 }
 
 

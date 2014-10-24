@@ -1,32 +1,26 @@
 package compositions.pipos_2014.contact_further_dev;
 
-import net.beadsproject.beads.core.Bead;
 import net.beadsproject.beads.core.UGen;
 import net.beadsproject.beads.data.Buffer;
 import net.beadsproject.beads.data.Pitch;
 import net.beadsproject.beads.data.Sample;
 import net.beadsproject.beads.data.SampleManager;
 import net.beadsproject.beads.events.KillTrigger;
-import net.beadsproject.beads.events.PauseTrigger;
-import net.beadsproject.beads.ugens.BiquadFilter;
 import net.beadsproject.beads.ugens.Envelope;
 import net.beadsproject.beads.ugens.Function;
 import net.beadsproject.beads.ugens.Gain;
 import net.beadsproject.beads.ugens.Glide;
 import net.beadsproject.beads.ugens.GranularSamplePlayer;
 import net.beadsproject.beads.ugens.Mult;
-import net.beadsproject.beads.ugens.Noise;
 import net.beadsproject.beads.ugens.PolyLimit;
 import net.beadsproject.beads.ugens.SamplePlayer;
 import net.beadsproject.beads.ugens.WavePlayer;
 import pi.dynamic.DynamoPI;
-import pi.network.NetworkCommunication;
 import pi.sensors.MiniMU.MiniMUListener;
 import controller.network.SendToPI;
 import core.Config;
-import core.Device;
 import core.PIPO;
-import de.sciss.net.OSCMessage;
+import core.Synchronizer;
 
 public class ContactShake implements PIPO {
 
@@ -120,11 +114,11 @@ public class ContactShake implements PIPO {
 		d.ac.out.addInput(g);
 //		g.pause(true);
 		//set up controller
-		d.communication.addListener(new NetworkCommunication.Listener() {
+		d.synch.addBroadcastListener(new Synchronizer.BroadcastListener() {
 			@Override
-			public void msg(OSCMessage msg) {
+			public void messageReceived(String msg) {
 				try {
-					if(msg.getName().equals("/PI/chord/on")) {
+					if(msg.equals("/PI/chord/on")) {
 //						g.pause(false);
 						genv.clear();
 						genv.addSegment(1, 1000);
@@ -183,7 +177,7 @@ public class ContactShake implements PIPO {
 						//TODO - madness sound miniMu response
 						playPluckSound(d, nextPitch++, guitar, pla);
 						count = 0;
-						d.communication.sendEveryone("/PI/chord/on", null);
+						d.synch.broadcast("/PI/chord/on");
 					}
 				}
 				count++;

@@ -262,6 +262,8 @@ public class DynamoPI {
 		mu.clearListeners();
 		//clear osc listeners
 		communication.clearListeners();
+		//clear broadcast listeners
+		synch.clearBroadcastListeners();
 	}
 
 	public void fadeOutClearSound(float fadeTime) {
