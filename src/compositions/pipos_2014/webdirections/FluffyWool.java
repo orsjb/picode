@@ -25,6 +25,7 @@ public class FluffyWool implements PIPO {
 		d.communication.addListener(new Listener() {
 			@Override
 			public void msg(OSCMessage msg) {
+				System.out.println("Received messsage: " + msg.getName());
 				if(msg.getName().equals("/sinewave")) {
 					
 				}

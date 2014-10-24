@@ -64,6 +64,7 @@ public class ControllerMain extends Application implements LaunchPadBehaviour {
 	    });
     	//set up the LaunchPad
     	launchpad = new LaunchPad(new String[] {"Launchpad"}, this);
+    	launchpad.show();
     }
     
 	private void setupGUI(Stage stage) {
