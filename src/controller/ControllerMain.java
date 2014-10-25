@@ -64,6 +64,18 @@ public class ControllerMain extends Application implements LaunchPadBehaviour {
 	    });
     	//set up the LaunchPad
     	launchpad = new LaunchPad(new String[] {"Launchpad"}, this);
+    	//set the colors
+    	for(int i = 0; i < 8; i++) {
+    		launchpad.setButtonColour(0, 0, i, LaunchPad.HIGH_AMBER);
+    		launchpad.setButtonColour(0, i+1, 8, LaunchPad.HIGH_AMBER);
+    		for(int j = 0; j < 8; j++) {
+    			if(i == 0 && j % 2 == 0) {
+    				launchpad.setButtonColour(0, i+1, j, LaunchPad.MEDIUM_RED);
+    			} else {
+    				launchpad.setButtonColour(0, i+1, j, LaunchPad.HIGH_GREEN);
+    			}
+    		}
+    	}
     	launchpad.show();
     }
     
@@ -153,6 +165,7 @@ public class ControllerMain extends Application implements LaunchPadBehaviour {
 
 	@Override
 	public void buttonAction(LaunchPad parent, int launchPadID, int row, int col, boolean push) {
+//		System.out.println("Launchpad: " + parent + " " + launchPadID + " " + row + " " + col + " " + push);
 		if(push) {
 			if(row == 0) {
 				//top row - tempo stuff
@@ -166,7 +179,7 @@ public class ControllerMain extends Application implements LaunchPadBehaviour {
 				//main grid
 				int group = col / 2;
 				int id = row - 1;
-				if(group % 2 == 1) {
+				if(col % 2 == 1) {
 					id += 8;
 				}
 				//send ID to group
