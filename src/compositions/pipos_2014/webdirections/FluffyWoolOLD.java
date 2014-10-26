@@ -1,15 +1,14 @@
 package compositions.pipos_2014.webdirections;
 
 import net.beadsproject.beads.data.Buffer;
+import net.beadsproject.beads.data.BufferFactory;
 import net.beadsproject.beads.data.Pitch;
 import net.beadsproject.beads.data.SampleManager;
 import net.beadsproject.beads.ugens.BiquadFilter;
 import net.beadsproject.beads.ugens.Envelope;
 import net.beadsproject.beads.ugens.Function;
 import net.beadsproject.beads.ugens.Gain;
-import net.beadsproject.beads.ugens.Glide;
 import net.beadsproject.beads.ugens.GranularSamplePlayer;
-import net.beadsproject.beads.ugens.SamplePlayer;
 import net.beadsproject.beads.ugens.TapIn;
 import net.beadsproject.beads.ugens.TapOut;
 import net.beadsproject.beads.ugens.WavePlayer;
@@ -19,7 +18,7 @@ import pi.sensors.MiniMU.MiniMUListener;
 import core.PIPO;
 import de.sciss.net.OSCMessage;
 
-public class FluffyWool implements PIPO {
+public class FluffyWoolOLD implements PIPO {
 
 	private static final long serialVersionUID = 1L;
 	Envelope gainEnvelope;
@@ -31,8 +30,6 @@ public class FluffyWool implements PIPO {
 	Envelope delayTime;
 	Envelope filtFreq;
 	Envelope rhythmFreq;
-	Envelope fluffGain;
-	Glide fluffRate;
 	
 	DynamoPI d;
 	
@@ -46,13 +43,11 @@ public class FluffyWool implements PIPO {
 		this.d = d;
 		d.reset();
 		
-		masterGainCtrl = new Envelope(d.ac, 1);
+		masterGainCtrl = new Envelope(d.ac, 0);
 		masterGain = new Gain(d.ac, 1, masterGainCtrl);
 		d.sound(masterGain);
 
-		SampleManager.sample("fluff", "audio/Fluffy/fluff.wav");
-		SampleManager.sample("nightingale", "audio/Fluffy/nightingale.wav");
-		SampleManager.sample("kookaburra", "audio/Fluffy/kookaburra.wav");
+		SampleManager.sample("fluffy", "audio/fluff.wav");
 		
 		setupFM();
 		setupFluffy();
@@ -86,43 +81,26 @@ public class FluffyWool implements PIPO {
 			public void accelData(double x, double y, double z) {
 				
 				
-//				
-//				if(z < 0) { 	//if the DIAD is upside-down
-//					masterGainCtrl.clear();
-//					masterGainCtrl.addSegment(0, 5000f); //fade out
-//				} else {
-//					masterGainCtrl.clear();
-//					masterGainCtrl.addSegment(1, 5000f); //fade in
-//				}
+				
+				if(z < 0) { 	//if the DIAD is upside-down
+					masterGainCtrl.clear();
+					masterGainCtrl.addSegment(0, 5000f); //fade out
+				} else {
+					masterGainCtrl.clear();
+					masterGainCtrl.addSegment(1, 5000f); //fade in
+				}
 			}
 
-			double lastVal;
-			
 			@Override
 			public void gyroData(double x, double y, double z) {
 				//TODO
 				double val = Math.sqrt(x*x + y*y + z*z);
-				double rate = Math.abs(val - lastVal);
-				lastVal = val;
-				rate /= 100.;
-				rate -= 0.5;
-				if(rate < 0) rate = 0;
-				rate /= 10.;
-				fluffRate.setValue((float)rate);
-				System.out.println("gyro " + rate);
-				if(rate == 0) {
-					fluffGain.clear();
-					fluffGain.addSegment(0, 200);
-				} else {
-					fluffGain.clear();
-					fluffGain.addSegment(1, 200);
-				}
 				
 			}
 
 			@Override
 			public void magData(double x, double y, double z) {
-//				System.out.println("Mag data: " + x + " " + y + " "  + z);
+				System.out.println("Mag data: " + x + " " + y + " "  + z);
 			}
 			
 			
@@ -199,16 +177,10 @@ public class FluffyWool implements PIPO {
 	}
 	
 	void setupFluffy() {
-		GranularSamplePlayer sp = new GranularSamplePlayer(d.ac, SampleManager.sample("fluff"));
-		sp.setLoopType(SamplePlayer.LoopType.LOOP_FORWARDS);
-		sp.getGrainSizeUGen().setValue(120);
-		sp.getRandomnessUGen().setValue(0.01f);
-		fluffGain = new Envelope(d.ac, 1);
-		Gain g = new Gain(d.ac, 1, fluffGain);
+		GranularSamplePlayer sp = new GranularSamplePlayer(d.ac, SampleManager.sample("fluffy"));
+		Gain g = new Gain(d.ac, 1, sp);
 		g.addInput(sp);
-		masterGain.addInput(g);
-		fluffRate = new Glide(d.ac, 0, 500);
-		sp.setRate(fluffRate);
+		
 		
 	}
 
