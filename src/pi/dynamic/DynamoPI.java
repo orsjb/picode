@@ -215,6 +215,23 @@ public class DynamoPI {
 	public Bead getBead(String s) {
 		return (Bead) share.get(s);
 	}
+	
+	/**
+	 * Stores an object but only if you haven't already created something with that name.
+	 * Returns either the existing stored object or the new object.
+	 * 
+	 * @param id
+	 * @param o
+	 * @return
+	 */
+	public Object perm(String id, Object o) {
+		if(share.containsKey(id)) {
+			return share.get(id);
+		} else {
+			share.put(id, o);
+			return o;
+		}
+	}
 
 	public String pattern(Bead pattern) {
 		clock.addMessageListener(pattern);
