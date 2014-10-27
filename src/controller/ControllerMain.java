@@ -46,7 +46,6 @@ public class ControllerMain extends Application implements LaunchPadBehaviour {
 	LaunchPad launchpad;
 	String currentPIPO = "";
 	
-
     @Override 
     public void start(Stage stage) {
     	piConnection = new PIConnection();

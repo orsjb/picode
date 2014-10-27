@@ -64,6 +64,7 @@ public class FluffyWool implements PIPO {
 	public void action(final DynamoPI d) {
 		this.d = d;
 //		d.reset();
+		d.ac.out.getGainUGen().setValue(2f);
 		//basic audio components
 		masterGainCtrl = new Envelope(d.ac, 0.5f);
 		masterGain = new Gain(d.ac, 1, masterGainCtrl);
@@ -139,7 +140,7 @@ public class FluffyWool implements PIPO {
 				//control mod depth
 				modDepthCtrl.setValue(xn * 500);
 				//and guitar pitch bend
-				guitPitch.setValue(guitBaseRate + (xn - lastXN) / 4f);
+				guitPitch.setValue(guitBaseRate + (xn - lastXN) * 2f);
 				lastXN = xn;
 			}
 			@Override
@@ -154,12 +155,12 @@ public class FluffyWool implements PIPO {
 					if(birdsRateVal < 0) birdsRateVal = 0;
 					birdsRateVal /= 10.;
 					birdRate.setValue((float)birdsRateVal);
-					if(rate == 0) {
+					if(birdsRateVal == 0) {
 						birdGainEnv.clear();
 						birdGainEnv.addSegment(0, 300, new PauseTrigger(birdGain));
 					} else {
-						birdGain.pause(false);
 						birdGainEnv.clear();
+						birdGain.pause(false);
 						birdGainEnv.addSegment(1, 200);
 					}
 				}
