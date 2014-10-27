@@ -124,7 +124,7 @@ public class FluffyWoolInstallation implements PIPO {
 		});
 		//make a DIAD respond to incoming messages (from server)
 		d.communication.addListener(new Listener() {
-			@Override
+			@Override 
 			public void msg(OSCMessage msg) {
 				System.out.println("Received messsage: " + msg.getName());
 				if(msg.getName().equals("/bird")) {
