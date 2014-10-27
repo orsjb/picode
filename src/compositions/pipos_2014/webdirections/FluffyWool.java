@@ -4,16 +4,14 @@ import net.beadsproject.beads.core.Bead;
 import net.beadsproject.beads.data.Buffer;
 import net.beadsproject.beads.data.Pitch;
 import net.beadsproject.beads.data.SampleManager;
-import net.beadsproject.beads.events.KillTrigger;
 import net.beadsproject.beads.events.PauseTrigger;
 import net.beadsproject.beads.ugens.Envelope;
 import net.beadsproject.beads.ugens.Function;
 import net.beadsproject.beads.ugens.Gain;
 import net.beadsproject.beads.ugens.Glide;
 import net.beadsproject.beads.ugens.GranularSamplePlayer;
-import net.beadsproject.beads.ugens.Mult;
+import net.beadsproject.beads.ugens.PolyLimit;
 import net.beadsproject.beads.ugens.SamplePlayer;
-import net.beadsproject.beads.ugens.Static;
 import net.beadsproject.beads.ugens.TapIn;
 import net.beadsproject.beads.ugens.TapOut;
 import net.beadsproject.beads.ugens.WavePlayer;
@@ -27,21 +25,28 @@ import de.sciss.net.OSCMessage;
 public class FluffyWool implements PIPO {
 
 	private static final long serialVersionUID = 1L;
+	
+	DynamoPI d;
+	
 	Envelope gainEnvelope;
 	Envelope carrierFreqEnvelope; // connect to to amount added to function
-	Envelope modulatorFreqEnvelope; // connect to modulator freqModulator frequency
-	Envelope modDepthEnvelope;
+	Envelope modFreqEnvelope; // connect to modulator freqModulator frequency
+	Glide modDepthCtrl;
 	Gain masterGain;
+	
 	Envelope masterGainCtrl;
 	Envelope delayTime;
+	TapIn delayIn;
+	PolyLimit pl;
+	
+	GranularSamplePlayer birdSample;
 	Envelope birdGainEnv;
 	Gain birdGain;
 	Glide birdRate;
-	TapIn delayIn;
-	GranularSamplePlayer fluffSp;
-	GranularSamplePlayer birdSample;
 	
-	DynamoPI d;
+	Glide guitPitch;
+	float guitBaseRate;
+	float lastXN, xnOffset;
 	
 	int[] blues = {0, 3, 5, 6, 7, 10, 12, 15, 17, 18, 19, 22, 24, 27, 29, 30, 31, 34, 36, 39, 41, 42, 43, 46, 48};
 	int[] mel = {0, 0, 0, 1, 2, 3, 0, 0, 0, 1, 2, 3, 0, 3, 3, 1, 2, 4, 4, 4, 3, 2, 1, 12, 13, 14, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 11, 11, 11, 12, 9, 7, 5, 3, 2, 0, 0};
@@ -58,17 +63,19 @@ public class FluffyWool implements PIPO {
 	@Override
 	public void action(final DynamoPI d) {
 		this.d = d;
-		d.reset();
-		
+//		d.reset();
+		//basic audio components
 		masterGainCtrl = new Envelope(d.ac, 0.5f);
 		masterGain = new Gain(d.ac, 1, masterGainCtrl);
 		d.sound(masterGain);
-
-		SampleManager.sample("fluff", "audio/Fluffy/fluff.wav");
+		pl = new PolyLimit(d.ac, 1, 2);
+		masterGain.addInput(pl);
+		pl.setSteal(false);
+		guitPitch = new Glide(d.ac, 0);
+		//load audio
 		SampleManager.sample("nightingale", "audio/Fluffy/nightingale.wav");
 		SampleManager.sample("kookaburra", "audio/Fluffy/kookaburra.wav");
 		SampleManager.sample("powerchord", "audio/Fluffy/powerchord.wav");
-		
 		//set up the delay
 		delayIn = new TapIn(d.ac, 5000);
 		delayTime = new Envelope(d.ac, 150f);
@@ -77,12 +84,10 @@ public class FluffyWool implements PIPO {
 		delayGain.addInput(delayOut);
 		delayIn.addInput(delayGain); // feedback
 		masterGain.addInput(delayGain); //connect delay output to audio context
-		
+		delayIn.addInput(pl);
+		//specific elements
 		setupFM();
-		setupMetal();
 		setupBirds();
-		setupFluffChorus();
-		
 		//beat
 		d.pattern(new Bead() {
 			public void messageReceived(Bead msg) {
@@ -95,7 +100,6 @@ public class FluffyWool implements PIPO {
 		});
 		d.clock.setTicksPerBeat(8);
 		d.clock.getIntervalEnvelope().setValue(300);
-		
 		//make a DIAD respond to incoming messages (from server)
 		d.communication.addListener(new Listener() {
 			@Override
@@ -107,47 +111,37 @@ public class FluffyWool implements PIPO {
 				} else if(msg.getName().equals("/kook")) {
 					birdState = "kook";
 					birdSample.setSample(SampleManager.sample("kookaburra"));
-					
 				} else if(msg.getName().equals("/nobird")) {
 					birdState = "off";
 					birdGainEnv.clear();
 					birdGainEnv.addSegment(1, 200, new PauseTrigger(birdGain));
-				} else if(msg.getName().equals("/launchpad/id")) {
-					
-					
-					
-					int id = (Integer)msg.getArg(0);
-					currentNote = id - 1;
-					playnote();
-				} else if(msg.getName().equals("/launchpad/tempo")) {
-					int id = (Integer)msg.getArg(0);
-					//play metal sounds
-					playmetal(id);
-				} else if(msg.getName().equals("/launchpad/pitch")) {
-					int id = (Integer)msg.getArg(0);
-					pitchOff = offsets[id];
-					playnote();
-				}
+				} else if(msg.getName().equals("/launchpad")) {
+					int row = (Integer)msg.getArg(0);
+					int col = (Integer)msg.getArg(1);
+					boolean push = (Integer)msg.getArg(2) == 1;
+					launchpadMsg(row, col, push);
+				} 
 			}
 		});
-				
 		//make a DIAD respond to incoming messages (from others)
 		d.synch.addBroadcastListener(new BroadcastListener() {
 			@Override
 			public void messageReceived(String s) {
-				// TODO
+				// TODO or not TODO, that is the question
 			}
 		});
-		
 		//make the sound respond to the sensors
 		d.mu.addListener(new MiniMUListener() {
-
 			double lastVal;
-			
 			@Override
 			public void accelData(double x, double y, double z) {
+				float xn = scaleMU((float)x);
+				//control mod depth
+				modDepthCtrl.setValue(xn * 500);
+				//and guitar pitch bend
+				guitPitch.setValue(guitBaseRate + (xn - lastXN) / 4f);
+				lastXN = xn;
 			}
-			
 			@Override
 			public void gyroData(double x, double y, double z) {
 				double val = Math.sqrt(x*x + y*y + z*z);
@@ -176,7 +170,6 @@ public class FluffyWool implements PIPO {
 				if(beatInterval > 7) beatInterval = 7;
 				System.out.println("Rate: " + rate + "... Beat Interval: " + beatInterval);
 			}
-
 			@Override
 			public void magData(double x, double y, double z) {
 			}
@@ -184,20 +177,21 @@ public class FluffyWool implements PIPO {
 		});
 	}
 	
+	private float scaleMU(float x) {
+		return ((float)Math.tanh(x / 250) + 1f) / 2f;
+	}
+	
 	void launchpadMsg(int row, int col, boolean push) {
 		if(push) {
 			if(row == 0) {
-				//top row - tempo stuff
-				int tempoIndex = col;
-				
-				//TODO
-				
+				//top row
+				int id = col;
+				playmetal(id);
 			} else if(col == 8) {
-				//right column - pitch stuff
-				int pitchIndex = row - 1;
-				
-				//TODO
-				
+				//right column
+				int id = row - 1;
+				pitchOff = offsets[id];
+				playnote();
 			} else {
 				//main grid
 				int group = col / 2;
@@ -205,35 +199,22 @@ public class FluffyWool implements PIPO {
 				if(col % 2 == 1) {
 					id += 8;
 				}
-				//send ID to group
-
-				//TODO
-				
+				if(d.myIndex() % 4 == group) {
+					currentNote = id - 1;
+					playnote();
+				}
 			}
 		}
 	}
 	
 	void playmetal(int id) {
-		
+		int thisID = id + d.myIndex();
 		SamplePlayer sp = new SamplePlayer(d.ac, SampleManager.sample("powerchord"));
-		sp.getPitchUGen().setValue( Pitch.mtof(blues[id] + 60) / Pitch.mtof(60) );
-		masterGain.addInput(sp);
-		delayIn.addInput(sp);
-		
-	}
-	
-	void playvoice(int id) {
-		
-		SamplePlayer sp = new SamplePlayer(d.ac, SampleManager.sample("fluff"));
-		
-		float rate = Pitch.mtof(blues[id] + 60) / Pitch.mtof(60);
-		Envelope pitchEnv = new Envelope(d.ac, rate);
-		pitchEnv.addSegment(rate, 2000);
-		pitchEnv.addSegment(0, 2000, new KillTrigger(sp));
-		
-		delayIn.addInput(sp);
-		masterGain.addInput(sp);
-		
+		sp.setPitch(guitPitch);
+		guitBaseRate = Pitch.mtof(blues[thisID % blues.length] + 60) / Pitch.mtof(60);
+		xnOffset = lastXN;
+		guitPitch.setValueImmediately(guitBaseRate);
+		pl.addInput(sp);
 	}
 	
 	void playnote() {
@@ -255,11 +236,11 @@ public class FluffyWool implements PIPO {
 	
 	void setupFM() {
 		//set up FM synth
-		modulatorFreqEnvelope = new Envelope(d.ac, 500f);
-		WavePlayer freqModulator = new WavePlayer(d.ac, modulatorFreqEnvelope, Buffer.SINE);
-		modDepthEnvelope = new Envelope(d.ac, 0f);
+		modFreqEnvelope = new Envelope(d.ac, 500f);
+		WavePlayer freqModulator = new WavePlayer(d.ac, modFreqEnvelope, Buffer.SINE);
+		modDepthCtrl = new Glide(d.ac, 0f);
 		carrierFreqEnvelope = new Envelope(d.ac, 0.0f);
-		Function modulationFunction = new Function(freqModulator, carrierFreqEnvelope, modDepthEnvelope) {
+		Function modulationFunction = new Function(freqModulator, carrierFreqEnvelope, modDepthCtrl) {
 			public float calculate() {
 				return (x[0] * x[2]) + x[1]; //figure out how to plug carrierEnvelope into this
 			}
@@ -288,23 +269,12 @@ public class FluffyWool implements PIPO {
 		birdGainEnv = new Envelope(d.ac, 0);
 		birdGain = new Gain(d.ac, 1, birdGainEnv);
 		birdGain.addInput(birdSample);
+		birdGain.pause(true);
 		birdRate = new Glide(d.ac, 0, 500);
 		birdSample.setRate(birdRate);
 		//plug in
 		delayIn.addInput(birdGain); // connect synth gain to delay
 		masterGain.addInput(birdGain);	//and main out
-	}
-	
-
-	private void setupFluffChorus() {
-		fluffSp = new GranularSamplePlayer(d.ac, SampleManager.sample("fluff"));
-//		delayIn.addInput(fluffSp); // connect synth gain to delay
-//		masterGain.addInput(fluffSp);
-		//add to delay
-	}
-
-	private void setupMetal() {
-		// TODO
 	}
 
 }

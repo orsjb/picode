@@ -22,7 +22,6 @@ import net.beadsproject.beads.ugens.WavePlayer;
 import pi.dynamic.DynamoPI;
 import pi.network.NetworkCommunication;
 import pi.sensors.MiniMU.MiniMUListener;
-import controller.network.SendToPI;
 import core.Config;
 import core.PIPO;
 import de.sciss.net.OSCMessage;
@@ -32,29 +31,12 @@ public class Contact implements PIPO {
 	private static final long serialVersionUID = 1L;
 	public static final boolean verbose = false;
 	public static final int[] scalePitches = {0, 3, 5, 6, 7, 10};	//blues scale
-	
-	public static void main(String[] args) throws Exception {
-		
-		String fullClassName = Thread.currentThread().getStackTrace()[1].getClassName().replace(".", "/");
-		SendToPI.send(fullClassName, new String[]{
-				
-				"pisound-009e959c5093.local", 
-				"pisound-009e959c47ef.local", 
-				"pisound-009e959c4dbc.local", 
-				"pisound-009e959c3fb2.local",
-				"pisound-009e959c50e2.local",
-				"pisound-009e959c47e8.local",
-				"pisound-009e959c510a.local",
-				"pisound-009e959c502d.local",
-				
-				});
-	}
-	
+
 	Glide xFactor, yFactor, zFactor;
 
 	@Override
 	public void action(DynamoPI d) {
-		d.reset();
+//		d.reset();
 		
 		d.ac.out.getGainUGen().setValue(2f);
 		
@@ -138,9 +120,7 @@ public class Contact implements PIPO {
 			}
 		});
 	}
-	
 
-	//TODO test MU mappings using xFactor etc.
 	private int intervalRange = 100;
 	/////////////////////////////////////////////////////////////////
 	private void setupSoloInstrument(final DynamoPI d) {
