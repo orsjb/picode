@@ -166,26 +166,7 @@ public class ControllerMain extends Application implements LaunchPadBehaviour {
 	@Override
 	public void buttonAction(LaunchPad parent, int launchPadID, int row, int col, boolean push) {
 //		System.out.println("Launchpad: " + parent + " " + launchPadID + " " + row + " " + col + " " + push);
-		if(push) {
-			if(row == 0) {
-				//top row - tempo stuff
-				int tempoIndex = col;
-				piConnection.sendToAllPIs("/launchpad/tempo", new Object[] {tempoIndex});
-			} else if(col == 8) {
-				//right column - pitch stuff
-				int pitchIndex = row - 1;
-				piConnection.sendToAllPIs("/launchpad/pitch", new Object[] {pitchIndex});
-			} else {
-				//main grid
-				int group = col / 2;
-				int id = row - 1;
-				if(col % 2 == 1) {
-					id += 8;
-				}
-				//send ID to group
-				piConnection.sendToPIGroup(group, "/launchpad/id", new Object[] {id});
-			}
-		}
+		piConnection.sendToAllPIs("/launchpad", new Object[] {row, col, push?1:0});
 	}
 	
 	
