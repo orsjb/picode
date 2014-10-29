@@ -39,8 +39,8 @@ AUTOSTART=true
 
 ############## BONUS FEATURE #################
 ## Also run the code app (but wait a bit first)
-## sleep 10
-## /usr/bin/sudo /usr/bin/java -cp build/picode.jar compositions.pipos_2014.contact_further_dev.ContactShake &
+sleep 10
+/usr/bin/sudo /usr/bin/java -cp build/picode.jar compositions.pipos_2014.webdirections.fluff_install.FluffyWoolInstallation &
 ############## ------------- #################
 
 ### Various old or test scripts ###

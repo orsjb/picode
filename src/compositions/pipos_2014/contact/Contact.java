@@ -38,7 +38,7 @@ public class Contact implements PIPO {
 	public void action(DynamoPI d) {
 //		d.reset();
 		
-		d.ac.out.getGainUGen().setValue(2f);
+		d.ac.out.getGainUGen().setValue(1.5f);
 		
 		//settings
 //		d.pl.setSteal(false);

@@ -1,5 +1,6 @@
-package compositions.pipos_2014.webdirections;
+package compositions.pipos_2014.webdirections.fluff_install;
 
+import controller.network.SendToPI;
 import net.beadsproject.beads.core.Bead;
 import net.beadsproject.beads.data.Buffer;
 import net.beadsproject.beads.data.Pitch;
@@ -24,6 +25,14 @@ import de.sciss.net.OSCMessage;
 
 public class FluffyWoolInstallation implements PIPO {
 
+	public static void main(String[] args) throws Exception {
+		String fullClassName = Thread.currentThread().getStackTrace()[1].getClassName().replace(".", "/");
+		System.out.println("The path will be run: " + fullClassName);
+		SendToPI.send(fullClassName, new String[]{
+				"localhost"
+				});
+	}
+	
 	private static final long serialVersionUID = 1L;
 	
 	DynamoPI d;
@@ -118,7 +127,7 @@ public class FluffyWoolInstallation implements PIPO {
 			public void messageReceived(String s) {
 				String[] msgs = s.split("[ ]");
 				if(msgs[0].equals("guit") && Integer.parseInt(msgs[1]) != d.myIndex()) {
-					playmetal(d.rng.nextInt(8));
+					playmetal(d.rng.nextInt(4));
 				}
 			}
 		});
@@ -184,19 +193,40 @@ public class FluffyWoolInstallation implements PIPO {
 						birdGain.pause(false);
 						birdGainEnv.addSegment(1, 200);
 					}
+				} else {
+					//tone gain
+					double toneRateVal = rate - 1;
+					if(toneRateVal < 0) toneRateVal = 0;
+					toneRateVal /= 10.;
+					birdRate.setValue((float)toneRateVal);
+					if(toneRateVal == 0) {
+						gainEnvelope.clear();
+						gainEnvelope.addSegment(0, 5000);
+					} else {
+						gainEnvelope.clear();
+						gainEnvelope.addSegment(0.05f, 2000);
+					}
+					
 				}
 				//always change the beat interval
 				double tmp = (rate) / 10.;
 				beatInterval = (int)tmp;
 				if(beatInterval < 0) beatInterval = 0;
 				if(beatInterval > 7) beatInterval = 7;
-				System.out.println("Rate: " + rate + "... Beat Interval: " + beatInterval);
+//				System.out.println("Rate: " + rate + "... Beat Interval: " + beatInterval);
 			}
 			@Override
 			public void magData(double x, double y, double z) {
 			}
 			
 		});
+		
+		
+		//initial setup will be tones mode
+		//set up tones mode
+		birdState = "off";
+		currentNote = d.rng.nextInt(15);
+		pitchOff = d.rng.nextInt(8);
 	}
 	
 	private void updateState() {

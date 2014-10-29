@@ -1,4 +1,4 @@
-package compositions.pipos_2014.webdirections;
+package compositions.pipos_2014.webdirections.fluffy;
 
 import net.beadsproject.beads.core.Bead;
 import net.beadsproject.beads.data.Buffer;
@@ -72,7 +72,7 @@ public class FluffyWool implements PIPO {
 		pl = new PolyLimit(d.ac, 1, 2);
 		masterGain.addInput(pl);
 		pl.setSteal(false);
-		guitPitch = new Glide(d.ac, 0);
+		guitPitch = new Glide(d.ac, 0, 1000);
 		//load audio
 		SampleManager.sample("nightingale", "audio/Fluffy/nightingale.wav");
 		SampleManager.sample("kookaburra", "audio/Fluffy/kookaburra.wav");
@@ -138,9 +138,9 @@ public class FluffyWool implements PIPO {
 			public void accelData(double x, double y, double z) {
 				float xn = scaleMU((float)x);
 				//control mod depth
-				modDepthCtrl.setValue(xn * 500);
+				modDepthCtrl.setValue(xn * 50);
 				//and guitar pitch bend
-				guitPitch.setValue(guitBaseRate + (xn - lastXN) * 2f);
+				guitPitch.setValue(guitBaseRate + (xn - lastXN) * 10f);
 				lastXN = xn;
 			}
 			@Override
@@ -169,7 +169,7 @@ public class FluffyWool implements PIPO {
 				beatInterval = (int)tmp;
 				if(beatInterval < 0) beatInterval = 0;
 				if(beatInterval > 7) beatInterval = 7;
-				System.out.println("Rate: " + rate + "... Beat Interval: " + beatInterval);
+//				System.out.println("Rate: " + rate + "... Beat Interval: " + beatInterval);
 			}
 			@Override
 			public void magData(double x, double y, double z) {
@@ -212,7 +212,7 @@ public class FluffyWool implements PIPO {
 		int thisID = id + d.myIndex();
 		SamplePlayer sp = new SamplePlayer(d.ac, SampleManager.sample("powerchord"));
 		sp.setPitch(guitPitch);
-		guitBaseRate = Pitch.mtof(blues[thisID % blues.length] + 60) / Pitch.mtof(60);
+		guitBaseRate = Pitch.mtof(blues[thisID % blues.length] + 48) / Pitch.mtof(60);
 		xnOffset = lastXN;
 		guitPitch.setValueImmediately(guitBaseRate);
 		pl.addInput(sp);
@@ -224,10 +224,10 @@ public class FluffyWool implements PIPO {
 			gainEnvelope.addSegment(0, 5000);
 		} else {
 			gainEnvelope.clear();
-			gainEnvelope.addSegment(0.05f, 2000);
+			gainEnvelope.addSegment(0.2f, 2000);
 			int index = currentNote + mel[currentStep % mel.length];
 			int pitch = blues[index % blues.length];
-			pitch += 60 + pitchOff;
+			pitch += 48 + pitchOff;
 			float freq = Pitch.mtof(pitch);
 			float glide = 0;
 			if(d.rng.nextFloat() < 0.3f) glide = 400 * d.rng.nextFloat() * d.rng.nextFloat() * d.rng.nextFloat(); 
