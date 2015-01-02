@@ -1,12 +1,15 @@
 package controller.jfx_gui;
 
 import javafx.event.EventHandler;
+import javafx.geometry.VPos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Separator;
 import javafx.scene.control.TextField;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
+import javafx.scene.text.Text;
+import javafx.scene.text.TextAlignment;
 import controller.network.PIConnection;
 
 public abstract class GUIBuilder {
@@ -14,9 +17,17 @@ public abstract class GUIBuilder {
 	public static void createButtons(Pane pane, final PIConnection piConnection) {
     	
 		
+
+		Text globcmtx = new Text("Global commands");
+		globcmtx.setTextOrigin(VPos.CENTER);
+		pane.getChildren().add(globcmtx);
+		
 		//master buttons
-		HBox row1 = new HBox();
-		pane.getChildren().add(row1);
+		HBox globalcommands = new HBox();
+		globalcommands.setSpacing(10);
+		pane.getChildren().add(globalcommands);
+		
+//		globalcommands.getChildren().add(new Separator());
     	
 		{
 			Button b = new Button();
@@ -27,7 +38,7 @@ public abstract class GUIBuilder {
 				}
 			});
 	    	b.setText("Reboot");
-	    	row1.getChildren().add(b);
+	    	globalcommands.getChildren().add(b);
 		}
 		
 
@@ -40,7 +51,7 @@ public abstract class GUIBuilder {
 				}
 			});
 	    	b.setText("Shutdown");
-	    	row1.getChildren().add(b);
+	    	globalcommands.getChildren().add(b);
 		}
     	
 
@@ -53,7 +64,7 @@ public abstract class GUIBuilder {
 				}
 			});
 	    	b.setText("Sync");
-	    	row1.getChildren().add(b);
+	    	globalcommands.getChildren().add(b);
 		}
 
 		{
@@ -65,7 +76,7 @@ public abstract class GUIBuilder {
 				}
 			});
 	    	b.setText("Reset");
-	    	row1.getChildren().add(b);
+	    	globalcommands.getChildren().add(b);
 		}
 
 		{
@@ -77,7 +88,7 @@ public abstract class GUIBuilder {
 				}
 			});
 	    	b.setText("Reset Sounding");
-	    	row1.getChildren().add(b);
+	    	globalcommands.getChildren().add(b);
 		}
 
 		{
@@ -89,20 +100,29 @@ public abstract class GUIBuilder {
 				}
 			});
 	    	b.setText("Clear Sound");
-	    	row1.getChildren().add(b);
+	    	globalcommands.getChildren().add(b);
 		}
 		
 		//text sender
+		pane.getChildren().add(new Separator());
+		
+		Text codetxt = new Text("Custom Commands");
+		pane.getChildren().add(codetxt);
+		
+		HBox codearea = new HBox();
+		pane.getChildren().add(codearea);
+		codearea.setSpacing(10);
+		
 		final TextField codeField = new TextField();
 		codeField.setMinSize(500, 50);
-		pane.getChildren().add(codeField);
-//		
-//		HBox row2 = new HBox();
-//		pane.getChildren().add(row2);
+		codearea.getChildren().add(codeField);
 
-		row1.getChildren().add(new Separator());
+		HBox messagepaths = new HBox();
+		messagepaths.setSpacing(10);
+		pane.getChildren().add(messagepaths);
 		
 		Button sendAllButton = new Button("Send All");
+		sendAllButton.setMinWidth(80);
 		sendAllButton.setOnMouseClicked(new EventHandler<MouseEvent>() {
 			@Override
 			public void handle(MouseEvent e) {
@@ -126,10 +146,12 @@ public abstract class GUIBuilder {
 				piConnection.sendToAllPIs(msg, args);
 			}
 		});
-		row1.getChildren().add(sendAllButton);
+		messagepaths.getChildren().add(sendAllButton);
+		Text sendTogrpstxt = new Text("Send to group");
+		messagepaths.getChildren().add(sendTogrpstxt);
 		
 		
-		row1.getChildren().add(new Separator());
+//		messagepaths.getChildren().add(new Separator());
 		for(int i = 0; i < 4; i++) {
 			Button b = new Button();
 			final int index = i;
@@ -156,9 +178,11 @@ public abstract class GUIBuilder {
 					piConnection.sendToPIGroup(index, msg, args);
 				}
 			});
-	    	b.setText("Send " + (i + 1));
-	    	row1.getChildren().add(b);
+	    	b.setText("" + (i + 1));
+	    	messagepaths.getChildren().add(b);
 		}
+
+		pane.getChildren().add(new Separator());
     	
 	}
 	

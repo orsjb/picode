@@ -10,16 +10,19 @@ import javafx.application.Application;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.EventHandler;
+import javafx.geometry.Insets;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
+import javafx.scene.control.Separator;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 import javafx.util.Callback;
@@ -51,8 +54,12 @@ public class ControllerMain extends Application implements LaunchPadBehaviour {
     	piConnection = new PIConnection();
     	setupGUI(stage);
     	//test code...
-//    	piConnection.createTestPI();
-//    	piConnection.createTestPI();
+    	piConnection.createTestPI();
+    	piConnection.createTestPI();
+    	piConnection.createTestPI();
+    	piConnection.createTestPI();
+    	piConnection.createTestPI();
+    	piConnection.createTestPI();
     	synchronizer = Synchronizer.get();
     	//get normal desktop application behaviour - closing the stage terminates the app
     	stage.setOnCloseRequest(new EventHandler<WindowEvent>() {
@@ -78,17 +85,24 @@ public class ControllerMain extends Application implements LaunchPadBehaviour {
     	launchpad.show();
     }
     
+    
+    
 	private void setupGUI(Stage stage) {
+		
+		//core elements
 		Group masterGroup = new Group();
 		BorderPane border = new BorderPane();
-		VBox topBox = new VBox();
-		topBox.setMinHeight(100);
-		border.setTop(topBox);
-		VBox vbox = new VBox();
-		vbox.setMinWidth(50);
-		border.setLeft(vbox);
-		border.setRight(new VBox());
 		masterGroup.getChildren().add(border);
+		border.setPadding(new Insets(10));
+		
+		//the top button box
+		VBox topBox = new VBox();
+		border.setTop(topBox);
+		topBox.setMinHeight(100);
+		topBox.setSpacing(10);
+    	GUIBuilder.createButtons(topBox, piConnection);
+    	
+    	
     	//list of PIs
 		ListView<LocalPIRepresentation> list = new ListView<LocalPIRepresentation>();
     	list.setItems(piConnection.getPIs());
@@ -100,9 +114,8 @@ public class ControllerMain extends Application implements LaunchPadBehaviour {
 		});
     	list.setMinWidth(1000);
     	list.setMaxWidth(1000);
-    	list.setMinHeight(700);
+    	list.setMinHeight(500);
        	border.setCenter(list);
-    	GUIBuilder.createButtons(topBox, piConnection);
        	//populate combobox with list of compositions
        	List<String> compositionFileNames = new ArrayList<String>();
        	Queue<File> dirs = new LinkedList<File>();
@@ -135,10 +148,14 @@ public class ControllerMain extends Application implements LaunchPadBehaviour {
        		}
        	});
 
-       	HBox hbox = new HBox();
-       	topBox.getChildren().add(hbox);
-       	hbox.getChildren().add(menu);
-       	Button sendCode = new Button(">>");
+       	Text sendCodetxt = new Text("Send PIPOs");
+       	topBox.getChildren().add(sendCodetxt);
+       	
+       	HBox sendCodeHbox = new HBox();
+       	sendCodeHbox.setSpacing(10);
+       	topBox.getChildren().add(sendCodeHbox);
+       	sendCodeHbox.getChildren().add(menu);
+       	Button sendCode = new Button("Send >>");
        	sendCode.setOnMouseClicked(new EventHandler<MouseEvent>() {
 			@Override
 			public void handle(MouseEvent e) {
@@ -149,7 +166,10 @@ public class ControllerMain extends Application implements LaunchPadBehaviour {
    				}
 			}
 		});
-       	hbox.getChildren().add(sendCode);
+       	sendCodeHbox.getChildren().add(sendCode);
+       	topBox.getChildren().add(new Separator());
+       	
+       	
        	//set up the scene
         Scene scene = new Scene(masterGroup); 
         stage.setTitle("--PI Controller--"); 
