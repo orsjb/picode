@@ -43,14 +43,24 @@ public class MiniMU {
 			System.out.println("Starting sensors reading:");
 			bus = I2CFactory.getInstance(I2CBus.BUS_1);
 			System.out.println("Connected to bus OK!");
+
 			// GYRO
 			gyrodevice = bus.getDevice(GYR_ADDRESS);
 			gyrodevice.write(0x20, (byte) 0b00001111);
 			gyrodevice.write(0x23, (byte) 0b00110000);
+
 			// ACCEL
 			acceldevice = bus.getDevice(ACC_ADDRESS);
 			acceldevice.write(0x20, (byte) 0b01000111);
 			acceldevice.write(0x23, (byte) 0b00101000);
+
+			// COMPASS
+			magdevice = bus.getDevice(MAG_ADDRESS);
+			magdevice.write(0x00, (byte) 0b00001100);// DO = 011 (7.5 Hz ODR)
+			magdevice.write(0x01, (byte) 0b00100000);// GN = 001 (+/- 1.3 gauss full scale)
+			magdevice.write(0x02, (byte) 0b00000000);// MD = 00 (continuous-conversion mode)
+			
+			
 		} catch(IOException e) {
 			System.out.println("Warning: unable to communicate with the MiniMU, we're not going to be getting any sensor data :-(");
 			e.printStackTrace();
@@ -77,10 +87,12 @@ public class MiniMU {
 					try {
 						float[] gyroData = readSensorsGyro();
 						float[] accelData = readSensorsAccel();
+						float[] magData = readSensorsMag();
 						//pass data on to listeners
 						for(MiniMUListener listener : listeners) {
 							listener.accelData(accelData[0], accelData[1], accelData[2]);
 							listener.gyroData(gyroData[0], gyroData[1], gyroData[2]);
+							listener.magData(magData[0], magData[1], magData[2]);
 						}
 					} catch (IOException e) {
 //						System.out.println("MiniMU not receiving data.");
@@ -149,7 +161,38 @@ public class MiniMU {
 		}
 		return result;
 	}
+	
+	private float[] readSensorsMag() throws IOException {
+		int numElements = 3; //
+		float[] result = new float[numElements];
+		int bytesPerElement = 2; // assuming short?
+		int numBytes = numElements * bytesPerElement; //
+		byte[] bytes = new byte[numBytes]; //
+		DataInputStream accelIn;
+		magdevice.read(0xa8, bytes, 0, bytes.length);
+		accelIn = new DataInputStream(new ByteArrayInputStream(bytes));
+		for (int i = 0; i < numElements; i++) {
+			byte a = accelIn.readByte(); //least sig
+			byte b = accelIn.readByte(); //most sig
+			boolean[] abits = getBits(a);
+			boolean[] bbits = getBits(b);
+			boolean[] shortybits = new boolean[12];
+			for(int j = 0; j < 8; j++) {
+				shortybits[j] = bbits[j];
+			}
+			for(int j = 0; j < 8; j++) {
+				shortybits[j + 8] = abits[j];
+			}
+			int theInt = bits2Int(shortybits);
+			result[i] = theInt;
+		}
+		return result;
+	}
 
+
+	
+	
+	
 	public static boolean[] getBits(byte inByte) {
 		boolean[] bits = new boolean[8];
 		for (int j = 0; j < 8; j++) {
