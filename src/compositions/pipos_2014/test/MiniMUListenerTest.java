@@ -80,7 +80,7 @@ public class MiniMUListenerTest implements PIPO {
 				freqCtrl.setValue(((float)Math.abs(x) * 1f));
 				rateCtrl.setValue(4000f * (((float)Math.abs(y) * 3f) % 400f / 1600f + 0.01f));
 //				rateCtrl.setValue(2000f * (((float)Math.abs(y) * 1f) + 0.01f));
-				d.communication.broadcastOSC("/MinimuListener", new Object[] {AccString});
+//				d.communication.broadcastOSC("/MinimuListener", new Object[] {AccString});
 			}
 			
 			public void gyroData(double x, double y, double z) {

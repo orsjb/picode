@@ -60,11 +60,7 @@ public class Ubicomp2015DataCollection implements PIPO {
 		yMagFactor = new Glide(d.ac, 0, 1);
 		zMagFactor = new Glide(d.ac, 0, 1);
 		
-//		d.communication.broadcastOSC("/listenerLength", new Object[] {d.mu.listeners.size()});
-//		
-//		for(MiniMUListener listener : d.mu.listeners) {
-//			d.communication.broadcastOSC("/listenernameBefore", new Object[] {listener.toString()});			
-//		}
+
 		d.mu.addListener(new MiniMUListener() {
 			
 			@Override
@@ -76,7 +72,7 @@ public class Ubicomp2015DataCollection implements PIPO {
 				float scaledZ = scaleMU((float)zA);
 				zAccFactor.setValue(scaledZ);
 				String AccString = scaledX + " " + scaledY + " " + scaledZ;
-				d.communication.broadcastOSC("/heyhey", new Object[] {"Arguments go here"});
+				d.communication.broadcastOSC("/accelbaby", new Object[] {AccString});
 			}
 			
 			@Override
@@ -91,21 +87,20 @@ public class Ubicomp2015DataCollection implements PIPO {
 				d.communication.broadcastOSC("/gyrobaby", new Object[] {GyrString});
 			}
 
-//			public void magData(double xM, double yM, double zM){
-//				float scaledX = scaleMU((float)xM);
-//				xMagFactor.setValue(scaledX);
-//				float scaledY = scaleMU((float)yM);
-//				yMagFactor.setValue(scaledY);
-//				float scaledZ = scaleMU((float)zM);
-//				zMagFactor.setValue(scaledZ);
-//				String MagString = scaledX + " " + scaledY + " " + scaledZ;
-//				d.communication.broadcastOSC("/PI/mag", new Object[] {MagString});
-//			}
+			public void magData(double xM, double yM, double zM){
+				float scaledX = scaleMU((float)xM);
+				xMagFactor.setValue(scaledX);
+				float scaledY = scaleMU((float)yM);
+				yMagFactor.setValue(scaledY);
+				float scaledZ = scaleMU((float)zM);
+				zMagFactor.setValue(scaledZ);
+				String MagString = scaledX + " " + scaledY + " " + scaledZ;
+				d.communication.broadcastOSC("/PI/mag", new Object[] {MagString});
+			}
+			
 		});
 		
-//		for(MiniMUListener listener : d.mu.listeners) {
-//			d.communication.broadcastOSC("/listenernameAfter", new Object[] {listener.toString()});			
-//		}
+
 
 	}
 	
