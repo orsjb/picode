@@ -7,7 +7,7 @@ import net.beadsproject.beads.ugens.Glide;
 import net.beadsproject.beads.ugens.WavePlayer;
 import pi.dynamic.DynamoPI;
 import pi.sensors.MiniMU.MiniMUListener;
-import controller.network.SendToPI;
+import controller.network.*;
 import core.PIPO;
 
 public class Ubicomp2015DataCollection implements PIPO {
@@ -22,11 +22,11 @@ public class Ubicomp2015DataCollection implements PIPO {
 //			"pisound-009e959c4dbc.local", 
 //			"pisound-009e959c3fb2.local",
 //			"pisound-009e959c50e2.local",
-			"pisound-009e959c47e8.local",
+			"pisound-009e959c47e8.local"
 //			"pisound-009e959c510a.local",
 //			"pisound-009e959c502d.local",
 			
-			});
+		});
 	}
 	
 	Glide xAccFactor, yAccFactor, zAccFactor, xGyrFactor, yGyrFactor, zGyrFactor, xMagFactor, yMagFactor, zMagFactor;
@@ -36,18 +36,15 @@ public class Ubicomp2015DataCollection implements PIPO {
 		
 		d.reset();
 		setupMu(d);
-		
 		Function func = new Function(xGyrFactor) {
 			public float calculate() {
 				return (x[0] + 2) * 500f; 
 			}
 		};
-		
 		WavePlayer wp = new WavePlayer(d.ac, func, Buffer.SINE);
 		Gain g = new Gain(d.ac, 1, 0.02f);
 		g.addInput(wp);
 		d.ac.out.addInput(g);
-		
 	}
 	
 	private void setupMu(final DynamoPI d) {
@@ -63,7 +60,11 @@ public class Ubicomp2015DataCollection implements PIPO {
 		yMagFactor = new Glide(d.ac, 0, 1);
 		zMagFactor = new Glide(d.ac, 0, 1);
 		
-		
+//		d.communication.broadcastOSC("/listenerLength", new Object[] {d.mu.listeners.size()});
+//		
+//		for(MiniMUListener listener : d.mu.listeners) {
+//			d.communication.broadcastOSC("/listenernameBefore", new Object[] {listener.toString()});			
+//		}
 		d.mu.addListener(new MiniMUListener() {
 			
 			@Override
@@ -75,7 +76,7 @@ public class Ubicomp2015DataCollection implements PIPO {
 				float scaledZ = scaleMU((float)zA);
 				zAccFactor.setValue(scaledZ);
 				String AccString = scaledX + " " + scaledY + " " + scaledZ;
-				d.communication.broadcastOSC("/PI/accel", new Object[] {AccString});
+				d.communication.broadcastOSC("/heyhey", new Object[] {"Arguments go here"});
 			}
 			
 			@Override
@@ -87,22 +88,25 @@ public class Ubicomp2015DataCollection implements PIPO {
 				float scaledZ = scaleMU((float)zG);
 				zGyrFactor.setValue(scaledZ);
 				String GyrString = scaledX + " " + scaledY + " " + scaledZ;
-				d.communication.broadcastOSC("/PI/gyro", new Object[] {GyrString});
+				d.communication.broadcastOSC("/gyrobaby", new Object[] {GyrString});
 			}
 
-			// this doesn't seem to be implemented yet. 
-			public void magData(double xM, double yM, double zM){
-				float scaledX = scaleMU((float)xM);
-				xMagFactor.setValue(scaledX);
-				float scaledY = scaleMU((float)yM);
-				yMagFactor.setValue(scaledY);
-				float scaledZ = scaleMU((float)zM);
-				zMagFactor.setValue(scaledZ);
-				String MagString = scaledX + " " + scaledY + " " + scaledZ;
-				d.communication.broadcastOSC("/PI/mag", new Object[] {MagString});
-			}
-			
+//			public void magData(double xM, double yM, double zM){
+//				float scaledX = scaleMU((float)xM);
+//				xMagFactor.setValue(scaledX);
+//				float scaledY = scaleMU((float)yM);
+//				yMagFactor.setValue(scaledY);
+//				float scaledZ = scaleMU((float)zM);
+//				zMagFactor.setValue(scaledZ);
+//				String MagString = scaledX + " " + scaledY + " " + scaledZ;
+//				d.communication.broadcastOSC("/PI/mag", new Object[] {MagString});
+//			}
 		});
+		
+//		for(MiniMUListener listener : d.mu.listeners) {
+//			d.communication.broadcastOSC("/listenernameAfter", new Object[] {listener.toString()});			
+//		}
+
 	}
 	
 	private float scaleMU(float x) {
