@@ -11,6 +11,7 @@ import net.beadsproject.beads.ugens.Glide;
 import net.beadsproject.beads.ugens.Static;
 import net.beadsproject.beads.ugens.WavePlayer;
 import pi.dynamic.DynamoPI;
+import pi.sensors.MiniMU;
 import pi.sensors.MiniMU.MiniMUListener;
 import controller.network.SendToPI;
 import core.PIPO;
@@ -26,7 +27,8 @@ public class MiniMUListenerTest implements PIPO {
 //				"pisound-009e959c510a.local", 
 //				"pisound-009e959c502d.local",
 //				"pisound-009e959c4dbc.local",
-				"pisound-009e959c50e2.local",
+//				"pisound-009e959c50e2.local",
+				"pisound-009e959c47e8.local"
 				});
 	}
 	
@@ -35,7 +37,7 @@ public class MiniMUListenerTest implements PIPO {
 		
 		d.reset();
 		d.startAudio();
-		
+	
 		//controllers
 		final Glide freqCtrl = new Glide(d.ac, 500);
 		final Glide rateCtrl = new Glide(d.ac, 0.1f);
@@ -72,11 +74,13 @@ public class MiniMUListenerTest implements PIPO {
 			
 			public void accelData(double x, double y, double z) {
 				String AccString = String.format("MiniMu Acc X/Y/Z = %05.2f %05.2f %05.2f", x,y,z);
-
+				
+				
 				System.out.println(AccString);
 				freqCtrl.setValue(((float)Math.abs(x) * 1f));
 				rateCtrl.setValue(4000f * (((float)Math.abs(y) * 3f) % 400f / 1600f + 0.01f));
 //				rateCtrl.setValue(2000f * (((float)Math.abs(y) * 1f) + 0.01f));
+//				d.communication.broadcastOSC("/MinimuListener", new Object[] {AccString});
 			}
 			
 			public void gyroData(double x, double y, double z) {
@@ -86,7 +90,6 @@ public class MiniMUListenerTest implements PIPO {
 			
 		};
 		d.mu.addListener(myListener);
-		
 		
 		
 		

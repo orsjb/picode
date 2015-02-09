@@ -23,21 +23,26 @@ public class NetworkCommunication {
 	}
 
 	int myID;										 			//ID assigned by the controller
-	private OSCServer oscServer;					 			//The one and only OSC server
-	private InetSocketAddress controller;			 			//The network details of the controller
+	private OSCServer oscServer;				//The one and only OSC server + the other one
+	private InetSocketAddress controller, oscPortDetails;			 			//The network details of the controller
 	private Set<Listener> listeners = Collections.synchronizedSet(new HashSet<Listener>()); 	
 																//Listeners to incoming OSC messages
 	final private DynamoPI pi;
 	
 	public NetworkCommunication(DynamoPI _pi) throws IOException {
 		this.pi = _pi;
-		//init the OSCServer
+	
+		//init the OSCServers
 		try {
 			oscServer = OSCServer.newUsing(OSCServer.UDP, Config.controlToPIPort);
 			oscServer.start();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+
+	
+		
+		
 		//add a single master listener that forwards listening to delegates
 		oscServer.addOSCListener(new OSCListener() {
 			@Override
@@ -98,6 +103,11 @@ public class NetworkCommunication {
 		});
 		//set up the controller address
 		controller = new InetSocketAddress(Config.controllerHostname, Config.statusFromPIPort);
+		
+		//set up the controller address
+		oscPortDetails = new InetSocketAddress(Config.controllerHostname, Config.broadcastOSCPort);
+
+
 		//set up an indefinite thread to ping the controller
 		new Thread() {
 			public void run() {
@@ -122,6 +132,16 @@ public class NetworkCommunication {
 			e.printStackTrace();
 		}
 	}
+
+	
+	public void broadcastOSC(String msg, Object[] args) {
+		try {
+			oscServer.send(new OSCMessage(msg, args), oscPortDetails);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
 	
 	public void addListener(Listener l) {
 		listeners.add(l);
@@ -130,6 +150,7 @@ public class NetworkCommunication {
 	public void removeListener(Listener l) {
 		listeners.remove(l);
 	}
+	
 	
 	public void clearListeners() {
 		listeners.clear();
