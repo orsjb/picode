@@ -149,11 +149,11 @@ public class MiniMU {
 			byte b = accelIn.readByte(); //most sig
 			boolean[] abits = getBits(a);
 			boolean[] bbits = getBits(b);
-			boolean[] shortybits = new boolean[12];
+			boolean[] shortybits = new boolean[16];
 			for(int j = 0; j < 8; j++) {
 				shortybits[j] = bbits[j];
 			}
-			for(int j = 0; j < 4; j++) {
+			for(int j = 0; j < 8; j++) {
 				shortybits[j + 8] = abits[j];
 			}
 			int theInt = bits2Int(shortybits);
@@ -168,15 +168,15 @@ public class MiniMU {
 		int bytesPerElement = 2; // assuming short?
 		int numBytes = numElements * bytesPerElement; //
 		byte[] bytes = new byte[numBytes]; //
-		DataInputStream accelIn;
+		DataInputStream magIn;
 		magdevice.read(0xa8, bytes, 0, bytes.length);
-		accelIn = new DataInputStream(new ByteArrayInputStream(bytes));
+		magIn = new DataInputStream(new ByteArrayInputStream(bytes));
 		for (int i = 0; i < numElements; i++) {
-			byte a = accelIn.readByte(); //least sig
-			byte b = accelIn.readByte(); //most sig
+			byte a = magIn.readByte(); //least sig
+			byte b = magIn.readByte(); //most sig
 			boolean[] abits = getBits(a);
 			boolean[] bbits = getBits(b);
-			boolean[] shortybits = new boolean[12];
+			boolean[] shortybits = new boolean[16];
 			for(int j = 0; j < 8; j++) {
 				shortybits[j] = bbits[j];
 			}
