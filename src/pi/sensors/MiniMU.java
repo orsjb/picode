@@ -16,6 +16,7 @@ public class MiniMU {
 		public void accelData(double x, double y, double z) {}
 		public void gyroData(double x, double y, double z) {}
 		public void magData(double x, double y, double z) {}
+		public void imuData(double x, double y, double z,double x2, double y2, double z2,double x3, double y3, double z3) {}
 		public void tempData(double t) {}
 	}
 
@@ -93,6 +94,7 @@ public class MiniMU {
 							listener.accelData(accelData[0], accelData[1], accelData[2]);
 							listener.gyroData(gyroData[0], gyroData[1], gyroData[2]);
 							listener.magData(magData[0], magData[1], magData[2]);
+							listener.imuData(accelData[0], accelData[1], accelData[2],gyroData[0], gyroData[1], gyroData[2],magData[0], magData[1], magData[2]);
 						}
 					} catch (IOException e) {
 //						System.out.println("MiniMU not receiving data.");
