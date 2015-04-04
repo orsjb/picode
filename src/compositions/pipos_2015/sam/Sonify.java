@@ -1,8 +1,6 @@
 package compositions.pipos_2015.sam;
 
 
-
-
 public class Sonify{
 		
 	float inValue = 0;
@@ -28,9 +26,6 @@ public class Sonify{
 		
 	
 	//private class timeseries{
-		
-		
-	
 	//}
 	
 	private void scaleInput(){
