@@ -131,7 +131,7 @@ public class MiniMU {
 
 	private float[] readSensorsGyro() throws IOException {
 		int numElements = 3; //
-		float[] result = new float[numElements];
+		float[] result = {0, 0, 0};
 		int bytesPerElement = 2; // assuming short?
 		int numBytes = numElements * bytesPerElement; //
 		byte[] bytes = new byte[numBytes]; //
@@ -158,7 +158,8 @@ public class MiniMU {
 	
 	private float[] readSensorsAccel() throws IOException {
 		int numElements = 3; //
-		float[] result = new float[numElements];
+		float[] result = {0, 0, 0};
+		
 		int bytesPerElement = 2; // assuming short?
 		int numBytes = numElements * bytesPerElement; //
 		byte[] bytes = new byte[numBytes]; //
@@ -185,7 +186,7 @@ public class MiniMU {
 	
 	private float[] readSensorsMag() throws IOException {
 		int numElements = 3; //
-		float[] result = new float[numElements];
+		float[] result = {0, 0, 0};
 		int bytesPerElement = 2; // assuming short?
 		int numBytes = numElements * bytesPerElement; //
 		byte[] bytes = new byte[numBytes]; //
