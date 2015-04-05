@@ -105,10 +105,15 @@ public class MiniMU {
 
 						//pass data on to listeners
 						for(MiniMUListener listener : listeners) {
-							listener.accelData(accelData[0], accelData[1], accelData[2]);
-							listener.gyroData(gyroData[0], gyroData[1], gyroData[2]);
-							listener.magData(magData[0], magData[1], magData[2]);
-							listener.imuData(accelData[0], accelData[1], accelData[2],gyroData[0], gyroData[1], gyroData[2],magData[0], magData[1], magData[2]);
+							if (accelData.length > 0 ){ // test for empty array. 
+								listener.accelData(accelData[0], accelData[1], accelData[2]);
+								listener.gyroData(  gyroData[0],  gyroData[1],  gyroData[2]);
+								listener.magData(    magData[0],   magData[1],   magData[2]);
+							
+								listener.imuData(  accelData[0], accelData[1], accelData[2], 
+													gyroData[0],  gyroData[1],  gyroData[2], 
+													 magData[0],   magData[1],   magData[2]);
+							}
 						}
 					} catch (IOException e) {
 //						System.out.println("MiniMU not receiving data.");

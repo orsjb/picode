@@ -31,26 +31,26 @@ public class Sonify{
 	private void scaleInput(){
 		
 		// range In
-		float offsetIn 		= lowInput; 
-		float rangeIn 		= highInput - lowInput; 
+		offsetIn 		= lowInput; 
+		rangeIn 		= highInput - lowInput; 
 		
 		// range Out
-		float offsetOut 	= lowOutput; 
-		float rangeOut 		= highOutput - lowOutput; 
+		offsetOut 	= lowOutput; 
+		rangeOut 		= highOutput - lowOutput; 
 		
 		// output calculated
-		outValue 		= (((inValue - offsetIn) / rangeIn)  * rangeOut) + offsetOut;
+		outValue = (((inValue - offsetIn) / rangeIn)  * rangeOut) + offsetOut;
 		
 	}
 
 	public void addValue(float inputVal){
 		
-		// 
 		inValue = inputVal;
-	
 		update();
-		
-	}
+
+	}	
+	
+	
 	
 	private void update(){
 		
@@ -77,6 +77,13 @@ public class Sonify{
 	
 	}
 	
+	public float getOutputMTOF(){
+		
+		float mtofOutValue = mtof(outValue);
+		return outValue;
+	
+	}
+	
 	
 
 	float mapDifference(float input){
@@ -96,18 +103,19 @@ public class Sonify{
 	
 
 	float mtof(float input){
-		// convert midi note number to a frequency
+	// convert midi note number to a frequency
 		
 		float output = (float) (Math.pow(2, (input-69)/12) * 440);
-	
-		return output; 	
+		return output;
+		
 	}
 	
 	float ftom(float input){
-		// convert frequency val to a midi note number 
+	// convert frequency val to a midi note number 
+	
 		float output = (float) (69 + (12 *  (Math.log(input/440)/Math.log(2)))); 	
-				
-		return output; 
+		return output;
+		
 	}
 	
 	
