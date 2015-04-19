@@ -16,6 +16,7 @@ public class MiniMU {
 		public void accelData(double x, double y, double z) {}
 		public void gyroData(double x, double y, double z) {}
 		public void magData(double x, double y, double z) {}
+		public void imuData(double x, double y, double z,double x2, double y2, double z2,double x3, double y3, double z3) {}
 		public void tempData(double t) {}
 	}
 
@@ -53,7 +54,21 @@ public class MiniMU {
 			acceldevice.write(0x20, (byte) 0b01000111);
 			acceldevice.write(0x23, (byte) 0b00101000);
 
-			// COMPASS
+			
+//	        //// LSM303DLHC Magnetometer (from the c code)
+//
+//	        // DO = 011 (7.5 Hz ODR)
+//	        writeMagReg(LSM303_CRA_REG_M, 0b00001100);
+//			    #define LSM303_CRA_REG_M         0x00 // LSM303DLH, LSM303DLM, LSM303DLHC
+//	        // GN = 001 (+/- 1.3 gauss full scale)
+//	        writeMagReg(LSM303_CRB_REG_M, 0b00100000);
+//              #define LSM303_CRB_REG_M         0x01 // LSM303DLH, LSM303DLM, LSM303DLHC
+
+			//	        // MD = 00 (continuous-conversion mode)
+//	        writeMagReg(LSM303_MR_REG_M, 0b00000000);
+//    			#define LSM303_MR_REG_M  0x02 // LSM303DLH, LSM303DLM, LSM303DLHC
+
+			// COMPASS enable
 			magdevice = bus.getDevice(MAG_ADDRESS);
 			magdevice.write(0x00, (byte) 0b00001100);// DO = 011 (7.5 Hz ODR)
 			magdevice.write(0x01, (byte) 0b00100000);// GN = 001 (+/- 1.3 gauss full scale)
@@ -90,9 +105,15 @@ public class MiniMU {
 
 						//pass data on to listeners
 						for(MiniMUListener listener : listeners) {
-							listener.accelData(accelData[0], accelData[1], accelData[2]);
-							listener.gyroData(gyroData[0], gyroData[1], gyroData[2]);
-							listener.magData(magData[0], magData[1], magData[2]);
+							if (accelData.length > 0 ){ // test for empty array. 
+								listener.accelData(accelData[0], accelData[1], accelData[2]);
+								listener.gyroData(  gyroData[0],  gyroData[1],  gyroData[2]);
+								listener.magData(    magData[0],   magData[1],   magData[2]);
+							
+								listener.imuData(  accelData[0], accelData[1], accelData[2], 
+													gyroData[0],  gyroData[1],  gyroData[2], 
+													 magData[0],   magData[1],   magData[2]);
+							}
 						}
 					} catch (IOException e) {
 //						System.out.println("MiniMU not receiving data.");
@@ -110,7 +131,7 @@ public class MiniMU {
 
 	private float[] readSensorsGyro() throws IOException {
 		int numElements = 3; //
-		float[] result = new float[numElements];
+		float[] result = {0, 0, 0};
 		int bytesPerElement = 2; // assuming short?
 		int numBytes = numElements * bytesPerElement; //
 		byte[] bytes = new byte[numBytes]; //
@@ -137,7 +158,8 @@ public class MiniMU {
 	
 	private float[] readSensorsAccel() throws IOException {
 		int numElements = 3; //
-		float[] result = new float[numElements];
+		float[] result = {0, 0, 0};
+		
 		int bytesPerElement = 2; // assuming short?
 		int numBytes = numElements * bytesPerElement; //
 		byte[] bytes = new byte[numBytes]; //
@@ -164,12 +186,12 @@ public class MiniMU {
 	
 	private float[] readSensorsMag() throws IOException {
 		int numElements = 3; //
-		float[] result = new float[numElements];
+		float[] result = {0, 0, 0};
 		int bytesPerElement = 2; // assuming short?
 		int numBytes = numElements * bytesPerElement; //
 		byte[] bytes = new byte[numBytes]; //
 		DataInputStream magIn;
-		magdevice.read(0xa8, bytes, 0, bytes.length);
+		magdevice.read(0x83, bytes, 0, bytes.length);
 		magIn = new DataInputStream(new ByteArrayInputStream(bytes));
 		for (int i = 0; i < numElements; i++) {
 			byte a = magIn.readByte(); //least sig
@@ -177,11 +199,13 @@ public class MiniMU {
 			boolean[] abits = getBits(a);
 			boolean[] bbits = getBits(b);
 			boolean[] shortybits = new boolean[16];
+			// The mag sensor is BIG ENDIAN on the lsm303dlhc 
+			// so lets flip b and a compared to Acc
 			for(int j = 0; j < 8; j++) {
-				shortybits[j] = bbits[j];
+				shortybits[j] = abits[j];
 			}
 			for(int j = 0; j < 8; j++) {
-				shortybits[j + 8] = abits[j];
+				shortybits[j + 8] = bbits[j];
 			}
 			int theInt = bits2Int(shortybits);
 			result[i] = theInt;

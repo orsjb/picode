@@ -39,6 +39,11 @@ public class MiniMUTest {
 				System.out.println(GyrString);
 			}
 			
+			public void magData(double x, double y, double z) {
+				String MagString = String.format("MiniMu Mag X/Y/Z = %05.2f %05.2f %05.2f", x,y,z);
+				System.out.println(MagString);
+			}
+			
 		};
 		MiniMU mm = new MiniMU(myListener);
 		mm.start();
