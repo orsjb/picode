@@ -7,7 +7,7 @@ import java.util.Set;
 public abstract class Config {
 
 	//hosts and ports for network messages
-	public final static String controllerHostname  	= "boing.local"; 
+	public final static String controllerHostname  	= "woof.local"; 
 	public final static String multicastSynchAddr   = "225.2.2.5";
 	public final static int broadcastOSCPort 		= 2222;
 	public final static int statusFromPIPort 		= 2223;
