@@ -1,24 +1,31 @@
 #!/bin/bash
 
 # Script to autorun on pi
+
+############### NETWORK STUFF ################
+
+#### NOTE: recommended not to do this in the same script. We now assume another script does this and is autorun before this.
+
 # get the MAC address to use as hostname
 
-NEWHOST=`cat /sys/class/net/wlan0/address | sed s/://g`
-OLDHOST=`cat /etc/hostname`
+#NEWHOST=`cat /sys/class/net/wlan0/address | sed s/://g`
+#OLDHOST=`cat /etc/hostname`
 
 # correct format of hostname (pisound-<MAC>)
  
-NEWHOST=pisound-${NEWHOST}
+#NEWHOST=pisound-${NEWHOST}
 
 # reboot with correct hostname if required
 
-if [ "$NEWHOST" != "$OLDHOST" ] 
-then
-	echo "Changing hostname to format pisound-<MAC>. This will require a reboot."
-	echo $NEWHOST > hostname
-	sudo mv hostname /etc/
-	sudo reboot 
-fi
+#if [ "$NEWHOST" != "$OLDHOST" ]
+#then
+#	echo "Changing hostname to format pisound-<MAC>. This will require a reboot."
+#	echo $NEWHOST > hostname
+#	sudo mv hostname /etc/
+#	sudo reboot
+#fi
+
+############### THE MAIN APP ################
 
 # move to the correct dir for running java (one level above where this script is)
 
