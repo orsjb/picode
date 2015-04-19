@@ -54,12 +54,12 @@ public class ControllerMain extends Application implements LaunchPadBehaviour {
     	piConnection = new PIConnection();
     	setupGUI(stage);
     	//test code...
-    	piConnection.createTestPI();
-    	piConnection.createTestPI();
-    	piConnection.createTestPI();
-    	piConnection.createTestPI();
-    	piConnection.createTestPI();
-    	piConnection.createTestPI();
+//    	piConnection.createTestPI();
+//    	piConnection.createTestPI();
+//    	piConnection.createTestPI();
+//    	piConnection.createTestPI();
+//    	piConnection.createTestPI();
+//    	piConnection.createTestPI();
     	synchronizer = Synchronizer.get();
     	//get normal desktop application behaviour - closing the stage terminates the app
     	stage.setOnCloseRequest(new EventHandler<WindowEvent>() {
