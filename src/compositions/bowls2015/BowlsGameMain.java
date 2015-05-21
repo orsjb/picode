@@ -1,5 +1,10 @@
 package compositions.bowls2015;
 
+import java.util.Hashtable;
+import java.util.Map;
+
+import javax.swing.LayoutStyle.ComponentPlacement;
+
 import net.beadsproject.beads.core.Bead;
 import net.beadsproject.beads.data.Buffer;
 import net.beadsproject.beads.ugens.Envelope;
@@ -54,9 +59,10 @@ public class BowlsGameMain implements PIPO {
 	int[] offsets = {0, 5, 7, 12, 17, 19, 24, 29};
 	
 	String myID;
-	MovementState movementState;
 	int gameState = 0;			//0 = between games, 1 = 1 ball has been rolled, 2 = 2 balls have been rolled .... 6 = end of game.
 
+	Map<String, MovementState> movementStates;
+	
 	@Override
 	public void action(final DynamoPI d) {
 		String hostname = EZShell.call("hostname");
@@ -65,7 +71,8 @@ public class BowlsGameMain implements PIPO {
 		} else {
 			myID = "" + d.rng.nextInt(10) + "" + d.rng.nextInt(10) + "" + d.rng.nextInt(10) + "" + d.rng.nextInt(10);
 		}
-		movementState = MovementState.UNKNOWN;
+		movementStates = new Hashtable<String, MovementState>();
+		movementStates.put(myID, MovementState.UNKNOWN);
 		
 		//Let the game begin
 		
@@ -87,42 +94,49 @@ public class BowlsGameMain implements PIPO {
 			@Override
 			public void accelData(double x, double y, double z) {
 				// TODO Auto-generated method stub
-				super.accelData(x, y, z);
 			}
 
 			@Override
 			public void gyroData(double x, double y, double z) {
 				// TODO Auto-generated method stub
-				super.gyroData(x, y, z);
 			}
 
 			@Override
 			public void magData(double x, double y, double z) {
 				// TODO Auto-generated method stub
-				super.magData(x, y, z);
 			}
 			
 		});
 		
 		//use d.synch.broadcast("message"); to broadcast things
-		
-		//use d.synch.doAtTime(Runnable) to make something happen at a synchronised time
-		
+		//use d.synch.doAtTime(Runnable, time) to make something happen at a synchronised time, the 'time' variable should synch across machines
 		//use d.synch.addBroadcastListener(new BroadcastListener()); to listen to things
 		d.synch.addBroadcastListener(new BroadcastListener() {
 			@Override
 			public void messageReceived(String s) {
 				//TODO
+				String[] components = s.split("[ ]");
+				
+				if(components[0].equals("mstate")) {
+					movementStates.put(components[1], MovementState.valueOf(components[2]));
+				}
+				
 			}
 		});
 	
+	}
+	
+	void still() {
+		
+		//call this when stillness is detected
+		
+		
 	}
 	
 	void rolling() {
 		
 		//call this when rolling is detected
 		
-		movementState = MovementState.ROLLING;
 		
 		
 	}
