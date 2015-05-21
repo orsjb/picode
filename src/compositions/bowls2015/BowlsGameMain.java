@@ -18,6 +18,13 @@ import core.Synchronizer.BroadcastListener;
  * 
  *  > how does the Pi get its ID?? perhaps last 4 digits of hostname?
  *  > check different states, broadcast states, work out who is being played
+ *  
+ *  
+ *  GAME RULES:
+ *  
+ *  > When all balls are still, it is the end of game, 
+ *  > when all balls are moving, it is the transition.
+ *  
  *  > 
  * 
  * 
@@ -35,6 +42,7 @@ public class BowlsGameMain implements PIPO {
 			"localhost"
 			});
 	}
+	
 	public enum MovementState {
 		UNKNOWN, STILL, ROLLING, SLIGHT, FREEFALL
 	}
@@ -46,7 +54,8 @@ public class BowlsGameMain implements PIPO {
 	int[] offsets = {0, 5, 7, 12, 17, 19, 24, 29};
 	
 	String myID;
-	MovementState state;
+	MovementState movementState;
+	int gameState = 0;			//0 = between games, 1 = 1 ball has been rolled, 2 = 2 balls have been rolled .... 6 = end of game.
 
 	@Override
 	public void action(final DynamoPI d) {
@@ -56,7 +65,7 @@ public class BowlsGameMain implements PIPO {
 		} else {
 			myID = "" + d.rng.nextInt(10) + "" + d.rng.nextInt(10) + "" + d.rng.nextInt(10) + "" + d.rng.nextInt(10);
 		}
-		state = MovementState.UNKNOWN;
+		movementState = MovementState.UNKNOWN;
 		
 		//Let the game begin
 		
@@ -106,8 +115,17 @@ public class BowlsGameMain implements PIPO {
 				//TODO
 			}
 		});
+	
+	}
+	
+	void rolling() {
 		
-
+		//call this when rolling is detected
+		
+		movementState = MovementState.ROLLING;
+		
 		
 	}
+	
+	
 }
