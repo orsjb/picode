@@ -3,12 +3,12 @@ package compositions.bowls2015;
 import java.util.Hashtable;
 import java.util.Map;
 
-import javax.swing.LayoutStyle.ComponentPlacement;
-
 import net.beadsproject.beads.core.Bead;
 import net.beadsproject.beads.data.Buffer;
+import net.beadsproject.beads.events.KillTrigger;
 import net.beadsproject.beads.ugens.Envelope;
 import net.beadsproject.beads.ugens.Gain;
+import net.beadsproject.beads.ugens.Noise;
 import net.beadsproject.beads.ugens.WavePlayer;
 import pi.dynamic.DynamoPI;
 import pi.sensors.MiniMU.MiniMUListener;
@@ -40,6 +40,8 @@ import core.Synchronizer.BroadcastListener;
 
 public class BowlsGameMain implements PIPO {
 	
+	
+	
 	public static void main(String[] args) throws Exception {
 		String fullClassName = Thread.currentThread().getStackTrace()[1].getClassName().replace(".", "/");
 		System.out.println("The path will be run: " + fullClassName);
@@ -48,9 +50,28 @@ public class BowlsGameMain implements PIPO {
 			});
 	}
 	
+	final static int NUM_BALLS = 2;
+	
 	public enum MovementState {
 		UNKNOWN, STILL, ROLLING, SLIGHT, FREEFALL
 	}
+	
+	public enum Team {
+		BLACK, WHITE, WOOD, GREEN
+	}
+	
+	final static Map<String, Team> teams;
+	
+	static {
+		teams = new Hashtable<String, Team>();
+		teams.put("47ef", Team.BLACK);
+		teams.put("502d", Team.BLACK);
+		teams.put("3fb2", Team.WHITE);
+		teams.put("4eec", Team.WHITE);
+		teams.put("50e2", Team.WOOD);
+		teams.put("5093", Team.WOOD);
+	}
+	
 	
 	private static final long serialVersionUID = 1L;
 
@@ -60,24 +81,36 @@ public class BowlsGameMain implements PIPO {
 	
 	String myID;
 	int gameState = 0;			//0 = between games, 1 = 1 ball has been rolled, 2 = 2 balls have been rolled .... 6 = end of game.
-
+	double upness = 0;
+	int numStill = 0;
+	
+	DynamoPI d;
+	
 	Map<String, MovementState> movementStates;
+	
+	//audio stuff
+	Envelope freq;
+	
 	
 	@Override
 	public void action(final DynamoPI d) {
+		this.d = d;
 		String hostname = EZShell.call("hostname");
 		if(hostname != null) {
 			myID = hostname.substring(hostname.length() - 5, hostname.length() - 1);
 		} else {
 			myID = "" + d.rng.nextInt(10) + "" + d.rng.nextInt(10) + "" + d.rng.nextInt(10) + "" + d.rng.nextInt(10);
 		}
+		
+		System.out.println("My ID is: " + myID);
+		
 		movementStates = new Hashtable<String, MovementState>();
 		movementStates.put(myID, MovementState.UNKNOWN);
 		
 		//Let the game begin
 		
 		//test audio
-		final Envelope freq = new Envelope(d.ac, 500f);
+		freq = new Envelope(d.ac, 500f);
 		WavePlayer wp = new WavePlayer(d.ac, freq, Buffer.SINE);
 		Gain g = new Gain(d.ac, 1, 0.1f);
 		g.addInput(wp);
@@ -90,20 +123,41 @@ public class BowlsGameMain implements PIPO {
 		});
 		
 		d.mu.addListener(new MiniMUListener() {
-
+			
 			@Override
-			public void accelData(double x, double y, double z) {
-				// TODO Auto-generated method stub
-			}
-
-			@Override
-			public void gyroData(double x, double y, double z) {
-				// TODO Auto-generated method stub
-			}
-
-			@Override
-			public void magData(double x, double y, double z) {
-				// TODO Auto-generated method stub
+			public void imuData(double x, double y, double z, double x2, double y2, double z2, double x3, double y3, double z3) {
+				//backup state
+				MovementState oldState = movementStates.get(myID);
+				//accel
+				double daccel = Math.sqrt(x*x + y*y + z*z);
+				upness = z / 4000.;
+				if(upness > 1) upness = 1; else if(upness < -1) upness = -1;
+				if(daccel < 450) {
+					movementStates.put(myID, MovementState.FREEFALL);
+					freq.addSegment(1000f, 10);
+				}
+				if(daccel > 10000) {
+					impact();
+				}
+				//gyro data
+				double dgyro = Math.sqrt(x2*x2 + y2*y2 + z2*z2);
+//				System.out.println("d=" + d);
+				if(dgyro > 9100) {
+					movementStates.put(myID, MovementState.ROLLING);
+					freq.addSegment(3000f, 10);
+				} else if(dgyro < 100) {
+					movementStates.put(myID, MovementState.STILL);
+					freq.addSegment(500f, 10);
+				} else if(movementStates.get(myID) != MovementState.FREEFALL) {
+					movementStates.put(myID, MovementState.SLIGHT);
+					freq.addSegment(250f, 10);
+				}
+				System.out.println(movementStates.get(myID));
+				//send only if there is a change
+				if(oldState != movementStates.get(myID)) {
+					//every so often send
+					d.synch.broadcast("mstate " + myID + " " + movementStates.get(myID) + " ");
+				}
 			}
 			
 		});
@@ -114,31 +168,39 @@ public class BowlsGameMain implements PIPO {
 		d.synch.addBroadcastListener(new BroadcastListener() {
 			@Override
 			public void messageReceived(String s) {
-				//TODO
 				String[] components = s.split("[ ]");
-				
 				if(components[0].equals("mstate")) {
 					movementStates.put(components[1], MovementState.valueOf(components[2]));
 				}
-				
+//				System.out.println("msg received: " + s);
+				if(movementStates.size() == NUM_BALLS) {
+					int prevNumStill = numStill;
+					numStill = 0;
+					for(MovementState ms : movementStates.values()) {
+						if(ms == MovementState.STILL) {
+							numStill++;
+						}	
+					}
+					if(prevNumStill != numStill && numStill == NUM_BALLS) {
+						endGame();
+					}
+//					System.out.println("Num still: " + numStill);	
+				}
 			}
 		});
-	
 	}
 	
-	void still() {
-		
-		//call this when stillness is detected
-		
-		
+	void impact() {
+		//TODO
 	}
 	
-	void rolling() {
-		
-		//call this when rolling is detected
-		
-		
-		
+	void endGame() {
+		Noise n = new Noise(d.ac);
+		Envelope e = new Envelope(d.ac, 1);
+		Gain g = new Gain(d.ac, 1, e);
+		g.addInput(n);
+		d.sound(g);
+		e.addSegment(0, 500, new KillTrigger(g));
 	}
 	
 	
