@@ -38,7 +38,7 @@ import core.Synchronizer.BroadcastListener;
  */
 
 
-public class BowlsGameMain implements PIPO {
+public class BackupOfBowlsGameMain implements PIPO {
 	
 	
 	
@@ -53,7 +53,7 @@ public class BowlsGameMain implements PIPO {
 	final static int NUM_BALLS = 2;
 	
 	public enum MovementState {
-		UNKNOWN, STILL, ROLLING, SLIGHT, FREEFALL, UP
+		UNKNOWN, STILL, ROLLING, SLIGHT, FREEFALL
 	}
 	
 	public enum Team {
@@ -71,6 +71,7 @@ public class BowlsGameMain implements PIPO {
 		teams.put("5093", Team.WOOD);
 	}
 	
+	
 	private static final long serialVersionUID = 1L;
 
 	int[] blues = {0, 3, 5, 6, 7, 10, 12, 15, 17, 18, 19, 22, 24, 27, 29, 30, 31, 34, 36, 39, 41, 42, 43, 46, 48};
@@ -83,12 +84,12 @@ public class BowlsGameMain implements PIPO {
 	
 	double upness = 0;
 	int numStill = 0;
-	int numUp = 0;
 	
 	DynamoPI d;
 	
 	
 	//audio stuff
+	Envelope freq;
 	
 	
 	@Override
@@ -108,6 +109,12 @@ public class BowlsGameMain implements PIPO {
 		
 		//Let the game begin
 		
+		//test audio
+		freq = new Envelope(d.ac, 500f);
+		WavePlayer wp = new WavePlayer(d.ac, freq, Buffer.SINE);
+		Gain g = new Gain(d.ac, 1, 0.1f);
+		g.addInput(wp);
+		d.sound(g);
 		
 		d.pattern(new Bead() {
 			public void messageReceived(Bead msg) {
@@ -125,9 +132,9 @@ public class BowlsGameMain implements PIPO {
 				double daccel = Math.sqrt(x*x + y*y + z*z);
 				upness = z / 4000.;
 				if(upness > 1) upness = 1; else if(upness < -1) upness = -1;
-				if(daccel < 450 && oldState != MovementState.FREEFALL) {
+				if(daccel < 450) {
 					movementStates.put(myID, MovementState.FREEFALL);
-					startFreefallSound();
+					freq.addSegment(1000f, 10);
 				}
 				if(daccel > 10000) {
 					impact();
@@ -135,39 +142,21 @@ public class BowlsGameMain implements PIPO {
 				//gyro data
 				double dgyro = Math.sqrt(x2*x2 + y2*y2 + z2*z2);
 //				System.out.println("d=" + d);
-				if(dgyro > 9100 && oldState != MovementState.ROLLING) {
+				if(dgyro > 9100) {
 					movementStates.put(myID, MovementState.ROLLING);
-					startRollingSound();
-				} else if(dgyro < 100 && oldState != MovementState.STILL) {
+					freq.addSegment(3000f, 10);
+				} else if(dgyro < 100) {
 					movementStates.put(myID, MovementState.STILL);
-					startStillSound();
+					freq.addSegment(500f, 10);
 				} else if(movementStates.get(myID) != MovementState.FREEFALL) {
-					MovementState newState = MovementState.SLIGHT;
-					if(upness > 0.7f) {
-						newState = MovementState.UP;
-					}
-					movementStates.put(myID, newState);
-					if(newState != oldState) {		//works for both UP and SLIGHT
-						startSlightSound();
-					} 				
+					movementStates.put(myID, MovementState.SLIGHT);
+					freq.addSegment(250f, 10);
 				}
 				System.out.println(movementStates.get(myID));
 				//send only if there is a change
-				MovementState newState = movementStates.get(myID);
-				if(oldState != newState) {
+				if(oldState != movementStates.get(myID)) {
 					//every so often send
-					String result;
-					if(newState == MovementState.SLIGHT) {
-						result = "mstate " + myID + " " + newState + " " + upness + " ";
-					} else {
-						result = "mstate " + myID + " " + newState + " ";
-					}
-					d.synch.broadcast(result);
-					try {
-						d.setStatus(newState.toString());
-					} catch(Exception e) {
-						//snub
-					}
+					d.synch.broadcast("mstate " + myID + " " + movementStates.get(myID) + " ");
 				}
 			}
 			
@@ -186,41 +175,19 @@ public class BowlsGameMain implements PIPO {
 //				System.out.println("msg received: " + s);
 				if(movementStates.size() == NUM_BALLS) {
 					int prevNumStill = numStill;
-					int prevNumUp = numUp;
 					numStill = 0;
-					numUp = 0;
 					for(MovementState ms : movementStates.values()) {
 						if(ms == MovementState.STILL) {
 							numStill++;
-						} else if(ms == MovementState.UP) {
-							numUp++;
-						}
+						}	
 					}
 					if(prevNumStill != numStill && numStill == NUM_BALLS) {
 						endGame();
-					} else if(prevNumUp != numUp && numUp == NUM_BALLS) {
-						allup();
 					}
 //					System.out.println("Num still: " + numStill);	
 				}
 			}
 		});
-	}
-	
-	void startStillSound() {
-		//TODO
-	}
-	
-	void startSlightSound() {
-		//TODO
-	}
-	
-	void startFreefallSound() {
-		//TODO
-	}
-	
-	void startRollingSound() {
-		//TODO
 	}
 	
 	void impact() {
@@ -232,7 +199,12 @@ public class BowlsGameMain implements PIPO {
 	}
 	
 	void endGame() {
-		//TODO
+		Noise n = new Noise(d.ac);
+		Envelope e = new Envelope(d.ac, 1);
+		Gain g = new Gain(d.ac, 1, e);
+		g.addInput(n);
+		d.sound(g);
+		e.addSegment(0, 500, new KillTrigger(g));
 	}
 	
 	
