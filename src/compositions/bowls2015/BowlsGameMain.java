@@ -89,6 +89,13 @@ public class BowlsGameMain implements PIPO {
 	
 	
 	//audio stuff
+	Envelope baseFreq;
+	Envelope lfoFreq;
+	WavePlayer lfo;
+	
+	//specific sounds
+	Envelope rollingSoundEnv, stillSoundEnv, slightSoundEnv, freefallSoundEnv, continuousSoundsEnv, eventSoundsEnv;
+	Gain rollingSoundG, stillSoundG, slightSoundG, freefallSoundG, continuousSoundsG, eventSoundsG;
 	
 	
 	@Override
