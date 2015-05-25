@@ -6,9 +6,9 @@ import java.util.Map;
 import net.beadsproject.beads.core.Bead;
 import net.beadsproject.beads.data.Buffer;
 import net.beadsproject.beads.data.SampleManager;
+import net.beadsproject.beads.events.KillTrigger;
 import net.beadsproject.beads.ugens.Envelope;
 import net.beadsproject.beads.ugens.Gain;
-import net.beadsproject.beads.ugens.GranularSamplePlayer;
 import net.beadsproject.beads.ugens.SamplePlayer;
 import net.beadsproject.beads.ugens.WavePlayer;
 import pi.dynamic.DynamoPI;
@@ -50,12 +50,12 @@ public class BowlsGameMain implements PIPO {
 			});
 	}
 	
-	final static int NUM_BALLS = 2;
-	final static boolean verbose = true;
-	final static String audioDir = "/home/pi/audio";
+	final static int NUM_BALLS = 5;
+	final static boolean verbose = false;
+	final static String audioDir = "/home/pi/audio/";
 	
 	public enum MovementState {
-		UNKNOWN, STILL, ROLLING, SLIGHT, FREEFALL, UP
+		UNKNOWN, STILL, ROLLING, SLIGHT
 	}
 	
 	public enum Team {
@@ -84,6 +84,7 @@ public class BowlsGameMain implements PIPO {
 	double upness = 0;
 	int numStill = 0;
 	int numUp = 0;
+	float ratemult;
 	
 	DynamoPI d;
 	
@@ -93,8 +94,8 @@ public class BowlsGameMain implements PIPO {
 	WavePlayer lfo;
 	
 	//specific sounds
-	Envelope rollingSoundEnv, stillSoundEnv, slightSoundEnv, freefallSoundEnv, continuousSoundsEnv, eventSoundsEnv;
-	Gain rollingSoundG, stillSoundG, slightSoundG, freefallSoundG, continuousSoundsG, eventSoundsG;
+	Envelope rollingSoundEnv, stillSoundEnv, slightSoundEnv;
+	Gain rollingSoundG, stillSoundG, slightSoundG;
 	
 	@Override
 	public void action(final DynamoPI d) {
@@ -127,27 +128,31 @@ public class BowlsGameMain implements PIPO {
 				double daccel = Math.sqrt(x*x + y*y + z*z);
 				upness = z / 4000.;
 				if(upness > 1) upness = 1; else if(upness < -1) upness = -1;
-				if(daccel < 450 && oldState != MovementState.FREEFALL) {
-					movementStates.put(myID, MovementState.FREEFALL);
-					startFreefallSound();
-				}
+//				if(daccel < 450 && oldState != MovementState.FREEFALL) {
+//					movementStates.put(myID, MovementState.FREEFALL);
+////					startFreefallSound();
+//				}
 				if(daccel > 10000) {
 					impact();
 				}
 				//gyro data
 				double dgyro = Math.sqrt(x2*x2 + y2*y2 + z2*z2);
 //				System.out.println("d=" + d);
-				if(dgyro > 9100 && oldState != MovementState.ROLLING) {
+				if(dgyro > 9100) {
 					movementStates.put(myID, MovementState.ROLLING);
-					startRollingSound();
-				} else if(dgyro < 100 && oldState != MovementState.STILL) {
-					movementStates.put(myID, MovementState.STILL);
-					startStillSound();
-				} else if(movementStates.get(myID) != MovementState.FREEFALL) {
-					MovementState newState = MovementState.SLIGHT;
-					if(upness > 0.7f) {
-						newState = MovementState.UP;
+					if(oldState != MovementState.ROLLING) {
+						startRollingSound();
 					}
+				} else if(dgyro < 300) {
+					movementStates.put(myID, MovementState.STILL);
+					if(oldState != MovementState.STILL) {
+						startStillSound();
+					}
+				} else {//if(movementStates.get(myID) != MovementState.FREEFALL) {
+					MovementState newState = MovementState.SLIGHT;
+//					if(upness > 0.7f) {
+//						newState = MovementState.UP;
+//					}
 					movementStates.put(myID, newState);
 					if(newState != oldState) {		//works for both UP and SLIGHT
 						startSlightSound();
@@ -192,25 +197,42 @@ public class BowlsGameMain implements PIPO {
 					for(MovementState ms : movementStates.values()) {
 						if(ms == MovementState.STILL) {
 							numStill++;
-						} else if(ms == MovementState.UP) {
-							numUp++;
 						}
+//						else if(ms == MovementState.UP) {
+//							numUp++;
+//						}
 					}
-					if(prevNumStill != numStill && numStill == NUM_BALLS) {
+					if(prevNumStill != numStill && numStill >= NUM_BALLS) {
 						endGame();
-					} else if(prevNumUp != numUp && numUp == NUM_BALLS) {
-						allup();
-					}	
+					} 
+//					else if(prevNumUp != numUp && numUp >= NUM_BALLS) {
+//						allup();
+//					}	
 				}
 			}
 		});
 	}
 	
 	void loadSounds() {
-		//TODO
+		SampleManager.sample(audioDir + "rolling.aif");
+		SampleManager.sample(audioDir + "still.aif");
+		SampleManager.sample(audioDir + "slight.wav");
+		SampleManager.sample(audioDir + "endgame/Bells_009.115.wav");
+		SampleManager.group("impact", audioDir + "impact");
+//		SampleManager.group("allup", audioDir + "allup");
+		SampleManager.group("endgame", audioDir + "endgame");
+		
 	}
 	
 	void setupAudioElements() {
+		
+		ratemult = 1;
+		if(teams.get(myID) == Team.BLACK) {
+			ratemult = 1.5f;
+		} else if (teams.get(myID) == Team.WOOD) {
+			ratemult = 0.75f;
+		}
+		
 		//global stuff
 		baseFreq = new Envelope(d.ac, 500);
 		lfoFreq = new Envelope(d.ac, 5);
@@ -219,45 +241,48 @@ public class BowlsGameMain implements PIPO {
 		rollingSoundEnv = new Envelope(d.ac, 0);
 		stillSoundEnv = new Envelope(d.ac, 0);
 		slightSoundEnv = new Envelope(d.ac, 0);
-		freefallSoundEnv = new Envelope(d.ac, 0);
-		continuousSoundsEnv = new Envelope(d.ac, 1);
-		eventSoundsEnv = new Envelope(d.ac, 1);
 		//gains
 		rollingSoundG = new Gain(d.ac, 1, rollingSoundEnv);
 		stillSoundG = new Gain(d.ac, 1, stillSoundEnv);
 		slightSoundG = new Gain(d.ac, 1, slightSoundEnv);
-		freefallSoundG = new Gain(d.ac, 1, freefallSoundEnv);
-		continuousSoundsG = new Gain(d.ac, 1, continuousSoundsEnv);
-		eventSoundsG = new Gain(d.ac, 1, eventSoundsEnv);
 		//connect
-		continuousSoundsG.addInput(rollingSoundG);
-		continuousSoundsG.addInput(stillSoundG);
-		continuousSoundsG.addInput(slightSoundG);
-		continuousSoundsG.addInput(freefallSoundG);
-		d.ac.out.addInput(continuousSoundsG);
-		d.ac.out.addInput(eventSoundsG);
+		d.ac.out.addInput(rollingSoundG);
+		d.ac.out.addInput(stillSoundG);
+		d.ac.out.addInput(slightSoundG);
 		
 		//detailed elements
 		
 		//rolling sound
 		//TODO 
-		WavePlayer wp = new WavePlayer(d.ac, 500, Buffer.SINE);		//tone to be modulated by the direction
-		rollingSoundG.addInput(wp);
+		SamplePlayer rolling = new SamplePlayer(d.ac, SampleManager.sample(audioDir + "still.aif"));
+		rolling.setLoopType(SamplePlayer.LoopType.LOOP_ALTERNATING);
+		rolling.getRateUGen().setValue(ratemult * 2);
+		Gain g = new Gain(d.ac, 2, 1);
+		g.addInput(rolling);
+		rollingSoundG.addInput(g);
 		
 		//still sound
 		//TODO 
-		GranularSamplePlayer still = new GranularSamplePlayer(d.ac, SampleManager.sample(audioDir + "still.wav"));
+		SamplePlayer still = new SamplePlayer(d.ac, SampleManager.sample(audioDir + "still.aif"));
+		still.getRateUGen().setValue(0.5f * ratemult);
+		still.setLoopType(SamplePlayer.LoopType.LOOP_ALTERNATING);
 		stillSoundG.addInput(still);
 		
 		//slight sound
 		//TODO 
-		GranularSamplePlayer slight = new GranularSamplePlayer(d.ac, SampleManager.sample(audioDir + "slight.wav"));
+		SamplePlayer slight = new SamplePlayer(d.ac, SampleManager.sample(audioDir + "slight.wav"));
+		slight.setLoopType(SamplePlayer.LoopType.LOOP_ALTERNATING);
+		slight.getRateUGen().setValue(ratemult);
 		slightSoundG.addInput(slight);
 		
 		//freefall sound
 		//TODO 		
-		GranularSamplePlayer freefall = new GranularSamplePlayer(d.ac, SampleManager.sample(audioDir + "freefall.wav"));
-		freefallSoundG.addInput(freefall);
+//		GranularSamplePlayer freefall = new GranularSamplePlayer(d.ac, SampleManager.sample(audioDir + "freefall.aif"));
+//		freefallSoundG.addInput(freefall);
+		
+		d.ac.out.getGainUGen().setValue(0.5f);
+		
+		stopallSounds();
 	}
 	
 	void stopallSounds() {
@@ -267,8 +292,6 @@ public class BowlsGameMain implements PIPO {
 		stillSoundEnv.addSegment(0f, 2000f);
 		slightSoundEnv.clear(); 
 		slightSoundEnv.addSegment(0f, 2000f);
-		freefallSoundEnv.clear();
-		freefallSoundEnv.addSegment(0f, 2000f);
 	}
 	
 	void startStillSound() {
@@ -283,11 +306,6 @@ public class BowlsGameMain implements PIPO {
 		slightSoundEnv.addSegment(1f, 2000f);
 	}
 	
-	void startFreefallSound() {
-		stopallSounds();
-		freefallSoundEnv.clear();
-		freefallSoundEnv.addSegment(1f, 2000f);
-	}
 	
 	void startRollingSound() {
 		stopallSounds();
@@ -296,17 +314,33 @@ public class BowlsGameMain implements PIPO {
 	}
 	
 	void impact() {
-		d.sound(new SamplePlayer(d.ac, SampleManager.randomFromGroup("impact")));
+		SamplePlayer s = new SamplePlayer(d.ac, SampleManager.randomFromGroup("impact"));
+		s.getRateUGen().setValue(ratemult);
+		d.ac.out.addInput(s);
 	}
 	
 	void allup() {
 		stopallSounds();
-		d.sound(new SamplePlayer(d.ac, SampleManager.randomFromGroup("allup")));
+		SamplePlayer s = new SamplePlayer(d.ac, SampleManager.randomFromGroup("allup"));
+		s.getRateUGen().setValue(ratemult);
+		d.ac.out.addInput(s);
 	}
 	
 	void endGame() {
+		System.out.println("Playing endgame");
 		stopallSounds();
-		d.sound(new SamplePlayer(d.ac, SampleManager.randomFromGroup("endgame")));
+//		SamplePlayer s = new SamplePlayer(d.ac, SampleManager.randomFromGroup("endgame"));
+		SamplePlayer s = new SamplePlayer(d.ac, SampleManager.sample(audioDir + "endgame/Bells_009.115.wav"));
+		s.getRateUGen().setValue(5);
+		d.ac.out.addInput(s);
+		
+		WavePlayer wp = new WavePlayer(d.ac, 660f * ratemult, Buffer.SINE);
+		Envelope e = new Envelope(d.ac, 0f);
+		Gain g = new Gain(d.ac, 1, e);
+		g.addInput(wp);
+		d.ac.out.addInput(g);
+		e.addSegment(0.1f, 700);
+		e.addSegment(0, 7000, new KillTrigger(g));
 	}
 	
 	

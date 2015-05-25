@@ -42,7 +42,7 @@ INS=0
 OUTS=1 
 AUTOSTART=true 
 
-/usr/bin/sudo /usr/bin/java -cp build/picode.jar pi.PIMain $BUF $SR $BITS $INS $OUTS $AUTOSTART  > stdout &
+/usr/bin/sudo /usr/bin/java -cp build/picode.jar -Xmx215m pi.PIMain $BUF $SR $BITS $INS $OUTS $AUTOSTART  > stdout &
 
 ############## BONUS FEATURE #################
 ## Also run the code app (but wait a bit first)
