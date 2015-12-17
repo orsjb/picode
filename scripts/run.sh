@@ -8,22 +8,22 @@
 
 # get the MAC address to use as hostname
 
-#NEWHOST=`cat /sys/class/net/wlan0/address | sed s/://g`
-#OLDHOST=`cat /etc/hostname`
+NEWHOST=`cat /sys/class/net/wlan0/address | sed s/://g`
+OLDHOST=`cat /etc/hostname`
 
 # correct format of hostname (pisound-<MAC>)
  
-#NEWHOST=pisound-${NEWHOST}
+NEWHOST=pisound-${NEWHOST}
 
 # reboot with correct hostname if required
 
-#if [ "$NEWHOST" != "$OLDHOST" ]
-#then
-#	echo "Changing hostname to format pisound-<MAC>. This will require a reboot."
-#	echo $NEWHOST > hostname
-#	sudo mv hostname /etc/
-#	sudo reboot
-#fi
+if [ "$NEWHOST" != "$OLDHOST" ]
+then
+	echo "Changing hostname to format pisound-<MAC>. This will require a reboot."
+	echo $NEWHOST > hostname
+	sudo mv hostname /etc/
+	sudo reboot
+fi
 
 ############### THE MAIN APP ################
 
@@ -35,12 +35,14 @@ cd ${DIR}/..
 # Run the main app
 # args are bufSize (8192), sample rate (22050), bits (16), input channels (0), output channels (1), autostart (true)
 
+#NOTE: if using HIFIBERRY then you want OUTS=2 and SR=44100, else it fails. HIFIBERRY must have a stereo line.
+
 BUF=4096
 SR=22050
 BITS=16
 INS=0
 OUTS=1 
-AUTOSTART=true 
+AUTOSTART=true
 
 /usr/bin/sudo /usr/bin/java -cp build/picode.jar -Xmx215m pi.PIMain $BUF $SR $BITS $INS $OUTS $AUTOSTART  > stdout &
 
