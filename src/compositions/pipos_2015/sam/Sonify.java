@@ -3,13 +3,11 @@ package compositions.pipos_2015.sam;
 
 public class Sonify{
 		
-	float inValue = 0;
-	float reducedValue = 0;
-	float mappedValue = 0; 
+	float inValue;
 	float lowInput, lowOutput, highInput, highOutput;
 	float offsetIn, offsetOut;
 	float rangeIn, rangeOut;
-	float outValue = 0;	
+	float outValue;
 	
 	float pastFilterValue, previousDiffValue = 0; 
 
@@ -21,7 +19,13 @@ public class Sonify{
 		highInput		= highIn;
 		lowOutput		= lowOut;
 		highOutput 		= highOut;
-		
+
+        // range In
+        offsetIn 		= lowInput;
+        rangeIn 		= highInput - lowInput;
+        // range Out
+        offsetOut 	= lowOutput;
+        rangeOut 	= highOutput - lowOutput;
 	}
 		
 	
@@ -29,14 +33,6 @@ public class Sonify{
 	//}
 	
 	private void scaleInput(){
-		
-		// range In
-		offsetIn 		= lowInput; 
-		rangeIn 		= highInput - lowInput; 
-		
-		// range Out
-		offsetOut 	= lowOutput; 
-		rangeOut 		= highOutput - lowOutput; 
 		
 		// output calculated
 		outValue = (((inValue - offsetIn) / rangeIn)  * rangeOut) + offsetOut;
@@ -48,7 +44,31 @@ public class Sonify{
 		inValue = inputVal;
 		update();
 
-	}	
+	}
+
+    public void printSonificationAlgorithm() {
+
+
+        // 5 values spaced across the range
+        float[] vals = new float[5];
+        for (int i = 0; i < 5; i++){
+            System.out.println(offsetIn + " is the offset, and " + rangeIn + " is the range times " + ((float) i) / 5f);
+            vals[i] = offsetIn + rangeIn * ((float) i) / 5f;
+        }
+        System.out.println(vals[3]);
+        // State values
+        System.out.println("Sonification Algorithm Loaded");
+        System.out.println(": Scale values from "  +  lowInput + " to " + highInput );
+        System.out.println(": to "  +  lowOutput + " to " + highOutput);
+        System.out.println(":");
+        System.out.println(":");
+        for (int i = 0; i < 5; i ++) {
+            this.addValue(vals[i]);
+            System.out.println(": for " + vals[i] + " the output value is " + outValue + " and the freq value is " + this.getOutputMTOF());
+        }
+
+
+    }
 	
 	
 	
@@ -80,7 +100,7 @@ public class Sonify{
 	public float getOutputMTOF(){
 		
 		float mtofOutValue = mtof(outValue);
-		return outValue;
+		return mtofOutValue;
 	
 	}
 	
@@ -92,15 +112,14 @@ public class Sonify{
 		return output;
 	}
 
-	
+
+
 	float mapMovingAverage(float input){
-		float output = (float) (input * 0.5 + pastFilterValue * 0.95);
+		float output = (float) (input * 0.05 + pastFilterValue * 0.95);
 		pastFilterValue = output; 
 		return output;
 	}
 
-	
-	
 
 	float mtof(float input){
 	// convert midi note number to a frequency

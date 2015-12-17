@@ -1,5 +1,8 @@
 package compositions.pipos_2015.sam;
 
+import controller.network.SendToPI;
+import core.PIPO;
+import de.sciss.net.OSCMessage;
 import net.beadsproject.beads.core.Bead;
 import net.beadsproject.beads.data.Buffer;
 import net.beadsproject.beads.ugens.Function;
@@ -9,10 +12,6 @@ import net.beadsproject.beads.ugens.WavePlayer;
 import pi.dynamic.DynamoPI;
 import pi.network.NetworkCommunication;
 import pi.sensors.MiniMU.MiniMUListener;
-import controller.network.*;
-import core.PIPO;
-import de.sciss.net.OSCMessage;
-import compositions.pipos_2015.sam.Sonify;
 
 
 public class Ubicomp2015DataCollection implements PIPO {
@@ -22,33 +21,55 @@ public class Ubicomp2015DataCollection implements PIPO {
 	 */
 	private static final long serialVersionUID = 1L;
 
-	public static void main(String[] args) throws Exception {
-
-		String fullClassName = Thread.currentThread().getStackTrace()[1].getClassName().replace(".", "/");
-		SendToPI.send(fullClassName, new String[]{
-
-				//			"pisound-009e959c5093.local", 
-				"pisound-009e959c47ef.local",
-				//			"pisound-009e959c4dbc.local", 
-				//			"pisound-009e959c3fb2.local",
-				//			"pisound-009e959c50e2.local",
-				//			"pisound-009e959c47e8.local",
-				//			"pisound-009e959c510a.local",
-				//			"pisound-009e959c502d.local"
-		});
-	}
-
 	Glide freqVal, gainVal;
 	float loGain, hiGain;
 	boolean doMovingAverage, doDifference = false; 
 	boolean recording;
-	String inputToMap; 
-	Sonify sonifyer;
-	float inputRange; 
-	float rangeCentre;
+	String inputToMap;
+    Sonify sonifyer;
+	String[][] paramCombinations = initiliaseCombinations();
 
-	
-	public static String[][] initiliaseCombinations(){
+    public static void main(String[] args) throws Exception {
+
+
+        if (true){
+
+            String fullClassName = Thread.currentThread().getStackTrace()[1].getClassName().replace(".", "/");
+            SendToPI.send(fullClassName, new String[]{
+
+                    //	"pisound-009e959c5093.local",
+                    // 	"pisound-009e959c47ef.local",
+                    //	"pisound-009e959c4dbc.local",
+                    //	"pisound-009e959c3fb2.local",
+                    //	"pisound-009e959c50e2.local",
+                    //	"pisound-009e959c47e8.local",
+                    //	"pisound-009e959c510a.local",
+                    //	"pisound-009e959c502d.local",
+                    "pisound-001d43c00efd.local"
+            });
+
+        } else {
+
+            String[][] combos = initiliaseCombinations();
+            for (int i = 0; i < combos.length; i++) {
+                for (int j = 0; j < combos[1].length; j++) {
+
+                    System.out.print(combos[i][j] + " ");
+                }
+                System.out.println("");
+            }
+            // This is where the parameter combination is set up
+            Sonify sonifye = chooseSonificationCombination(combos[14]);
+            sonifye.printSonificationAlgorithm();
+
+        }
+
+
+    }
+
+
+    public static String[][] initiliaseCombinations(){
+        //
 		String[] paramRange  = {"LowRng","MedRng","HiRng"};
 		String[] paramCentre = {"LowCtr","MedCtr","HiCtr"};
 		String[] paramType   = {"UseX","UseY","UseZ"};
@@ -70,27 +91,37 @@ public class Ubicomp2015DataCollection implements PIPO {
 		return paramCombinations;
 	}
 
-	String[][] paramCombinations = initiliaseCombinations();
-	
+
 
 	public void chooseSonificationCombination(String reservedSonification){
 		switch (reservedSonification){
 			case "silence":
-		
 				sonifyer = new Sonify(0, 0, 0, 0);
-				loGain=0;  
-				hiGain=0;  
+				loGain=0;
+				hiGain=0;
 				break;
 		}
 	}
 	
 	
-	public void chooseSonificationCombination(String[] paramCombination){
-		
-		switch (paramCombination[0]){
+	public static Sonify chooseSonificationCombination(String[] paramCombination){
+    // this takes the combination of three parameters and sets up a
+
+        // This method is static so you need to reset your variables here
+        // if you wish to use them in this static method.
+        float inputRange = 0;
+        float rangeCentre = 0;
+
+        float accMax = 3000;
+        float accMin = -3000;
+
+        String inputToMap;
+
+        // Set the range parameter
+        switch (paramCombination[0]){
 
 			case "LowRng":
-				inputRange = 1;
+				inputRange = 2;
 				break;
 			case "MedRng":
 				inputRange = 4;
@@ -99,7 +130,8 @@ public class Ubicomp2015DataCollection implements PIPO {
 				inputRange = 12;
 				break;
 		}
-		
+
+        // Set whether the pitch centre is low or high
 		switch (paramCombination[1]){
 			
 			case "LowCtr":
@@ -112,30 +144,33 @@ public class Ubicomp2015DataCollection implements PIPO {
 				rangeCentre = 81;
 				break;
 		}
-				
+
+        // set whether the calculation uses X, Y or Z.
 		switch (paramCombination[2]){
 
 			case "UseX":
 				inputToMap = "useX";  
 				break;
-			
 			case "UseY":
 				inputToMap = "useY";  
 				break;
-			
 			case "UseZ":
 				inputToMap = "useZ";  
 				break;
 		}
-			
-		sonifyer = new Sonify(-3000, 3000, rangeCentre-inputRange, rangeCentre+inputRange);
 
-	}	
+        // sonifyer is created here just to return it
+        Sonify sonifyerToReturn = new Sonify(accMin, accMax, rangeCentre-inputRange, rangeCentre+inputRange);
+        return sonifyerToReturn;
+
+	}
 
 
 	
 	float mtof(float input){
-	// convert midi note number to a frequency
+        /*
+        convert midi note number to a frequency
+        */
 	
 		float output = (float) (Math.pow(2, (input-69)/12) * 440);
 		return output; 	
@@ -144,9 +179,11 @@ public class Ubicomp2015DataCollection implements PIPO {
 	
 	
 	float ftom(float input){
-	// convert frequency val to a midi note number 
-	
-		float output = (float) (69 + (12 *  (Math.log(input/440)/Math.log(2))));				
+        /*
+        convert frequency val to a midi note number
+        */
+
+        float output = (float) (69 + (12 *  (Math.log(input/440)/Math.log(2))));
 		return output; 
 		
 	}
@@ -180,7 +217,8 @@ public class Ubicomp2015DataCollection implements PIPO {
 	}
 	
 	public void printSonification(String[] paramCombination, final DynamoPI d){
-		String outString = "Sonification " + paramCombination[0] + " " + paramCombination[1] + " " + paramCombination[2]; 
+
+		String outString = "Sonification " + paramCombination[0] + " " + paramCombination[1] + " " + paramCombination[2];
 		System.out.println(outString);
 		d.communication.broadcastOSC("/PI/outputValue", new Object[] {outString});
 	}
@@ -205,40 +243,55 @@ public class Ubicomp2015DataCollection implements PIPO {
 		return outputOrder;
 	}
 
-	
 
 	@Override
 	public void action(final DynamoPI d) {
-		
-		d.reset();
-		setupMu(d);
-		chooseSonificationCombination(paramCombinations[0]);
 
-		// initialisation of the sonification choices
-		int[] sonChoice = new int[27]; //
+
+
+        // Reset the DynamoPI
+		d.reset();
+
+		// Setup the Minimu
+		setupMu(d);
+
+
+        Function func = new Function(freqVal) {
+            @Override
+            public float calculate() {
+                return x[0];
+            }
+        };
+
+        Function func2 = new Function(gainVal) {
+            @Override
+            public float calculate() {
+                return x[0];
+            }
+        };
+
+
+        WavePlayer wp = new WavePlayer(d.ac, func, Buffer.SINE);
+        Gain g = new Gain(d.ac, 1, func2);
+
+        // This is where the parameter combination is set up
+        sonifyer = chooseSonificationCombination(paramCombinations[0]);
+        sonifyer.printSonificationAlgorithm();
+
+        // initialisation of the sonification choices
+        int[] sonChoice = new int[27]; //
+        //randomisation of the sonification choices.
+        sonChoice = setupRandomChoice(sonChoice);
+
+
+        //
 		for (int i = 0; i < sonChoice.length; i++ ){
 			sonChoice[i] = i; 
 		}
-		//randomisation of the sonification choices. 
-		sonChoice = setupRandomChoice(sonChoice);
 
-		Function func = new Function(freqVal) {
-			@Override
-			public float calculate() {
-				return x[0]; 
-			}
-		};
 
-		Function func2 = new Function(gainVal) {
-			@Override
-			public float calculate() {
-				return x[0]; 
-			}
-		};
 
-		WavePlayer wp = new WavePlayer(d.ac, func, Buffer.SINE);
-		Gain g = new Gain(d.ac, 1, func2);
-		
+		//  this is a little misguided
 		d.communication.addListener(new NetworkCommunication.Listener() {
 	
 			@Override
@@ -272,11 +325,11 @@ public class Ubicomp2015DataCollection implements PIPO {
 					} else {
 						// If sonNum == numSonifications then we have come to the 
 						// end of the trials and should stop. 
-						msg.kill(); // kill the bead
 						String outString = "stopFiles";
 						d.communication.broadcastOSC("/PI/file", new Object[] {outString});
 						recording = false;
-					}				
+                        msg.kill(); // kill the bead
+                    }
 				}
 
 				if(d.clock.isBeat() && d.clock.getBeatCount() % 64 == 1) {
@@ -293,7 +346,7 @@ public class Ubicomp2015DataCollection implements PIPO {
 
 				if(d.clock.isBeat() && d.clock.getBeatCount() % 64 == 57) {					
 					// switch to silence
-					chooseSonificationCombination("silence");
+					//chooseSonificationCombination("silence");
 					printSonification("silence",  d);
 				}
 			}
@@ -318,7 +371,7 @@ public class Ubicomp2015DataCollection implements PIPO {
 				if(msg.getName().equals("/PI/sonification")) {
 					// set sonification
 					String strVal  = ((String)msg.getArg(0)).toString();
-					chooseSonificationCombination(strVal);
+					//chooseSonificationCombination(strVal);
 				}
 			}
 		});
@@ -352,12 +405,11 @@ public class Ubicomp2015DataCollection implements PIPO {
 				
 				// we have to do some kind of mapping - this is linear
 				mappedValue = sonifyer.getOutputMTOF();
-				String outString =  xA + " " + yA + " " + zA + " " + xG + " " + yG + " " + zG + " "  + xC + " " + yC + " " + zC + " " + reducedValue + " " + mappedValue ; ;
+
+				String outString =  xA + " " + yA + " " + zA + " " + xG + " " + yG + " " + zG + " "  + xC + " " + yC + " " + zC + " " + reducedValue + " " + mappedValue ;
 				d.communication.broadcastOSC("/PI/outputValue", new Object[] {outString});
 				freqVal.setValue(mappedValue); // set the value 
 			}
 		});
 	}
-
-
 }
