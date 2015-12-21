@@ -36,6 +36,8 @@ public class Sonify{
 		
 		// output calculated
 		outValue = (((inValue - offsetIn) / rangeIn)  * rangeOut) + offsetOut;
+
+
 		
 	}
 
@@ -75,6 +77,8 @@ public class Sonify{
 	private void update(){
 		
 		scaleInput();
+
+        System.out.println(inValue + " " + offsetIn + " " + outValue);
 		// deposit in ring buffer
 		
 		// calculate mean of ring buffer
@@ -98,10 +102,9 @@ public class Sonify{
 	}
 	
 	public float getOutputMTOF(){
-		
+		System.out.print(outValue);
 		float mtofOutValue = mtof(outValue);
 		return mtofOutValue;
-	
 	}
 	
 	
@@ -123,7 +126,6 @@ public class Sonify{
 
 	float mtof(float input){
 	// convert midi note number to a frequency
-		
 		float output = (float) (Math.pow(2, (input-69)/12) * 440);
 		return output;
 		

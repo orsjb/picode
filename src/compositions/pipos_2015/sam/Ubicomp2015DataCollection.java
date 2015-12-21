@@ -68,7 +68,7 @@ public class Ubicomp2015DataCollection implements PIPO {
 		String[] paramCentre = {"LowCtr","MedCtr","HiCtr"};
 		String[] paramType   = {"UseX","UseXGyro","combineXYZpythagoras"};
 
-		String[][] paramCombinations =  new String [paramRange.length * paramCentre.length * paramType.length][3];
+		String[][] paramCombinations =  new String [paramRange.length * paramCentre.length * paramType.length + 1][3];
 		
 		int row = 0;
 		for (int i = 0; i <  paramRange.length; i++){
@@ -290,12 +290,6 @@ public class Ubicomp2015DataCollection implements PIPO {
         //randomisation of the sonification choices.
         sonChoice = setupRandomChoice(sonChoice);
 
-        String silenceCombinations[] = new String[3];
-        silenceCombinations[0] = "Silence";
-        silenceCombinations[1] = "Silence";
-        silenceCombinations[2] = "Silence";
-
-
         int[] finalSonChoice = {
                 sonChoice[0],
                 sonChoice[1],
@@ -375,7 +369,7 @@ public class Ubicomp2015DataCollection implements PIPO {
 					//switch to new sonification
 					if (presentationOrder < finalSonChoice.length){
                         // change to this sonification.
-                        int paramComboChoice =  27;
+                        int paramComboChoice =  2;
                         chooseSonificationCombination(paramCombinations[paramComboChoice]);
                         printSonification(paramCombinations[paramComboChoice],  d);
 
@@ -466,10 +460,10 @@ public class Ubicomp2015DataCollection implements PIPO {
 
 
 		d.mu.addListener(new MiniMUListener() {
-
+            String inputToMap = "useX";
 			@Override
 			public void imuData(double xA, double yA, double zA, double xG, double yG, double zG,double xC, double yC, double zC) {
-				float mappedValue = 0;
+				float mappedValue;
 				float reducedValue = 0;
                 switch (inputToMap) {
 					case "combineXYZpythagoras":
@@ -478,7 +472,7 @@ public class Ubicomp2015DataCollection implements PIPO {
 						break;
 					case "useX":
 						reducedValue = (float) xA;
-						sonifyer.addValue(reducedValue);
+                        sonifyer.addValue(reducedValue);
 						break;
 					case "useY":
 						reducedValue = (float) yA;
@@ -500,7 +494,8 @@ public class Ubicomp2015DataCollection implements PIPO {
 
 				String outString =  nameOfCondition  + " " + presentationOrder  + " " + inputRange  + " " + rangeCentre  + " " + inputToMap  + " " + xA + " " + yA + " " + zA + " " + xG + " " + yG + " " + zG + " "  + xC + " " + yC + " " + zC + " " + reducedValue + " " + mappedValue;
 				d.communication.broadcastOSC("/PI/outputValue", new Object[] {outString});
-				freqVal.setValue(mappedValue); // set the value 
+				System.out.println(mappedValue);
+                freqVal.setValue(mappedValue); // set the value
 			}
 		});
 	}
