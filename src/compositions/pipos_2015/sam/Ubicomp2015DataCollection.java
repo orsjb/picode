@@ -351,7 +351,7 @@ public class Ubicomp2015DataCollection implements PIPO {
 					String outString = "startFile";
 					d.communication.broadcastOSC("/PI/file", new Object[] {outString});
 				}
-				
+
 				if(d.clock.isBeat() && d.clock.getBeatCount() % 20 == 0) { //
 					//switch to new sonification
 					if (presentationOrder < finalSonChoice.length){
@@ -448,6 +448,7 @@ public class Ubicomp2015DataCollection implements PIPO {
 
 		d.mu.addListener(new MiniMUListener() {
             String inputToMap = "useX";
+
 			@Override
 			public void imuData(double xA, double yA, double zA, double xG, double yG, double zG,double xC, double yC, double zC) {
 				float mappedValue;
@@ -458,7 +459,6 @@ public class Ubicomp2015DataCollection implements PIPO {
 						sonifyer.addValue(reducedValue);
 						break;
 					case "useX":
-
                         reducedValue = (float) xA;
                         sonifyer.addValue(reducedValue);
                         break;
@@ -475,13 +475,12 @@ public class Ubicomp2015DataCollection implements PIPO {
                         sonifyer.addValue(reducedValue);
                         break;
                 }
-                System.out.println("Mapped value is " + sonifyer.outValueFreq);
 
 				// we have to do some kind of mapping - this is linear
 				mappedValue = sonifyer.getOutputMTOF();
                 timeElapsed = System.currentTimeMillis() - timeAtStartOfSection;
-
-				String outString =  nameOfCondition  + " " + presentationOrder  + " " + inputRange  + " " + rangeCentre  + " " + inputToMap  + " " + xA + " " + yA + " " + zA + " " + xG + " " + yG + " " + zG + " "  + xC + " " + yC + " " + zC + " " + reducedValue + " " + mappedValue;
+                System.out.println(nameOfCondition);
+            	String outString =  nameOfCondition  + " " + presentationOrder  + " " + inputRange  + " " + rangeCentre  + " " + inputToMap  + " " + xA + " " + yA + " " + zA + " " + xG + " " + yG + " " + zG + " "  + xC + " " + yC + " " + zC + " " + reducedValue + " " + mappedValue;
 				d.communication.broadcastOSC("/PI/outputValue", new Object[] {outString});
 				System.out.println(mappedValue);
                 freqVal.setValue(mappedValue); // set the value

@@ -27,6 +27,7 @@ public class Sonify{
         // range Out
         offsetOut 	= lowOutput;
         rangeOut 	= highOutput - lowOutput;
+        System.out.println("This is a Sonify with lowIn " +  lowIn + " highIn  " + highIn + " lowOut  " + lowOut +  " highOut " +  highOut);
 	}
 		
 	
@@ -43,14 +44,11 @@ public class Sonify{
 	}
 
 	public void addValue(float inputVal){
-		
 		inValue = inputVal;
-
+        update();
         System.out.println(inValue + " " + offsetIn + " " + outValue);
 
-		update();
-
-	}
+    }
 
     public void printSonificationAlgorithm() {
 
@@ -109,6 +107,7 @@ public class Sonify{
 
 
         outValueFreq = mtof(outValue);
+        System.out.println("outValue "+ outValue + " is " + outValueFreq);
 		return outValueFreq;
 	}
 	
@@ -132,7 +131,8 @@ public class Sonify{
 	float mtof(float input){
 	// convert midi note number to a frequency
 		float output = (float) (Math.pow(2, (input-69)/12) * 440);
-		return output;
+
+        return output;
 		
 	}
 	
