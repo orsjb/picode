@@ -1,5 +1,13 @@
 package pi.network;
 
+import core.Config;
+import core.Device;
+import core.Synchronizer;
+import de.sciss.net.OSCListener;
+import de.sciss.net.OSCMessage;
+import de.sciss.net.OSCServer;
+import pi.dynamic.DynamoPI;
+
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
@@ -7,14 +15,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
-
-import pi.dynamic.DynamoPI;
-import core.Config;
-import core.Device;
-import core.Synchronizer;
-import de.sciss.net.OSCListener;
-import de.sciss.net.OSCMessage;
-import de.sciss.net.OSCServer;
 
 public class NetworkCommunication {
 
@@ -137,6 +137,7 @@ public class NetworkCommunication {
 	public void broadcastOSC(String msg, Object[] args) {
 		try {
 			oscServer.send(new OSCMessage(msg, args), oscPortDetails);
+			System.out.println("Sent this message: " + msg);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
