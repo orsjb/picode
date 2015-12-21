@@ -44,6 +44,9 @@ public class Sonify{
 	public void addValue(float inputVal){
 		
 		inValue = inputVal;
+
+        System.out.println(inValue + " " + offsetIn + " " + outValue);
+
 		update();
 
 	}
@@ -75,10 +78,10 @@ public class Sonify{
 	
 	
 	private void update(){
-		
+
+
 		scaleInput();
 
-        System.out.println(inValue + " " + offsetIn + " " + outValue);
 		// deposit in ring buffer
 		
 		// calculate mean of ring buffer

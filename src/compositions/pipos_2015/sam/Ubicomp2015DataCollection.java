@@ -30,8 +30,8 @@ public class Ubicomp2015DataCollection implements PIPO {
     String nameOfCondition;
     int presentationOrder = 0;
 
-    float inputRange = 0;
-    float rangeCentre = 0;
+    float inputRange;
+    float rangeCentre;
 
     float accMax = 3000;
     float accMin = -3000;
@@ -119,7 +119,7 @@ public class Ubicomp2015DataCollection implements PIPO {
 				inputRange = 12;
 				break;
             case "Silence":
-                inputRange = 0;
+                inputRange = 1;
                 break;
 
 		}
@@ -137,7 +137,7 @@ public class Ubicomp2015DataCollection implements PIPO {
 				rangeCentre = 81;
 				break;
             case "Silence":
-                rangeCentre = 0;
+                rangeCentre = 1;
                 break;
 		}
 
@@ -204,19 +204,6 @@ public class Ubicomp2015DataCollection implements PIPO {
 	}
 
 
-//	public void printSonification(String paramCombination, final DynamoPI d){
-//		switch(paramCombination){
-//
-//		case "Silence":
-//
-//			String outString = "Sonification Silence";
-//			System.out.println(outString);
-//			d.communication.broadcastOSC("/PI/outputValue", new Object[] {outString});
-//			break;
-//
-//		}
-//
-//	}
 	
 	public void printSonification(String[] paramCombination, final DynamoPI d){
 
@@ -368,8 +355,8 @@ public class Ubicomp2015DataCollection implements PIPO {
 				if(d.clock.isBeat() && d.clock.getBeatCount() % 20 == 0) { //
 					//switch to new sonification
 					if (presentationOrder < finalSonChoice.length){
-                        // change to this sonification.
-                        int paramComboChoice =  2;
+                        // switch to silence
+                        int paramComboChoice = 27;
                         chooseSonificationCombination(paramCombinations[paramComboChoice]);
                         printSonification(paramCombinations[paramComboChoice],  d);
 
@@ -471,9 +458,11 @@ public class Ubicomp2015DataCollection implements PIPO {
 						sonifyer.addValue(reducedValue);
 						break;
 					case "useX":
-						reducedValue = (float) xA;
+
+                        reducedValue = (float) xA;
                         sonifyer.addValue(reducedValue);
-						break;
+                        System.out.println("mappedValue is " + sonifyer.getOutputMTOF());
+                        break;
 					case "useY":
 						reducedValue = (float) yA;
 						sonifyer.addValue(reducedValue);
