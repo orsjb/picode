@@ -7,9 +7,10 @@ public class Sonify{
 	float lowInput, lowOutput, highInput, highOutput;
 	float offsetIn, offsetOut;
 	float rangeIn, rangeOut;
-	float outValue;
-	
-	float pastFilterValue, previousDiffValue = 0; 
+    float outValue;
+    public float outValueFreq;
+
+    float pastFilterValue, previousDiffValue = 0;
 
 	
 	public Sonify(float lowIn, float highIn, float lowOut, float highOut){
@@ -105,9 +106,10 @@ public class Sonify{
 	}
 	
 	public float getOutputMTOF(){
-		System.out.print(outValue);
-		float mtofOutValue = mtof(outValue);
-		return mtofOutValue;
+
+
+        outValueFreq = mtof(outValue);
+		return outValueFreq;
 	}
 	
 	

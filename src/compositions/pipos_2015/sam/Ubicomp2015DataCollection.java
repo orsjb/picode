@@ -461,7 +461,6 @@ public class Ubicomp2015DataCollection implements PIPO {
 
                         reducedValue = (float) xA;
                         sonifyer.addValue(reducedValue);
-                        System.out.println("mappedValue is " + sonifyer.getOutputMTOF());
                         break;
 					case "useY":
 						reducedValue = (float) yA;
@@ -476,7 +475,8 @@ public class Ubicomp2015DataCollection implements PIPO {
                         sonifyer.addValue(reducedValue);
                         break;
                 }
-				
+                System.out.println("Mapped value is " + sonifyer.outValueFreq);
+
 				// we have to do some kind of mapping - this is linear
 				mappedValue = sonifyer.getOutputMTOF();
                 timeElapsed = System.currentTimeMillis() - timeAtStartOfSection;
