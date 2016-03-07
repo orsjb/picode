@@ -297,32 +297,6 @@ public class Ubicomp2015DataCollection implements PIPO {
 
 
 
-//        // De-randomisation
-//        if (true) {
-//            for (int i = 0; i < sonChoice.length; i++) {
-//                sonChoice[i] = i;
-//            }
-//        }
-
-
-//		//  this is a little misguided
-//		d.communication.addListener(new NetworkCommunication.Listener() {
-//
-//			@Override
-//			public void msg(OSCMessage msg) {
-//				if(msg.getName().equals("/PI/recording/on")) {
-//					recording = true;
-//
-//					d.communication.broadcastOSC("/PI/recording", new Object[] {"Message Received"});
-//
-//				} else if(msg.getName().equals("/PI/recording/off")) {
-//					recording = false;
-//				}
-//			}
-//		});
-//
-
-
 		Bead systematicSonificationOrdering = new Bead() {
             int numSonifications = 36;
             public void messageReceived(Bead msg) {
