@@ -1,4 +1,4 @@
-package compositions.pipos_2015.sam;
+package pi.sonify;
 
 
 public class Sonify{

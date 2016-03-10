@@ -12,6 +12,7 @@ import net.beadsproject.beads.ugens.WavePlayer;
 import pi.dynamic.DynamoPI;
 import pi.network.NetworkCommunication;
 import pi.sensors.MiniMU.MiniMUListener;
+import pi.sonify.Sonify;
 
 public class Ubicomp2015DataCollection implements PIPO {
 
