@@ -4,8 +4,7 @@ public class ControllerConfig implements EnvironmentConf {
 
 	@Override
 	public String getControllerHostname() {
-		// TODO Auto-generated method stub
-		return null;
+		return getMyHostName(); // I am the controller
 	}
 
 	@Override
