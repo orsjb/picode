@@ -12,12 +12,6 @@ public class PIConfig implements EnvironmentConf {
 		//Search for a controller
 		return null; //placeholder
 	}
-
-	@Override
-	public String getMyHostName() {
-		// TODO Auto-generated method stub
-		return null;
-	}
 	
 	public int getMyId() {
 		return 0;
