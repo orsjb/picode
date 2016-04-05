@@ -9,7 +9,9 @@ import org.junit.runners.Suite.SuiteClasses;
 @SuiteClasses({ 
 	ControllerConfigTest.class, 
 	EnvironmentConfTest.class,
-	PIConfigTest.class
+	PIConfigTest.class,
+	ControllerAdvertiserTest.class,
+	ControllerDiscoveryTest.class
 })
 
 public class AllTests {

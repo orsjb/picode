@@ -1,6 +1,8 @@
 package core;
 
-public class PIConfig implements EnvironmentConf {
+import java.net.UnknownHostException;
+
+public class PIConfig implements EnvironmentConf, ControllerDiscoverer {
 	private String controllerHostName;
 
 	@Override
@@ -9,8 +11,13 @@ public class PIConfig implements EnvironmentConf {
 			return controllerHostName;
 		}
 		
-		//Search for a controller
-		return null; //placeholder
+		//Block and search for a controller, we need a logging framework too now :/
+		try {
+			controllerHostName = listenForController(getMulticastSynchAddr(), getControllerDiscoveryPort());
+		} catch (UnknownHostException e) {
+			e.printStackTrace();
+		}
+		return controllerHostName;
 	}
 	
 	public int getMyId() {
