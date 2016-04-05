@@ -19,10 +19,11 @@ public interface ControllerDiscoverer {
 				DatagramPacket msgPacket = new DatagramPacket(buf, buf.length);
 				clientSocket.receive(msgPacket);
 				
-				String msg = new String(buf, 0, buf.length).trim();
-				System.out.println("Recieved message: " + msg);
+				//String msg = new String(buf, 0, buf.length).trim();
+				//System.out.println("Recieved message: " + msg);
 				
-				String[] msgParts = msg.split(" ");
+				//String[] msgParts = msg.split(" ");
+				String[] msgParts = new String(buf, 0, buf.length).trim().split(" ");
 				
 				if ( msgParts.length == 2 && msgParts[0].equals("controllerHostname:") ) {
 					controllerHostname = msgParts[1];

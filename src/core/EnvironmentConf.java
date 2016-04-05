@@ -10,7 +10,6 @@ package core;
 public interface EnvironmentConf {
 
 	//hosts and ports for network messages
-			public String getControllerHostname();
 	default public String getMyHostName() 				{ return Device.myHostname; }				
 	default public String getMulticastSynchAddr()		{ return "225.2.2.5"; }
 	default public int getBroadcastOSCPort() 			{ return 2222; }

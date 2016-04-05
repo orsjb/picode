@@ -5,8 +5,7 @@ import java.net.UnknownHostException;
 public class PIConfig implements EnvironmentConf, ControllerDiscoverer {
 	private String controllerHostName;
 
-	@Override
-	public String getControllerHostname() {
+	public synchronized String getControllerHostname() {
 		if (controllerHostName != null) {
 			return controllerHostName;
 		}

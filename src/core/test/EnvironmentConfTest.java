@@ -8,10 +8,6 @@ public class EnvironmentConfTest extends TestCase {
 	
 	protected void setUp() {
 		env = new EnvironmentConf(){
-			@Override
-			public String getControllerHostname() {
-				return "PlaceHolder";
-			}
 			
 		};
 	}

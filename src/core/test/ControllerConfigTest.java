@@ -16,9 +16,5 @@ public class ControllerConfigTest extends TestCase {
 		assertTrue(myHostname != null);
 		assertTrue(!myHostname.isEmpty());
 	}
-	
-	public void testControllerHostname() {
-		assertTrue(env.getMyHostName() == env.getControllerHostname());
-	}
 
 }
