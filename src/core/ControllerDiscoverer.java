@@ -26,7 +26,12 @@ public interface ControllerDiscoverer {
 				String[] msgParts = new String(buf, 0, buf.length).trim().split(" ");
 				
 				if ( msgParts.length == 2 && msgParts[0].equals("controllerHostname:") ) {
-					controllerHostname = msgParts[1];
+					if (InetAddress.getByName(controllerHostname).isReachable(500)) {
+						controllerHostname = msgParts[1];
+					}
+					else {
+						System.out.println("Unable to reach controllerHostname: " + msgParts[1]);
+					}
 				}
 			}
 		}

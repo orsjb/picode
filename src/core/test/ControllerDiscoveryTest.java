@@ -37,7 +37,7 @@ public class ControllerDiscoveryTest {
 		assert( piEnv.getControllerHostname() != null );
 		assert( piEnv.getControllerHostname().equals(controllerEnv.getMyHostName()) );
 		try {
-			assert( InetAddress.getByName( controllerEnv.getMyHostName() ).isReachable(5));
+			assert( InetAddress.getByName( controllerEnv.getMyHostName() ).isReachable(5000));
 		} catch (UnknownHostException e) {
 			fail("Unable to resolve controllerHostname to InetAddress!");
 			e.printStackTrace();
