@@ -1,7 +1,6 @@
 package pi.network;
 
 import core.Device;
-import core.PIConfig;
 import core.Synchronizer;
 import de.sciss.net.OSCListener;
 import de.sciss.net.OSCMessage;
@@ -23,7 +22,6 @@ public class NetworkCommunication {
 	}
 
 	int myID;										 			//ID assigned by the controller
-	private PIConfig config;
 	private OSCServer oscServer;				//The one and only OSC server + the other one
 	private InetSocketAddress controller, oscPortDetails;			 			//The network details of the controller
 	private Set<Listener> listeners = Collections.synchronizedSet(new HashSet<Listener>()); 	
@@ -103,7 +101,9 @@ public class NetworkCommunication {
 			}
 		});
 		//set up the controller address
+		System.out.println( "Setting up controller: " + pi.getConfig().getControllerHostname() );
 		controller = new InetSocketAddress( pi.getConfig().getControllerHostname(), pi.getConfig().getStatusFromPIPort());
+		System.out.println( "Controller resolved to address: " + controller );
 		
 		//set up the controller address
 		oscPortDetails = new InetSocketAddress(pi.getConfig().getControllerHostname(), pi.getConfig().getBroadcastOSCPort());

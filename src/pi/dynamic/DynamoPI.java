@@ -20,7 +20,6 @@ import net.beadsproject.beads.ugens.PolyLimit;
 import net.beadsproject.beads.ugens.WavePlayer;
 import pi.network.NetworkCommunication;
 import pi.sensors.MiniMU;
-import core.AudioSetup;
 import core.PIConfig;
 import core.PIPO;
 import core.Synchronizer;
