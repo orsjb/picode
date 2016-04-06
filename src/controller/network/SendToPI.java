@@ -7,10 +7,12 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 
-import core.Config;
+import core.ControllerConfig;
 
 
 public class SendToPI {
+	
+	private static final ControllerConfig config = new ControllerConfig(); //TODO make Controller config a singleton
 
 	public static void send(String fullClassName, String[] hostnames) throws Exception {
 		String simpleClassName = new File(fullClassName).getName();
@@ -38,7 +40,7 @@ public class SendToPI {
         	try {
 				//send all of the files to this hostname
 				for(byte[] bytes : allFilesAsBytes) {
-					Socket s = new Socket(hostname, Config.codeToPIPort);
+					Socket s = new Socket(hostname, config.getCodeToPIPort());
 					s.getOutputStream().write(bytes);
 					s.close();
 				}
@@ -73,7 +75,7 @@ public class SendToPI {
         byte[] bytes = buffer.toByteArray();
         for(String hostname : hostnames) {
         	try {
-				Socket s = new Socket(hostname, Config.codeToPIPort);
+				Socket s = new Socket(hostname, config.getCodeToPIPort());
 				s.getOutputStream().write(bytes);
 				s.close();
         	} catch(UnknownHostException e) {

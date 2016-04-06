@@ -29,6 +29,8 @@ public class Synchronizer {
 		public void messageReceived(String s);				//TODO this should not be here. Separate the Synchronizer code from the broadcast code.
 	}
 	
+	private static final PIConfig config = new PIConfig(); //TODO make PIConfig a singleton
+	
 	String myMAC; //how to uniquely identify this machine
 	MulticastSocket broadcastSocket;
 	long timeCorrection = 0;			//add this to current time to get the REAL current time
@@ -112,8 +114,8 @@ public class Synchronizer {
 	}
 	
 	private void setupListener() throws IOException {
-		final MulticastSocket s = new MulticastSocket(Config.clockSynchPort);
-		s.joinGroup(InetAddress.getByName(Config.multicastSynchAddr));
+		final MulticastSocket s = new MulticastSocket(config.getClockSynchPort());
+		s.joinGroup(InetAddress.getByName(config.getMulticastSynchAddr()));
 		//start a listener thread
 		Thread t = new Thread() {
 			public void run() {
@@ -332,7 +334,7 @@ public class Synchronizer {
 		// Create a DatagramPacket 
 		DatagramPacket pack = null;
 		try {
-			pack = new DatagramPacket(buf, buf.length, InetAddress.getByName(Config.multicastSynchAddr), Config.clockSynchPort);
+			pack = new DatagramPacket(buf, buf.length, InetAddress.getByName(config.getMulticastSynchAddr()), config.getClockSynchPort());
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
 		} 

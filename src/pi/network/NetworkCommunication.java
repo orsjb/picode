@@ -1,7 +1,7 @@
 package pi.network;
 
-import core.Config;
 import core.Device;
+import core.PIConfig;
 import core.Synchronizer;
 import de.sciss.net.OSCListener;
 import de.sciss.net.OSCMessage;
@@ -23,6 +23,7 @@ public class NetworkCommunication {
 	}
 
 	int myID;										 			//ID assigned by the controller
+	private PIConfig config;
 	private OSCServer oscServer;				//The one and only OSC server + the other one
 	private InetSocketAddress controller, oscPortDetails;			 			//The network details of the controller
 	private Set<Listener> listeners = Collections.synchronizedSet(new HashSet<Listener>()); 	
@@ -34,7 +35,7 @@ public class NetworkCommunication {
 	
 		//init the OSCServers
 		try {
-			oscServer = OSCServer.newUsing(OSCServer.UDP, Config.controlToPIPort);
+			oscServer = OSCServer.newUsing(OSCServer.UDP, pi.getConfig().getControlToPIPort());
 			oscServer.start();
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -102,10 +103,10 @@ public class NetworkCommunication {
 			}
 		});
 		//set up the controller address
-		controller = new InetSocketAddress(Config.controllerHostname, Config.statusFromPIPort);
+		controller = new InetSocketAddress( pi.getConfig().getControllerHostname(), pi.getConfig().getStatusFromPIPort());
 		
 		//set up the controller address
-		oscPortDetails = new InetSocketAddress(Config.controllerHostname, Config.broadcastOSCPort);
+		oscPortDetails = new InetSocketAddress(pi.getConfig().getControllerHostname(), pi.getConfig().getBroadcastOSCPort());
 
 
 		//set up an indefinite thread to ping the controller
@@ -114,7 +115,7 @@ public class NetworkCommunication {
 				while(true) {
 					sendToController("/PI/alive", new Object[] {Device.myHostname, Synchronizer.time(), pi.getStatus()});
 					try {
-						Thread.sleep(Config.aliveInterval);
+						Thread.sleep(pi.getConfig().getAliveInterval());
 					} catch (InterruptedException e) {
 //						e.printStackTrace();
 						System.out.println("/PI/alive message did not get through to controller.");

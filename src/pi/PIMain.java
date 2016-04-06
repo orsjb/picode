@@ -2,6 +2,7 @@ package pi;
 
 import pi.dynamic.DynamoPI;
 import core.AudioSetup;
+import core.PIConfig;
 
 /**
  * Entry point for PI code.
@@ -11,7 +12,7 @@ import core.AudioSetup;
 public class PIMain { 
 	
 	public static void main(String[] args) throws Exception {
-		DynamoPI pi = new DynamoPI(AudioSetup.getAudioContext(args));
+		DynamoPI pi = new DynamoPI(AudioSetup.getAudioContext(args), new PIConfig());
 		if(args.length > 5) {
 			boolean autostart = Boolean.parseBoolean(args[5]);
 			if(autostart) {

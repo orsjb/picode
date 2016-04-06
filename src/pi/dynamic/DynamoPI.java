@@ -21,12 +21,13 @@ import net.beadsproject.beads.ugens.WavePlayer;
 import pi.network.NetworkCommunication;
 import pi.sensors.MiniMU;
 import core.AudioSetup;
-import core.Config;
+import core.PIConfig;
 import core.PIPO;
 import core.Synchronizer;
 
 public class DynamoPI {
 	
+	private PIConfig config;
 
 	// audio stuffs
 	public final AudioContext ac;
@@ -52,8 +53,9 @@ public class DynamoPI {
 	public NetworkCommunication communication;
 	public Synchronizer synch;
 
-	public DynamoPI(AudioContext _ac) throws IOException {
+	public DynamoPI(AudioContext _ac, PIConfig _config) throws IOException {
 		ac = _ac;
+		this.config = _config;
 		// default audio setup (note we don't start the audio context yet)
 		masterGainEnv = new Envelope(ac, 0);
 		masterGainEnv.addSegment(1, 5000);
@@ -127,7 +129,7 @@ public class DynamoPI {
 				try {
 					// socket server (listens to incoming classes)
 					DynamoClassLoader loader = new DynamoClassLoader(ClassLoader.getSystemClassLoader());
-					ServerSocket server = new ServerSocket(Config.codeToPIPort);
+					ServerSocket server = new ServerSocket(config.getCodeToPIPort());
 					// start socket server listening loop
 					while (true) {
 						// must reopen socket each time
@@ -186,6 +188,10 @@ public class DynamoPI {
 			}
 		}.start();
 
+	}
+	
+	public PIConfig getConfig() {
+		return config;
 	}
 
 	public void put(String s, Object o) {

@@ -13,7 +13,7 @@ import java.util.Scanner;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import core.Config;
+import core.ControllerConfig;
 import de.sciss.net.OSCListener;
 import de.sciss.net.OSCMessage;
 import de.sciss.net.OSCServer;
@@ -27,25 +27,28 @@ public class PIConnection {
 	Map<String, LocalPIRepresentation> pisByHostname;
 	Map<String, Integer> knownPIs;
 	int newID = -1;
+	private ControllerConfig config;
 	
-	public PIConnection() {
+	public PIConnection(ControllerConfig config) {
+		this.config = config;
 		thePIs = FXCollections.observableArrayList(new ArrayList<LocalPIRepresentation>());
 		pisByHostname = new Hashtable<String, LocalPIRepresentation>();
 		knownPIs = new Hashtable<String, Integer>();
 		//read the known pis from file
 		try {
-			Scanner s = new Scanner(new File(Config.knownPIsFile));
+			Scanner s = new Scanner(new File(config.getKnownPIsFile()));
 			while(s.hasNext()) {
 				String[] line = s.nextLine().split("[ ]");
 				knownPIs.put(line[0], Integer.parseInt(line[1]));
 			}
 			s.close();
 		} catch (FileNotFoundException e1) {
+			System.out.println("Unable to read '" + config.getKnownPIsFile() + "'");
 			e1.printStackTrace();
 		}
 		// create the OSC Server
 		try {
-			oscServer = OSCServer.newUsing(OSCServer.UDP, Config.statusFromPIPort);
+			oscServer = OSCServer.newUsing(OSCServer.UDP, config.getStatusFromPIPort());
 			oscServer.start();
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -63,7 +66,7 @@ public class PIConnection {
 				while(true) {
 					checkPIAliveness();
 					try {
-						Thread.sleep(Config.aliveInterval);
+						Thread.sleep(config.getAliveInterval());
 					} catch (InterruptedException e) {
 						e.printStackTrace();
 					}
@@ -97,7 +100,7 @@ public class PIConnection {
 				} else {
 					id = newID--;
 				}
-				thisPI = new LocalPIRepresentation(piName, id, oscServer);
+				thisPI = new LocalPIRepresentation(piName, id, oscServer, config);
 	        	pisByHostname.put(piName, thisPI);
 				final LocalPIRepresentation piToAdd = thisPI;
 				//adding needs to be done in an "app" thread because it affects the GUI.
@@ -162,7 +165,7 @@ public class PIConnection {
 			if(!piName.startsWith("Virtual Test PI")) {
 				LocalPIRepresentation thisPI = pisByHostname.get(piName);
 				long timeSinceSeen = timeNow - thisPI.lastTimeSeen;
-				if(timeSinceSeen > Config.aliveInterval * 5) {	//config this number?
+				if(timeSinceSeen > config.getAliveInterval() * 5) {	//config this number?
 					pisToRemove.add(piName);
 				}
 			}
@@ -226,7 +229,7 @@ public class PIConnection {
 	
 	public void createTestPI() {
 		String name = "Virtual Test PI #" + virtualPICount++;
-		LocalPIRepresentation virtualTestPI = new LocalPIRepresentation(name, 1, oscServer);
+		LocalPIRepresentation virtualTestPI = new LocalPIRepresentation(name, 1, oscServer, config);
 		thePIs.add(virtualTestPI);
 		pisByHostname.put(name, virtualTestPI);
 	}
