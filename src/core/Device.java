@@ -50,6 +50,13 @@ public abstract class Device {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		
+		//ensure we have a local suffix
+		// Windows won't care either way but *nix systems need it
+		if (!tmpHostname.contains(".")) {
+			tmpHostname += ".local";	//we'll assume a .local extension is required if no extension exists
+		}
+		
 		myHostname = tmpHostname;
 		myMAC = tmpMAC;
 		//report
