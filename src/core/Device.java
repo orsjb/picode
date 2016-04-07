@@ -23,7 +23,11 @@ public abstract class Device {
 				}
 			} else {
 				netInterface = NetworkInterface.getByName("wlan0");
+				if (netInterface == null) {
+					netInterface = NetworkInterface.getByName("eth0");
+				}
 			}
+			
 			if(netInterface != null) {
 				byte[] mac = netInterface.getHardwareAddress();
 				StringBuilder builder = new StringBuilder();
@@ -31,7 +35,7 @@ public abstract class Device {
 					builder.append(String.format("%02x", a));
 				}
 				tmpMAC = builder.substring(0, builder.length());
-			} 
+			}
 			//first attempt at hostname is to query the /etc/hostname file which should have
 			//renamed itself (on the PI) before this Java code runs
 			try {
@@ -46,6 +50,10 @@ public abstract class Device {
 			//if we don't have the hostname get by traditional means
 			if(tmpHostname == null) {
 				tmpHostname = InetAddress.getLocalHost().getHostName();
+			}
+			//If everything still isn't working lets default to the local IP address
+			if (tmpHostname == null) {
+				tmpHostname = InetAddress.getLocalHost().getHostAddress();
 			}
 		} catch (Exception e) {
 			e.printStackTrace();

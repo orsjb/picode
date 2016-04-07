@@ -102,7 +102,10 @@ public class NetworkCommunication {
 		});
 		//set up the controller address
 		System.out.println( "Setting up controller: " + pi.getConfig().getControllerHostname() );
-		controller = new InetSocketAddress( pi.getConfig().getControllerHostname(), pi.getConfig().getStatusFromPIPort());
+		controller = new InetSocketAddress( 
+				pi.getConfig().getControllerHostname(),
+				pi.getConfig().getStatusFromPIPort()
+		);
 		System.out.println( "Controller resolved to address: " + controller );
 		
 		//set up the controller address
@@ -113,7 +116,7 @@ public class NetworkCommunication {
 		new Thread() {
 			public void run() {
 				while(true) {
-					sendToController("/PI/alive", new Object[] {Device.myHostname, Synchronizer.time(), pi.getStatus()});
+					sendToController("/PI/alive", new Object[] {pi.getConfig().getMyHostName(), Synchronizer.time(), pi.getStatus()});
 					try {
 						Thread.sleep(pi.getConfig().getAliveInterval());
 					} catch (InterruptedException e) {
