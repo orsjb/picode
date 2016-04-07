@@ -42,7 +42,7 @@ public abstract class Device {
 				Scanner s = new Scanner(new File("/etc/hostname"));
 				String line = s.next();
 				if (line != null && !line.isEmpty() && !line.endsWith("-")) {
-					tmpHostname = line + ".local";
+					tmpHostname = line;
 				}
 				s.close();
 			} catch(Exception e) {/*Swallow this exception*/}
@@ -54,9 +54,9 @@ public abstract class Device {
 			if(tmpHostname == null) {
 				tmpHostname = InetAddress.getLocalHost().getHostName();
 			}
-			//If everything still isn't working lets default to the local IP address
+			//If everything still isn't working lets try via our interface for an IP address
 			if (tmpHostname == null) {
-				tmpHostname = InetAddress.getLocalHost().getHostAddress();
+				tmpHostname = netInterface.getInetAddresses().nextElement().getHostAddress();
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
