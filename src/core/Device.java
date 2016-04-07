@@ -40,7 +40,10 @@ public abstract class Device {
 			//renamed itself (on the PI) before this Java code runs
 			try {
 				Scanner s = new Scanner(new File("/etc/hostname"));
-				tmpHostname = s.next() + ".local";
+				String line = s.next() + ".local";
+				if (line != null && !line.isEmpty() && !line.endsWith("-")) {
+					tmpHostname = line;
+				}
 				s.close();
 			} catch(Exception e) {/*Swallow this exception*/}
 			//if we don't have the mac derive the MAC from the hostname
