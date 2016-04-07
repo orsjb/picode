@@ -15,6 +15,6 @@ public class EnvironmentConfTest extends TestCase {
 	public void testMyHostname() {
 		String myHostname = env.getMyHostName();
 		assertTrue(myHostname != null);
-		assertTrue(!myHostname.isEmpty());
+		assertFalse( myHostname.isEmpty() );
 	}
 }

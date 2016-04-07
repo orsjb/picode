@@ -12,8 +12,9 @@ public class PIConfig implements EnvironmentConf, ControllerDiscoverer {
 		
 		//Block and search for a controller, we need a logging framework too now :/
 		try {
-			controllerHostName = listenForController(getMulticastSynchAddr(), getControllerDiscoveryPort());
+			controllerHostName = listenForController( getMulticastSynchAddr(), getControllerDiscoveryPort());
 		} catch (UnknownHostException e) {
+			System.out.println("Error obtaining controller hostname.");
 			e.printStackTrace();
 		}
 		return controllerHostName;

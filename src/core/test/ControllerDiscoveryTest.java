@@ -1,11 +1,5 @@
 package core.test;
 
-import static org.junit.Assert.fail;
-
-import java.io.IOException;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -36,15 +30,6 @@ public class ControllerDiscoveryTest {
 	public void testGetControllerHostname() {
 		assert( piEnv.getControllerHostname() != null );
 		assert( piEnv.getControllerHostname().equals(controllerEnv.getMyHostName()) );
-		try {
-			assert( InetAddress.getByName( controllerEnv.getMyHostName() ).isReachable(5000));
-		} catch (UnknownHostException e) {
-			fail("Unable to resolve controllerHostname to InetAddress!");
-			e.printStackTrace();
-		} catch (IOException e) {
-			fail("Unable to reach controllerHostname: " + controllerEnv.getMyHostName());
-			e.printStackTrace();
-		}
 		System.out.println("Found host " + piEnv.getControllerHostname());
 	}
 

@@ -19,7 +19,7 @@ public class PIConfigTest {
 	public void myHostNameTest() {
 		String myHostname = env.getMyHostName();
 		assertTrue(myHostname != null);
-		assertTrue(!myHostname.isEmpty());
+		assertFalse( myHostname.isEmpty() );
 	}
 
 }
