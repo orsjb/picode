@@ -3,6 +3,7 @@ package core;
 import java.io.File;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
+import java.net.UnknownHostException;
 import java.util.Scanner;
 
 public abstract class Device {
@@ -49,12 +50,19 @@ public abstract class Device {
 			//if we don't have the mac derive the MAC from the hostname
 			if(tmpMAC == null && tmpHostname != null) {
 				tmpMAC = tmpHostname.substring(8, 20);
-			} 
-			//if we don't have the hostname get by traditional means
-			if(tmpHostname == null) {
-				tmpHostname = InetAddress.getLocalHost().getHostName();
 			}
-
+			//if we don't have the hostname get by traditional means
+			// Windows seems to like this one.
+			if(tmpHostname == null) {
+				try {
+					tmpHostname = InetAddress.getLocalHost().getHostName();
+				}
+				catch (UnknownHostException e) {
+					System.out.println("Unable to find host name, resorting to IP Address");
+					e.printStackTrace();
+				}
+			}
+			
 			//If everything still isn't working lets try via our interface for an IP address
 			if (tmpHostname == null) {
 				tmpHostname = netInterface.getInetAddresses().nextElement().getHostAddress().split("%")[0];
