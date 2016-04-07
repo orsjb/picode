@@ -40,9 +40,9 @@ public abstract class Device {
 			//renamed itself (on the PI) before this Java code runs
 			try {
 				Scanner s = new Scanner(new File("/etc/hostname"));
-				String line = s.next() + ".local";
+				String line = s.next();
 				if (line != null && !line.isEmpty() && !line.endsWith("-")) {
-					tmpHostname = line;
+					tmpHostname = line + ".local";
 				}
 				s.close();
 			} catch(Exception e) {/*Swallow this exception*/}

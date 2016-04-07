@@ -133,6 +133,7 @@ public class NetworkCommunication {
 		try {
 			oscServer.send(new OSCMessage(msg, args), controller);
 		} catch (IOException e) {
+			System.out.println("Error sending OSC message to Server:");
 			e.printStackTrace();
 		}
 	}
