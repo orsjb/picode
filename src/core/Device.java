@@ -54,9 +54,10 @@ public abstract class Device {
 			if(tmpHostname == null) {
 				tmpHostname = InetAddress.getLocalHost().getHostName();
 			}
+
 			//If everything still isn't working lets try via our interface for an IP address
 			if (tmpHostname == null) {
-				tmpHostname = netInterface.getInetAddresses().nextElement().getHostAddress();
+				tmpHostname = netInterface.getInetAddresses().nextElement().getHostAddress().split("%")[0];
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -64,7 +65,8 @@ public abstract class Device {
 		
 		//ensure we have a local suffix
 		// Windows won't care either way but *nix systems need it
-		if (!tmpHostname.contains(".")) {
+		//If there are ':' we are probably dealing with a IPv6 address
+		if (tmpHostname != null && !tmpHostname.contains(".") && !tmpHostname.contains(":")) {
 			tmpHostname += ".local";	//we'll assume a .local extension is required if no extension exists
 		}
 		
