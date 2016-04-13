@@ -51,7 +51,11 @@ public abstract class Device {
 					netInterface = NetworkInterface.getByName("wlan0"); // take a stab in the dark...
 				}
 				
-				System.out.println("Selected interface: " + netInterface.getDisplayName());
+				System.out.println("Selected interface: " + netInterface.getName() + ", " + netInterface.getDisplayName());
+				
+				//while there isn't a clear way to install zeroconf without itunes on windows let's use their IP as the hostname
+				tmpHostname = netInterface.getInetAddresses().nextElement().getHostAddress();
+				System.out.println("IP: " + tmpHostname);
 			}
 			else {
 				netInterface = NetworkInterface.getByName("wlan0");
