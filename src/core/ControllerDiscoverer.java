@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
+import java.net.NetworkInterface;
 import java.net.UnknownHostException;
 
 public interface ControllerDiscoverer {
@@ -13,6 +14,7 @@ public interface ControllerDiscoverer {
 		String controllerHostname = null;
 		
 		try ( MulticastSocket clientSocket = new MulticastSocket(multicastPort) ) {
+			clientSocket.setNetworkInterface(NetworkInterface.getByName(Device.preferedInterface));
 			clientSocket.joinGroup( InetAddress.getByName(multicastAddress) );
 			
 			while (controllerHostname == null) {

@@ -12,10 +12,12 @@ public abstract class Device {
 
 	public static final String myHostname;						//the hostname for this PI (wifi)
 	public static final String myMAC;							//the wlan MAC for this PI (wifi)
+	public static final String preferedInterface;
 
 	static {
 		String tmpHostname = null;
 		String tmpMAC = null;
+		String tmpPreferedInterface = null;
 		try {
 			NetworkInterface netInterface;
 			System.out.println("Detected OS: " + System.getProperty("os.name"));
@@ -64,7 +66,12 @@ public abstract class Device {
 				}
 			}
 			
+			
 			if(netInterface != null) {
+				//collect our chosen network interface name
+				tmpPreferedInterface = netInterface.getName(); 
+				
+				//get MAC
 				byte[] mac = netInterface.getHardwareAddress();
 				StringBuilder builder = new StringBuilder();
 				for (byte a : mac) {
@@ -122,9 +129,11 @@ public abstract class Device {
 		
 		myHostname = tmpHostname;
 		myMAC = tmpMAC;
+		preferedInterface = tmpPreferedInterface;
 		//report
 		System.out.println("My hostname is: " + myHostname);
-		System.out.println("My wlan MAC address is: " + myMAC);
+		System.out.println("My MAC address is: " + myMAC);
+		System.out.println("My prefered interface is: " + preferedInterface);
 	}
 	
 	public static boolean isViableNetworkInterface(NetworkInterface ni) {
