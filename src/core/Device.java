@@ -3,6 +3,7 @@ package core;
 import java.io.File;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
+import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.Enumeration;
 import java.util.Scanner;
@@ -32,8 +33,9 @@ public abstract class Device {
 				while (interfaces.hasMoreElements()) {
 					netInterface = interfaces.nextElement();
 					
-					//lets at least try and get a real interface...
-					if (netInterface.supportsMulticast() && !netInterface.isLoopback() && netInterface.isUp() && !netInterface.isVirtual()) {
+					// Windows by default has a lot of extra interfaces,
+					//  lets at least try and get a real interface...
+					if (isViableNetworkInterface(netInterface)) {
 						favouriteInterfaceName = netInterface.getName();
 						System.out.println("I like: " + favouriteInterfaceName + ", " + netInterface.getDisplayName());
 					}
@@ -46,7 +48,7 @@ public abstract class Device {
 					netInterface = NetworkInterface.getByName(favouriteInterfaceName);
 				}
 				else {
-					netInterface = NetworkInterface.getByName("wlan0"); // feeling lucky punk?
+					netInterface = NetworkInterface.getByName("wlan0"); // take a stab in the dark...
 				}
 				
 				System.out.println("Selected interface: " + netInterface.getDisplayName());
@@ -119,6 +121,21 @@ public abstract class Device {
 		//report
 		System.out.println("My hostname is: " + myHostname);
 		System.out.println("My wlan MAC address is: " + myMAC);
+	}
+	
+	public static boolean isViableNetworkInterface(NetworkInterface ni) {
+		try {
+			if ( !ni.supportsMulticast()						) return false;
+			if ( ni.isLoopback()								) return false;
+			if ( !ni.isUp()										) return false;
+			if ( ni.isVirtual()									) return false;
+			if ( ni.getDisplayName().matches(".*[Vv]irtual.*")	) return false; //try and catch out any interfaces which don't admit to being virtual
+		} catch (SocketException e) {
+			System.out.println("Error checking interface " + ni.getName());
+			e.printStackTrace();
+			return false;
+		}
+		return true;
 	}
 	
 	public static void main(String[] args) {
