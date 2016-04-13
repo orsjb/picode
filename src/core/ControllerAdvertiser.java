@@ -32,7 +32,6 @@ public class ControllerAdvertiser {
 						} catch (InterruptedException e) {
 							e.printStackTrace();
 						}
-						serverSocket.send(msgPacket);
 					}
 				}
 				catch (IOException ex) {
