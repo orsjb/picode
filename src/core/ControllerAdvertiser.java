@@ -2,8 +2,9 @@ package core;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
-import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.MulticastSocket;
+import java.net.NetworkInterface;
 import java.net.UnknownHostException;
 
 public class ControllerAdvertiser {
@@ -14,15 +15,18 @@ public class ControllerAdvertiser {
 		super();
 		this.env = env;
 		
-		InetAddress addr = InetAddress.getByName(env.getMulticastSynchAddr());
+		InetAddress group = InetAddress.getByName(env.getMulticastSynchAddr());
 		//set up an indefinite thread to advertise the controller
 		advertismentService = new Thread() {
 			public void run() {
-				try (DatagramSocket serverSocket = new DatagramSocket() ) {
+				try (MulticastSocket serverSocket = new MulticastSocket(env.getControllerDiscoveryPort()) ) {
+					serverSocket.joinGroup(group);
+					serverSocket.setNetworkInterface( NetworkInterface.getByName(env.getMyInterface()) );
 					String msg = "controllerHostname: " + env.getMyHostName();
 					DatagramPacket msgPacket = new DatagramPacket(
 						msg.getBytes(),
-						msg.getBytes().length, addr, 
+						msg.getBytes().length, 
+						group, 
 						env.getControllerDiscoveryPort()
 					);
 					while(true) {
