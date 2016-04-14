@@ -8,7 +8,7 @@ import javafx.application.Platform;
 import javafx.scene.Node;
 import javafx.scene.layout.Pane;
 import javafx.scene.text.Text;
-import core.Config;
+import core.ControllerConfig;
 import de.sciss.net.OSCMessage;
 import de.sciss.net.OSCServer;
 
@@ -22,15 +22,17 @@ public class LocalPIRepresentation {
 	private InetSocketAddress addr = null;
 	private final OSCServer server;
 	public final boolean[] groups;
+	private ControllerConfig config;
 	
 	private String status = "Status unknown";
 	
 	Pane gui = null;
 	
-	public LocalPIRepresentation(String hostname, int id, OSCServer server) {
+	public LocalPIRepresentation(String hostname, int id, OSCServer server, ControllerConfig config) {
 		this.hostname = hostname;
 		this.id = id;
 		this.server = server;
+		this.config = config;
 		groups = new boolean[4];
 	}
 
@@ -40,7 +42,7 @@ public class LocalPIRepresentation {
 		}
 		OSCMessage msg = new OSCMessage(msgName, args);
 		if(addr == null) {
-			addr = new InetSocketAddress(hostname, Config.controlToPIPort);
+			addr = new InetSocketAddress(hostname, config.getControlToPIPort());
 		}
 		try {
 			server.send(msg, addr);

@@ -1,6 +1,5 @@
 package pi.network;
 
-import core.Config;
 import core.Device;
 import core.Synchronizer;
 import de.sciss.net.OSCListener;
@@ -34,7 +33,7 @@ public class NetworkCommunication {
 	
 		//init the OSCServers
 		try {
-			oscServer = OSCServer.newUsing(OSCServer.UDP, Config.controlToPIPort);
+			oscServer = OSCServer.newUsing(OSCServer.UDP, pi.getConfig().getControlToPIPort());
 			oscServer.start();
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -102,19 +101,24 @@ public class NetworkCommunication {
 			}
 		});
 		//set up the controller address
-		controller = new InetSocketAddress(Config.controllerHostname, Config.statusFromPIPort);
+		System.out.println( "Setting up controller: " + pi.getConfig().getControllerHostname() );
+		controller = new InetSocketAddress( 
+				pi.getConfig().getControllerHostname(),
+				pi.getConfig().getStatusFromPIPort()
+		);
+		System.out.println( "Controller resolved to address: " + controller );
 		
 		//set up the controller address
-		oscPortDetails = new InetSocketAddress(Config.controllerHostname, Config.broadcastOSCPort);
+		oscPortDetails = new InetSocketAddress(pi.getConfig().getControllerHostname(), pi.getConfig().getBroadcastOSCPort());
 
 
 		//set up an indefinite thread to ping the controller
 		new Thread() {
 			public void run() {
 				while(true) {
-					sendToController("/PI/alive", new Object[] {Device.myHostname, Synchronizer.time(), pi.getStatus()});
+					sendToController("/PI/alive", new Object[] {pi.getConfig().getMyHostName(), Synchronizer.time(), pi.getStatus()});
 					try {
-						Thread.sleep(Config.aliveInterval);
+						Thread.sleep(pi.getConfig().getAliveInterval());
 					} catch (InterruptedException e) {
 //						e.printStackTrace();
 						System.out.println("/PI/alive message did not get through to controller.");
@@ -129,6 +133,7 @@ public class NetworkCommunication {
 		try {
 			oscServer.send(new OSCMessage(msg, args), controller);
 		} catch (IOException e) {
+			System.out.println("Error sending OSC message to Server:");
 			e.printStackTrace();
 		}
 	}
