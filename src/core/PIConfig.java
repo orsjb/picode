@@ -2,7 +2,7 @@ package core;
 
 import java.net.UnknownHostException;
 
-public class PIConfig implements EnvironmentConf, ControllerDiscoverer {
+public class PIConfig extends LoadableConfig implements EnvironmentConf, ControllerDiscoverer {
 	private String controllerHostName;
 
 	public synchronized String getControllerHostname() {

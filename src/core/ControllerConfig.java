@@ -1,6 +1,6 @@
 package core;
 
-public class ControllerConfig implements EnvironmentConf {
+public class ControllerConfig extends LoadableConfig implements EnvironmentConf {
 
 
 }

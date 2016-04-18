@@ -11,7 +11,8 @@ import org.junit.runners.Suite.SuiteClasses;
 	EnvironmentConfTest.class,
 	PIConfigTest.class,
 	ControllerAdvertiserTest.class,
-	ControllerDiscoveryTest.class
+	ControllerDiscoveryTest.class,
+	LoadableTest.class
 })
 
 public class AllTests {
