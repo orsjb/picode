@@ -277,7 +277,7 @@ public class Ubicomp2015DataCollection implements PIPO {
         //randomisation of the sonification choices.
         sonChoice = setupRandomChoice(sonChoice);
 
-        int[] finalSonChoice = {
+        final int[] finalSonChoice = {
                 sonChoice[0],
                 sonChoice[1],
                 sonChoice[2],

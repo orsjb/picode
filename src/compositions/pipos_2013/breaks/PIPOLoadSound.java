@@ -17,7 +17,7 @@ public class PIPOLoadSound implements PIPO {
 	@Override
 	public void action(final DynamoPI d) {
 		SampleManager.sample("amen", "audio/amen-175.aif");
-		SampleManager.sample("pianoA", "audio/piano.ff.A2.aiff");
+//		SampleManager.sample("pianoA", "audio/piano.ff.A2.aiff");
 	}
 	
 }

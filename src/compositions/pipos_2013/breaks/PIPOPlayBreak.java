@@ -30,7 +30,7 @@ public class PIPOPlayBreak implements PIPO {
 		final Gain g = new Gain(d.ac, 1, new Envelope(d.ac, 1));
 		g.addInput(gsp);
 		d.sound(g);
-		
+
 		NetworkCommunication.Listener listener = new NetworkCommunication.Listener() {
 			@Override
 			public void msg(OSCMessage msg) {

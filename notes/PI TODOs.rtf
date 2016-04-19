@@ -1,0 +1,42 @@
+{\rtf1\ansi\ansicpg1252\cocoartf1348\cocoasubrtf170
+{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;\red56\green110\blue255;}
+\paperw11900\paperh16840\margl1440\margr1440\vieww10800\viewh8400\viewkind0
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\f0\fs24 \cf0 PI TODOs\
+\
+\pard\pardeftab720
+\cf0 \expnd0\expndtw0\kerning0
+Currently computer needs to be called woof.local (or boing.local).\
+PIs use zeroconf. They automatically genreate a hostname based on their WiFi MAC adddress. pisound-<MAC_lowercase>.local. (You should see it in your finder) (can\'92t remember where this script is!!!).\'a0\
+Classic places to autorun are either /etc/rc.local (running as root) and ~/.bashrc (as user).\
+PIs also hardwired to connect to network SSID = \'93PINet\'94, password = \'93designlab2014\'94.\
+PI has username \'93pi\'94, password \'93designlab2014\'94.\
+PI autoruns the java code via the script at \'a0/home/pi/git/picode/scripts/run.sh.\
+\
+the git repo is here:\'a0{\field{\*\fldinst{HYPERLINK "https://github.com/orsjb/picode"}}{\fldrslt \cf2 \expnd0\expndtw0\kerning0
+\ul \ulc2 https://github.com/orsjb/picode}}\
+\
+\
+\
+TODOs (in no order)\
+Think about proxies.\
+Work out how user sets WiFi config (and username + password) for their home\
+	- ethernet + small program\
+	- serverside\
+	- modify the disk image on host computer (after download)\
+	- use emulator\
+	- bluetooth??\
+Update java on the Pi to Java 8 (and/or deal with code clash issue).\
+Make the gui nice.\
+Make sure it runs on all machines.\
+Change how the server app identifies itself to the pis.\
+Fix ScocketException on server code startup.\
+Make sure error on Pi doesn\'92t cause Pi code to crash (send notification and restart if it does crash).\
+Finalise API.\
+Make examples.\
+Test across different Pis (provide disk images for different Pis? Different sizes of disk. Remove empty space).\
+Make sure network comms are robust.\
+Provide a way to do remote updates of picode.\
+Provide a way to send files to PIcode.}
