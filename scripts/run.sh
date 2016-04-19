@@ -11,6 +11,17 @@
 NEWHOST=`cat /sys/class/net/wlan0/address | sed s/://g`
 OLDHOST=`cat /etc/hostname`
 
+echo current hostname: ${OLDHOST}
+echo wlan0 mac address: ${NEWHOST}
+
+#fall back to eth0 if wlan0 is empty
+if [ -n "$NEWHOST"]
+then
+	echo Unable to resolve wlan0, resorting to eth0
+	NEWHOST=`cat /sys/class/net/eth0/address | sed s/://g`
+	echo eth0 mac address: ${NEWHOST}
+fi
+
 # correct format of hostname (pisound-<MAC>)
  
 NEWHOST=pisound-${NEWHOST}
@@ -63,5 +74,9 @@ sleep 10
 ####################################
 
 # Finally, run the network-monitor.sh script to keep WiFi connection alive
+#  if we have a wlan0
 
-/usr/bin/sudo scripts/network-monitor.sh > netstatus &
+if [ -d /sys/class/net/wlan0 ]
+then
+	/usr/bin/sudo scripts/network-monitor.sh > netstatus &
+fi

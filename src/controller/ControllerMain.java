@@ -1,6 +1,7 @@
 package controller;
 
 import java.io.File;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -33,6 +34,8 @@ import controller.launchpad.LaunchPadBehaviour;
 import controller.network.LocalPIRepresentation;
 import controller.network.PIConnection;
 import controller.network.SendToPI;
+import core.ControllerAdvertiser;
+import core.ControllerConfig;
 import core.Synchronizer;
 
 /**
@@ -48,10 +51,23 @@ public class ControllerMain extends Application implements LaunchPadBehaviour {
 	Synchronizer synchronizer;
 	LaunchPad launchpad;
 	String currentPIPO = "";
+	protected ControllerConfig config;
+	protected ControllerAdvertiser controllerAdvert;
 	
     @Override 
     public void start(Stage stage) {
-    	piConnection = new PIConnection();
+    	config = new ControllerConfig();
+    	piConnection = new PIConnection(config);
+    	
+    	//setup controller broadcast
+    	try {
+			controllerAdvert = new ControllerAdvertiser(config);
+		} catch (UnknownHostException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+    	controllerAdvert.start();
+    	
     	setupGUI(stage);
     	//test code...
 //    	piConnection.createTestPI();

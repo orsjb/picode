@@ -12,6 +12,7 @@ import net.beadsproject.beads.ugens.WavePlayer;
 import pi.dynamic.DynamoPI;
 import pi.network.NetworkCommunication;
 import pi.sensors.MiniMU.MiniMUListener;
+import pi.sonify.Sonify;
 
 public class Ubicomp2015DataCollection implements PIPO {
 
@@ -20,26 +21,31 @@ public class Ubicomp2015DataCollection implements PIPO {
 	 */
 	private static final long serialVersionUID = 1L;
 
+    // Setup variables
 	Glide freqVal, gainVal;
 	float loGain, hiGain;
 	boolean doMovingAverage, doDifference = false; 
 	boolean recording;
+    // This is where the parameter combinations are set up
     String[][] paramCombinations = initiliaseCombinations();
-	// This is where the parameter combination is set up
-	Sonify sonifyer = chooseSonificationCombination(paramCombinations[14]);
-    String nameOfCondition;
+    // Initialise for no reason
+    Sonify sonifyer = chooseSonificationCombination(paramCombinations[0]);
+
+    //
+    String inputToMap, nameOfCondition;
+
+    // This is what runs the presentation.
     int presentationOrder = 0;
 
+    // Mapping values
     float inputRange;
     float rangeCentre;
-
     float accMax = 3000;
     float accMin = -3000;
 
+    // Times
     long timeAtStartOfSection, timeElapsed;
 
-
-    String inputToMap;
 
 
     // needs to be here.
@@ -48,7 +54,7 @@ public class Ubicomp2015DataCollection implements PIPO {
 
         String fullClassName = Thread.currentThread().getStackTrace()[1].getClassName().replace(".", "/");
         SendToPI.send(fullClassName, new String[]{
-                //	"pisound-009e959c5093.local"
+				"pisound-009e959c5093.local"
                 // 	"pisound-009e959c47ef.local",
                 // 	"pisound-009e959c4dbc.local",
                 // 	"pisound-009e959c3fb2.local",
@@ -56,7 +62,7 @@ public class Ubicomp2015DataCollection implements PIPO {
                 // 	"pisound-009e959c47e8.local",
                 // 	"pisound-009e959c510a.local",
                 // 	"pisound-009e959c502d.local",
-                "pisound-001d43c00efd.local",
+                //"pisound-001d43c00efd.local",
 
         });
     }
@@ -91,15 +97,6 @@ public class Ubicomp2015DataCollection implements PIPO {
 
 
 
-    // TODO Change to correct timing DONE
-    // TODO Add breaks between sonification group s. DONE
-    // TODO Change to playing a tone or a sample.
-    // TODO Make sure silence Combos don't play noise
-    // TODO Check stepping through.
-
-
-
-
     // Move to class Experiment
 	public Sonify chooseSonificationCombination(String[] paramCombination){
     // this takes the combination of three parameters and sets up a
@@ -119,9 +116,8 @@ public class Ubicomp2015DataCollection implements PIPO {
 				inputRange = 12;
 				break;
             case "Silence":
-                inputRange = 1;
+                inputRange = 0;
                 break;
-
 		}
 
         // Set whether the pitch centre is low or high
@@ -137,7 +133,7 @@ public class Ubicomp2015DataCollection implements PIPO {
 				rangeCentre = 81;
 				break;
             case "Silence":
-                rangeCentre = 1;
+                rangeCentre = 0;
                 break;
 		}
 
@@ -168,27 +164,6 @@ public class Ubicomp2015DataCollection implements PIPO {
 	}
 
 
-//
-//	float mtof(float input){
-//        /*
-//        convert midi note number to a frequency
-//        */
-//
-//		float output = (float) (Math.pow(2, (input-69)/12) * 440);
-//		return output;
-//
-//	}
-//
-//
-//	float ftom(float input){
-//        /*
-//        convert frequency val to a midi note number
-//        */
-//
-//        float output = (float) (69 + (12 *  (Math.log(input/440)/Math.log(2))));
-//		return output;
-//
-//	}
 
 	
 	float reduceVectorless(double x, double y, double z){
@@ -267,13 +242,19 @@ public class Ubicomp2015DataCollection implements PIPO {
         WavePlayer wp = new WavePlayer(d.ac, func, Buffer.SINE);
         Gain g = new Gain(d.ac, 1, func2);
 
+        WavePlayer wpn = new WavePlayer(d.ac, func, Buffer.SQUARE);
+        Gain gn = new Gain(d.ac, 0, func2);
+
         // This is where the parameter combination is set up
-        //sonifyer = chooseSonificationCombination(paramCombinations[0]);
+        sonifyer = chooseSonificationCombination(paramCombinations[0]);
         //sonifyer.printSonificationAlgorithm();
 
         // initialisation of the sonification choices
         int[] sonChoice = new int[28]; //
-
+        for (int i = 0; i < sonChoice.length; i++) {
+             sonChoice[i] = i;
+        }
+//
         //randomisation of the sonification choices.
         sonChoice = setupRandomChoice(sonChoice);
 
@@ -316,58 +297,34 @@ public class Ubicomp2015DataCollection implements PIPO {
                 sonChoice[27]};
 
 
-//
-//        // De-randomisation
-//        if (true) {
-//            for (int i = 0; i < sonChoice.length; i++) {
-//                sonChoice[i] = i;
-//            }
-//        }
-
-
-//		//  this is a little misguided
-//		d.communication.addListener(new NetworkCommunication.Listener() {
-//
-//			@Override
-//			public void msg(OSCMessage msg) {
-//				if(msg.getName().equals("/PI/recording/on")) {
-//					recording = true;
-//
-//					d.communication.broadcastOSC("/PI/recording", new Object[] {"Message Received"});
-//
-//				} else if(msg.getName().equals("/PI/recording/off")) {
-//					recording = false;
-//				}
-//			}
-//		});
-//
-
 
 		Bead systematicSonificationOrdering = new Bead() {
             int numSonifications = 36;
             public void messageReceived(Bead msg) {
 
-                if(d.clock.isBeat() && d.clock.getBeatCount() % 20 == 0 && presentationOrder == 0) { // The very first time.
-					String outString = "startFile";
+                if(d.clock.isBeat() && d.clock.getBeatCount() % 40 == 0 && presentationOrder == 0) { // The very first time.
+					String outString = "startFiles";
 					d.communication.broadcastOSC("/PI/file", new Object[] {outString});
 				}
 
-				if(d.clock.isBeat() && d.clock.getBeatCount() % 20 == 0) { //
+				if(d.clock.isBeat() && d.clock.getBeatCount() % 40 == 0) { //
 					//switch to new sonification
 					if (presentationOrder < finalSonChoice.length){
                         // switch to silence
                         int paramComboChoice = 27;
-                        chooseSonificationCombination(paramCombinations[paramComboChoice]);
+                        sonifyer = chooseSonificationCombination(paramCombinations[paramComboChoice]);
                         printSonification(paramCombinations[paramComboChoice],  d);
 
 
                         //turn noise on (but only if not the silence condition)
+                        gn.setGain(1f);
 
                         // increment the Order
                         presentationOrder = presentationOrder + 1;
 
                         // reset the timer
                         timeAtStartOfSection = System.currentTimeMillis();
+
 
                     } else {
 
@@ -380,8 +337,9 @@ public class Ubicomp2015DataCollection implements PIPO {
                     }
 				}
 
-				if(d.clock.isBeat() && d.clock.getBeatCount() % 20 == 1) {
+				if(d.clock.isBeat() && d.clock.getBeatCount() % 40 == 1) {
 					// turn noise off
+                    gn.setGain(0f);
 
 
                     // start recording
@@ -389,41 +347,39 @@ public class Ubicomp2015DataCollection implements PIPO {
                     d.communication.broadcastOSC("/PI/file", new Object[] {outString});
 				}
 
-                if(d.clock.isBeat() && d.clock.getBeatCount() % 20 == 2) {
-
-                    // turn noise off
+                if(d.clock.isBeat() && d.clock.getBeatCount() % 40 == 2) {
 
 
                     // choose new sonification
                     int paramComboChoice =  finalSonChoice[presentationOrder];
-                    chooseSonificationCombination(paramCombinations[paramComboChoice]);
+                    sonifyer = chooseSonificationCombination(paramCombinations[paramComboChoice]);
                     printSonification(paramCombinations[paramComboChoice],  d);
 
 
 
                     // start recording
-                    String outString = "Begin Sonification";
+                    String outString = "open";
                     d.communication.broadcastOSC("/PI/file", new Object[] {outString});
                 }
 
 
-//				if(d.clock.isBeat() && d.clock.getBeatCount() % 20 == 17) {
-//					// stop recording
-//					String outString = "close";
-//					d.communication.broadcastOSC("/PI/file", new Object[] {outString});
-//				}
-
-				if(d.clock.isBeat() && d.clock.getBeatCount() % 20 == 17) {
+				if(d.clock.isBeat() && d.clock.getBeatCount() % 40 == 17) {
+					// stop recording
+					String outString = "close";
+					d.communication.broadcastOSC("/PI/file", new Object[] {outString});
 					// switch to silence
-					chooseSonificationCombination(paramCombinations[27]);
+                    sonifyer = chooseSonificationCombination(paramCombinations[27]);
 					printSonification(paramCombinations[27],  d);
 				}
 			}
 		};
 		
-		d.clock.addMessageListener(systematicSonificationOrdering);	
+		d.clock.addMessageListener(systematicSonificationOrdering);
+
 		g.addInput(wp);
+        gn.addInput(wpn);
 		d.ac.out.addInput(g);
+        d.ac.out.addInput(gn);
 	}
 
 	
@@ -434,8 +390,8 @@ public class Ubicomp2015DataCollection implements PIPO {
 		freqVal = new Glide(d.ac, 440, 10); 
 		gainVal = new Glide(d.ac, 0.1f, 10);
 
-
-		d.communication.addListener(new NetworkCommunication.Listener() {
+        System.out.println("adding Listener");
+        d.communication.addListener(new NetworkCommunication.Listener() {
 			@Override
 			public void msg(OSCMessage msg) {
 				if(msg.getName().equals("/PI/sonification")) {
@@ -451,7 +407,9 @@ public class Ubicomp2015DataCollection implements PIPO {
 
 			@Override
 			public void imuData(double xA, double yA, double zA, double xG, double yG, double zG,double xC, double yC, double zC) {
-				float mappedValue;
+
+
+                float mappedValue;
 				float reducedValue = 0;
                 switch (inputToMap) {
 					case "combineXYZpythagoras":
@@ -460,6 +418,7 @@ public class Ubicomp2015DataCollection implements PIPO {
 						break;
 					case "useX":
                         reducedValue = (float) xA;
+                        System.out.println("xA = " + reducedValue);
                         sonifyer.addValue(reducedValue);
                         break;
 					case "useY":
@@ -472,18 +431,19 @@ public class Ubicomp2015DataCollection implements PIPO {
 						break;
                     case "useXGyro":
                         reducedValue = (float) xG;
-                        sonifyer.addValue(reducedValue);
+                       sonifyer.addValue(reducedValue);
                         break;
                 }
 
 				// we have to do some kind of mapping - this is linear
-				mappedValue = sonifyer.getOutputMTOF();
+                mappedValue = (float) sonifyer.getOutputMTOF();
+                System.out.println("mappedValue is " + mappedValue);
                 timeElapsed = System.currentTimeMillis() - timeAtStartOfSection;
                 System.out.println(nameOfCondition);
             	String outString =  nameOfCondition  + " " + presentationOrder  + " " + inputRange  + " " + rangeCentre  + " " + inputToMap  + " " + xA + " " + yA + " " + zA + " " + xG + " " + yG + " " + zG + " "  + xC + " " + yC + " " + zC + " " + reducedValue + " " + mappedValue;
 				d.communication.broadcastOSC("/PI/outputValue", new Object[] {outString});
-				System.out.println(mappedValue);
-                freqVal.setValue(mappedValue); // set the value
+				freqVal.setValue(mappedValue*10); // set the value
+
 			}
 		});
 	}
