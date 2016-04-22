@@ -144,7 +144,7 @@ public class ControllerMain extends Application implements LaunchPadBehaviour {
        	      dirs.add(f);
        	    } else if (f.isFile()) {
        	    	String path = f.getPath();
-       	    	path = path.substring(6, path.length() - 6);
+       	    	path = path.substring(config.getCompositionsPath().length() + 1, path.length() - 6); // 6 equates to the length fo the .class extension, the + 1 is to remove path '/'
        	    	if(!path.contains("$")) {
            	    	System.out.println(path);
            	    	compositionFileNames.add(path);
@@ -161,7 +161,7 @@ public class ControllerMain extends Application implements LaunchPadBehaviour {
        		@Override
        		public void changed(ObservableValue<? extends String> arg0, String arg1, final String arg2) {
        			if(arg2 != null) {
-       				currentPIPO = arg2;
+       				currentPIPO = config.getCompositionsPath() + "/" + arg2; //re-attatch the composition path to the menu item name
        			}
        		}
        	});

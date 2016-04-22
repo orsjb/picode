@@ -22,8 +22,8 @@ public class SendToPI {
 	}
 	
 	public static void send(String packagePath, String className, String[] hostnames) throws Exception {
-		File packageDir = new File("bin/" + packagePath);
-		File[] contents = packageDir.listFiles();
+		File packageDir = new File(packagePath);
+		File[] contents = packageDir.listFiles(); //This used to have a hard codded bin/ prepended to it but this is incompatible with the composition path being configurable now
 		ArrayList<byte[]> allFilesAsBytes = new ArrayList<byte[]>();
 		System.out.println("The following files are being sent:");
 		for(File f : contents) {
@@ -52,7 +52,7 @@ public class SendToPI {
 	}
 	
 	public static void sendOLD(String packagePath, String className, String[] hostnames) throws Exception {
-		File packageDir = new File("bin/" + packagePath);
+		File packageDir = new File(packagePath); //This used to have a hard codded bin/ prepended to it but this is incompatible with the composition path being configurable now
 		File[] contents = packageDir.listFiles();
 		for(File f : contents) {
 			String fname = f.getName();
@@ -85,7 +85,7 @@ public class SendToPI {
 	}
 
 	public static byte[] getClassFileAsByteArray(String fullClassFileName) throws Exception {
-		FileInputStream fis = new FileInputStream(new File("bin/" + fullClassFileName));
+		FileInputStream fis = new FileInputStream(new File(fullClassFileName)); // removed static attachment of bin/ to path
 		ByteArrayOutputStream buffer = new ByteArrayOutputStream();
         int data = fis.read();
         while(data != -1){
