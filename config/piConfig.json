@@ -1,0 +1,6 @@
+{
+  "wifi": {
+    "ssid": "test",
+    "psk":  "test1234"
+  }
+}
