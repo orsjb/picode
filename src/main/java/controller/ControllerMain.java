@@ -7,6 +7,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 
+import core.LoadableConfig;
 import javafx.application.Application;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -57,6 +58,7 @@ public class ControllerMain extends Application implements LaunchPadBehaviour {
     @Override 
     public void start(Stage stage) {
     	config = new ControllerConfig();
+		config = LoadableConfig.load("config/controllerConfig.json", config);
     	piConnection = new PIConnection(config);
     	
     	//setup controller broadcast
@@ -135,7 +137,7 @@ public class ControllerMain extends Application implements LaunchPadBehaviour {
        	//populate combobox with list of compositions
        	List<String> compositionFileNames = new ArrayList<String>();
        	Queue<File> dirs = new LinkedList<File>();
-       	dirs.add(new File("./bin/compositions"));
+       	dirs.add(new File(config.getCompositionsPath()));
        	while (!dirs.isEmpty()) {
        	  for (File f : dirs.poll().listFiles()) {
        	    if (f.isDirectory()) {
