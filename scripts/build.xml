@@ -16,7 +16,7 @@
 	<!-- Library directory -->
 	<property name="libs" value="${work}/libs" /> 
 	<!-- Bin directory -->
-	<property name="bin" value="${work}/bin" />  
+	<property name="bin" value="${work}/bin/classes" />
     
 	<target name="main" description="create the pi stuff" depends="makejar"> 
 	</target>
