@@ -6,6 +6,10 @@
 
 #### NOTE: recommended not to do this in the same script. We now assume another script does this and is autorun before this.
 
+#update our Wifi credentials
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+${DIR}/set-wifi-credentials.pl
+
 # get the MAC address to use as hostname
 
 NEWHOST=`cat /sys/class/net/wlan0/address | sed s/://g`
