@@ -8,7 +8,11 @@ use warnings;
 ##########################################################
 
 #install cpanm
-`curl -L https://cpanmin.us | perl - --sudo App::cpanminus`;
+die "Unable to access cpanm setup script: 'install-cpanm.sh'" unless stat "install-cpanm.sh";
+unless ( system("./install-cpanm.sh") == 0 ) {
+	die "Installation of cpanm failed, aborting setup";
+}
+
 
 my @modules = qw(
     Perlmazing
@@ -18,6 +22,7 @@ my @modules = qw(
     FindBin
 );
 
-foreach my $modules (@modules) {
-    `cpanm $module`;
+foreach my $module (@modules) {
+	say "Installing $module...";
+    	say `cpanm --sudo $module`;
 }
