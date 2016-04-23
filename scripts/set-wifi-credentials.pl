@@ -36,17 +36,17 @@ my $template_text = slurp($interfaces_template);
 
 #apply values to template
 say "New interfaces file:";
-say '-' x 60;
+my $new_config;
 $template->process(
     \$template_text,
     $piconfig->{'wifi'},
+    \$new_config,
 );
-say "\n" . '-' x 60;
 
 #Apply our new interfaces file :)
-say "Writing out interfaces: '$interfaces_template'";
+say "Writing out interfaces: '$interfaces_file'";
 open(my $interfaces_fh, ">", $interfaces_file) or croak "Unable to open '$interfaces_file' for write: $!";
-print $interfaces_fh $template_text;
+print $interfaces_fh $new_config;
 close($interfaces_fh);
 
 say "Updated interfaces successfully.";
