@@ -1,4 +1,5 @@
 {
+  "useHostname": false,
   "wifi": {
     "ssid": "PINet",
     "psk":  "designlab2014"

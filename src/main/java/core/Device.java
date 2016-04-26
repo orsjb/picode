@@ -138,7 +138,7 @@ public abstract class Device {
 		preferedInterface   = tmpPreferedInterface;
 		//report
 		System.out.println("My hostname is:           " + myHostname);
-        System.out.println("My IP address is:         " + myHostname);
+        System.out.println("My IP address is:         " + myIP);
 		System.out.println("My MAC address is:        " + myMAC);
 		System.out.println("My prefered interface is: " + preferedInterface);
 	}
