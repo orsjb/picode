@@ -1,12 +1,14 @@
 package controller;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 
+import controller.http.FileServer;
 import core.LoadableConfig;
 import javafx.application.Application;
 import javafx.beans.value.ChangeListener;
@@ -54,6 +56,7 @@ public class ControllerMain extends Application implements LaunchPadBehaviour {
 	String currentPIPO = "";
 	protected ControllerConfig config;
 	protected ControllerAdvertiser controllerAdvert;
+    private FileServer httpServer;
 	
     @Override 
     public void start(Stage stage) {
@@ -69,8 +72,16 @@ public class ControllerMain extends Application implements LaunchPadBehaviour {
 			e.printStackTrace();
 		}
     	controllerAdvert.start();
-    	
-    	setupGUI(stage);
+
+		//setup http httpServer
+        try {
+            httpServer = new FileServer(config);
+        } catch (IOException e) {
+            System.err.println("Unable to start http httpServer!");
+            e.printStackTrace();
+        }
+
+        setupGUI(stage);
     	//test code...
 //    	piConnection.createTestPI();
 //    	piConnection.createTestPI();
@@ -194,6 +205,12 @@ public class ControllerMain extends Application implements LaunchPadBehaviour {
         stage.setScene(scene); 
         stage.sizeToScene(); 
         stage.show(); 
+    }
+
+    @Override
+    public void stop() throws Exception {
+        //ensure our http server ends
+        httpServer.stop();
     }
 
     public static void main(String[] args) {

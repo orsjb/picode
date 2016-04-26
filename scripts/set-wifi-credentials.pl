@@ -8,7 +8,7 @@ use FindBin qw($Bin);
 #defaults:
 my $interfaces_template = "$Bin/templates/interfaces-template.txt";
 my $interfaces_file     = "/etc/network/interfaces";
-my $pi_config_json      = "$Bin/../config/piConfig.json";
+my $pi_config_json      = "$Bin/../config/pi-config.json";
 
 GetOptions (
     "interfaces-template=s"     => \$interfaces_template,

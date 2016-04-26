@@ -74,12 +74,12 @@ public class FileServer extends NanoHTTPD {
 //            msg += "<p>Hello, " + parms.get("username") + "!</p>";
 //        }
 //        return newFixedLengthResponse(msg + "</body></html>\n");
-        String response = readFile("config/piConfig.json", "utf8");
+        String response = readFile("config/pi-config.json", "utf8");
         if (response != null) {
-            return newFixedLengthResponse(statusOK, "text/json", readFile("config/piConfig.json", "utf8"));
+            return newFixedLengthResponse(statusOK, "text/json", readFile("config/pi-config.json", "utf8"));
         }
         else {
-            return newFixedLengthResponse(statusError, "text/html", "Unable to read file: config/piConfig.json ");
+            return newFixedLengthResponse(statusError, "text/html", "Unable to read file: config/pi-config.json ");
         }
     }
 }
