@@ -61,7 +61,7 @@ public class ControllerMain extends Application implements LaunchPadBehaviour {
     @Override 
     public void start(Stage stage) {
     	config = new ControllerConfig();
-		config = LoadableConfig.load("config/controllerConfig.json", config);
+		config = LoadableConfig.load("config/controller-config.json", config);
     	piConnection = new PIConnection(config);
     	
     	//setup controller broadcast
