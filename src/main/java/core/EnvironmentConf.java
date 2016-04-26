@@ -19,6 +19,7 @@ public interface EnvironmentConf {
 	default public int getCodeToPIPort()				{ return 2225; }
 	default public int getControlToPIPort()				{ return 2226; }
 	default public int getControllerDiscoveryPort()		{ return 2227; }
+	default public int getControllerHTTPPort()		    { return 2228; }
 	
 	//how often the PI sends an alive message to the server
 	default public int getAliveInterval() 				{ return 1000; }

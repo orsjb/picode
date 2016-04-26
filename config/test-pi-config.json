@@ -1,8 +1,8 @@
 {
   "useIP": true,
   "sharedKey": "I'm a shared key :P",
-  "wirelessConfig": {
-    "sid": "bla",
+  "wifi": {
+    "ssid": "bla",
     "psk": "password123"
   }
 }

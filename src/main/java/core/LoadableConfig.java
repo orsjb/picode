@@ -33,6 +33,7 @@ public abstract class LoadableConfig implements EnvironmentConf {
 	private Integer CodeToPIPort;
 	private Integer ControlToPIPort;
 	private Integer ControllerDiscoveryPort;
+    private Integer ControllerHTTPPort;
 
 	//how often the PI sends an alive message to the server
 	private Integer AliveInterval;
@@ -180,5 +181,13 @@ public abstract class LoadableConfig implements EnvironmentConf {
 		    return EnvironmentConf.super.getKnownPIsFile();
 		}
 	}
-	
+
+	public int getControllerHTTPPort() {
+		if (ControllerHTTPPort != null) {
+			return ControllerHTTPPort;
+		}
+		else {
+			return EnvironmentConf.super.getControllerHTTPPort();
+		}
+	}
 }
