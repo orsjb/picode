@@ -24,6 +24,7 @@ import com.google.gson.Gson;
  */
 public abstract class LoadableConfig implements EnvironmentConf {
 	//use Integer instead of int so we can delegate to the interface default value on null
+	private Boolean useHostname;
 	private String  MyHostName;
 	private String  MyInterface;	
 	private String  MulticastSynchAddr;
@@ -75,8 +76,15 @@ public abstract class LoadableConfig implements EnvironmentConf {
 		return config;
 	}
 	
-	
 	//Override getters
+    public boolean useHostname() {
+        if (useHostname != null) {
+            return useHostname;
+        }
+        else {
+            return EnvironmentConf.super.useHostname();
+        }
+    }
 	public String getMyHostName() {
 		if (MyHostName != null) {
 		    return MyHostName;		

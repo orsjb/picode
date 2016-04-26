@@ -11,11 +11,13 @@ import java.util.Scanner;
 public abstract class Device {
 
 	public static final String myHostname;						//the hostname for this PI (wifi)
+	public static final String myIP;
 	public static final String myMAC;							//the wlan MAC for this PI (wifi)
 	public static final String preferedInterface;
 
 	static {
 		String tmpHostname = null;
+        String tmpIP = null;
 		String tmpMAC = null;
 		String tmpPreferedInterface = null;
 		try {
@@ -27,6 +29,8 @@ public abstract class Device {
 				if(netInterface == null) {
 					netInterface = NetworkInterface.getByName("en0");
 				}
+                tmpHostname = netInterface.getInetAddresses().nextElement().getHostName();
+                tmpIP = netInterface.getInetAddresses().nextElement().getHostAddress();
 			}
 			else if (System.getProperty("os.name").startsWith("Windows")) {
 				System.out.println("Interfaces:");
@@ -55,15 +59,16 @@ public abstract class Device {
 				
 				System.out.println("Selected interface: " + netInterface.getName() + ", " + netInterface.getDisplayName());
 				
-				//while there isn't a clear way to install zeroconf without itunes on windows let's use their IP as the hostname
-				tmpHostname = netInterface.getInetAddresses().nextElement().getHostAddress();
-				System.out.println("IP: " + tmpHostname);
+				tmpHostname = netInterface.getInetAddresses().nextElement().getHostName();
+				tmpIP = netInterface.getInetAddresses().nextElement().getHostAddress();
 			}
 			else {
 				netInterface = NetworkInterface.getByName("wlan0");
 				if (netInterface == null) {
 					netInterface = NetworkInterface.getByName("eth0");
 				}
+                tmpHostname = netInterface.getInetAddresses().nextElement().getHostName();
+                tmpIP = netInterface.getInetAddresses().nextElement().getHostAddress();
 			}
 			
 			
@@ -127,12 +132,14 @@ public abstract class Device {
 			tmpHostname += ".local";	//we'll assume a .local extension is required if no extension exists
 		}
 		
-		myHostname = tmpHostname;
-		myMAC = tmpMAC;
-		preferedInterface = tmpPreferedInterface;
+		myHostname          = tmpHostname;
+        myIP                = tmpIP;
+		myMAC               = tmpMAC;
+		preferedInterface   = tmpPreferedInterface;
 		//report
-		System.out.println("My hostname is: " + myHostname);
-		System.out.println("My MAC address is: " + myMAC);
+		System.out.println("My hostname is:           " + myHostname);
+        System.out.println("My IP address is:         " + myHostname);
+		System.out.println("My MAC address is:        " + myMAC);
 		System.out.println("My prefered interface is: " + preferedInterface);
 	}
 	
