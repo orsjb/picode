@@ -18,7 +18,7 @@
 	<!-- Bin directory -->
 	<property name="bin" value="${work}/target/classes" />
     
-	<target name="main" description="create the pi stuff" depends="makejar"> 
+	<target name="main" description="create the device stuff" depends="makejar">
 	</target>
 	
 	<!-- 

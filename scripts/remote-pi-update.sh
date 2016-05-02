@@ -10,6 +10,6 @@ list_of_pis=`less ${RUNDIR}/config/known_pis`
 for piname in ${list_of_pis}
 do
 	echo Updating PI: ${piname}
-	scp ${RUNDIR}/build/picode.jar pi@${piname}:git/picode/build/
-	scp ${RUNDIR}/scripts/run.sh pi@${piname}:git/picode/scripts/
+	scp ${RUNDIR}/build/picode.jar device@${piname}:git/picode/build/
+	scp ${RUNDIR}/scripts/run.sh device@${piname}:git/picode/scripts/
 done
